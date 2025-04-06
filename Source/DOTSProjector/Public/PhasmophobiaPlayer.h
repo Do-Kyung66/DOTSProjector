@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "IPlayerBehavior.h"
+#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
 #include "PhasmophobiaPlayer.generated.h"
 
 UCLASS()
@@ -25,5 +27,33 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+public:
+	// variable
+	// Player Behavior
+	UPROPERTY()
+	TObjectPtr<UObject> CurrentMoveStrategy;
+
+	UPROPERTY()
+	TObjectPtr<UObject> CurrentLookStrategy;
+
+	// Input Action
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputMappingContext* PlayerMappingContext;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* MoveAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* LookAction;
+	
+	
+	// function
+	// Player Behavior Input Action connet
+	void Move(const FInputActionValue& Value);
+	void LookAround(const FInputActionValue& Value);
+
+
+	void SetMoveStrategy(TObjectPtr<UObject> NewMoveStrategy);
 
 };

@@ -5,21 +5,20 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "IPlayerBehavior.h"
-#include "MoveBehavior.generated.h"
+#include "LookBehavior.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DOTSPROJECTOR_API UMoveBehavior : public UObject, public IPlayerBehavior
+class DOTSPROJECTOR_API ULookBehavior : public UObject, public IPlayerBehavior
 {
 	GENERATED_BODY()
 
 public:
-	UMoveBehavior();
+	ULookBehavior();
 
 	UFUNCTION()
 	virtual void ExecuteBehavior(AActor* Owner, const FInputActionValue& Value) override;
 
-	
 };
