@@ -46,23 +46,23 @@ void AGhostBase::BeginPlay()
 	}
 
 	FName RandomRowName = GetRandomGhost();
-	
+
 	if (RandomRowName != NAME_None)
 	{
 		static const FString ContextString(TEXT("GhostDataTable"));
-		FGhostData* GhostData = GhostDataTable->FindRow<FGhostData>(RandomRowName, ContextString);
+		GhostData = GhostDataTable->FindRow<FGhostData>(RandomRowName, ContextString);
 		MeshComp->SetStaticMesh(GhostData->GhostMesh);
+	}
 
-		if (GhostData && GhostData->BehaviorEntries.Num() > 0)
+	if (GhostData && GhostData->BehaviorDatas.Num() > 0)
+	{
+		const FGhostBehaviorData& Info = GhostData->BehaviorDatas[0];
+
+		if (*Info.BehaviorClass)
 		{
-			const FGhostBehaviorData& Entry = GhostData->BehaviorEntries[0];
-
-			if (*Entry.BehaviorClass)
-			{
-				UGhostBehaviorStrategy* Strategy = NewObject<UGhostBehaviorStrategy>(this, Entry.BehaviorClass);
-				SetBehaviorStrategy(Strategy);
-				ExecuteBehavior(&BehaviorContext);
-			}
+			UGhostBehaviorStrategy* Strategy = NewObject<UGhostBehaviorStrategy>(this, Info.BehaviorClass);
+			SetBehaviorStrategy(Strategy);
+			ExecuteBehavior(&BehaviorContext);
 		}
 	}
 }

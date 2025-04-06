@@ -28,6 +28,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// virtual void OnConstruction(const FTransform& Transform) override;
+
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class UCapsuleComponent* CapsuleComp;
@@ -45,18 +47,20 @@ public:
 
 	FGhostBehaviorContext BehaviorContext;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GhostData")
 	UDataTable* GhostDataTable;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GhostData")
 	FName GhostID;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GhostData")
 	TArray<FName> RowNames;
 
 	FName GetRandomGhost();
 
 	FGhostBehaviorData* GetRandomBehaviorEntry(const FGhostData* GhostData);
+
+	FGhostData* GhostData;
 
 	//class ADOTSProjectorCharacter* PlayerCharacter;
 };

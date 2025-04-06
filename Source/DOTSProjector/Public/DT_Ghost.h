@@ -32,5 +32,5 @@ struct FGhostData : public FTableRowBase
 	UStaticMesh* GhostMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost Data")
-	TArray<FGhostBehaviorData> BehaviorEntries;
+	TArray<FGhostBehaviorData> BehaviorDatas;
 };
