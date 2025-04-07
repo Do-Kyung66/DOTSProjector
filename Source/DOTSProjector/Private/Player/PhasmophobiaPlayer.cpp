@@ -5,7 +5,7 @@
 #include "MoveBehavior.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
-#include "Player/Interface/PlayerConcrete/LookBehavior.h"
+#include "LookBehavior.h"
 
 // Sets default values
 APhasmophobiaPlayer::APhasmophobiaPlayer()
