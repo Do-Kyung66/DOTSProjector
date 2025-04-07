@@ -24,8 +24,8 @@ void UMoveBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue& Valu
 
 	if (!MoveDir.IsNearlyZero())
 	{
-		Player->AddMovementInput(MoveDir.GetSafeNormal(),1.0f);
+		Player->AddMovementInput(MoveDir.GetSafeNormal(), 0.5f);
 
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Player Move"));
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Player Move"));
 	}
 }

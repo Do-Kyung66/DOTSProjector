@@ -3,9 +3,12 @@
 
 #include "PhasmophobiaPlayer.h"
 #include "MoveBehavior.h"
+#include "LookBehavior.h"
+#include "CrouchBehavior.h"
+#include "RunBehavior.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
-#include "Player/Interface/PlayerConcrete/LookBehavior.h"
+
 
 // Sets default values
 APhasmophobiaPlayer::APhasmophobiaPlayer()
@@ -22,6 +25,7 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -88.0), FRotator(0.0, -90, 0.0));
 	}
 
+	// input 고정 시켜두기
 	
 }
 
@@ -44,6 +48,10 @@ void APhasmophobiaPlayer::BeginPlay()
 	// 기본 이동 전략 설정
 	CurrentMoveStrategy = NewObject<UMoveBehavior>(this); 
 	CurrentLookStrategy = NewObject<ULookBehavior>(this);
+	CurrentCrouchStrategy = NewObject<UCrouchBehavior>(this);
+	CurrentRunStrategy = NewObject<URunBehavior>(this);
+
+
 
 }
 
@@ -62,8 +70,11 @@ void APhasmophobiaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Move);
-
 		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::LookAround);
+		EnhancedInput->BindAction(CrouchAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::Crouch);
+		EnhancedInput->BindAction(RunAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Run);
+
+
 
 	}
 }
@@ -88,6 +99,30 @@ void APhasmophobiaPlayer::LookAround(const FInputActionValue& Value)
 		if (LookStrategy)
 		{
 			LookStrategy->ExecuteBehavior(this, Value);
+		}
+	}
+}
+
+void APhasmophobiaPlayer::Crouch(const FInputActionValue& Value)
+{
+	if (CurrentCrouchStrategy && CurrentCrouchStrategy->GetClass()->ImplementsInterface(UPlayerBehavior::StaticClass()))
+	{
+		IPlayerBehavior* CrouchStrategy = Cast<IPlayerBehavior>(CurrentCrouchStrategy);
+		if (CrouchStrategy)
+		{
+			CrouchStrategy->ExecuteBehavior(this, Value);
+		}
+	}
+}
+
+void APhasmophobiaPlayer::Run(const FInputActionValue& Value)
+{
+	if (CurrentRunStrategy && CurrentRunStrategy->GetClass()->ImplementsInterface(UPlayerBehavior::StaticClass()))
+	{
+		IPlayerBehavior* RunStrategy = Cast<IPlayerBehavior>(CurrentRunStrategy);
+		if (RunStrategy)
+		{
+			RunStrategy->ExecuteBehavior(this, Value);
 		}
 	}
 }

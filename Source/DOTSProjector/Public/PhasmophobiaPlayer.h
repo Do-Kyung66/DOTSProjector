@@ -29,15 +29,20 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
-	// variable
-	// Player Behavior
+	// Strategy var
 	UPROPERTY()
 	TObjectPtr<UObject> CurrentMoveStrategy;
 
 	UPROPERTY()
 	TObjectPtr<UObject> CurrentLookStrategy;
 
-	// Input Action
+	UPROPERTY()
+	TObjectPtr<UObject> CurrentCrouchStrategy;
+
+	UPROPERTY()
+	TObjectPtr<UObject> CurrentRunStrategy;
+
+	// InputAction var
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputMappingContext* PlayerMappingContext;
 
@@ -46,13 +51,19 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* CrouchAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* RunAction;
 	
 	
-	// function
-	// Player Behavior Input Action connet
+	// Player Behavior Func
 	void Move(const FInputActionValue& Value);
 	void LookAround(const FInputActionValue& Value);
-
+	void Crouch(const FInputActionValue& Value);
+	void Run(const FInputActionValue& Value);
 
 	void SetMoveStrategy(TObjectPtr<UObject> NewMoveStrategy);
 

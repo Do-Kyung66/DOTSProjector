@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Player/Interface/PlayerConcrete/LookBehavior.h"
+#include "LookBehavior.h"
 #include "PhasmophobiaPlayer.h"
 
 ULookBehavior::ULookBehavior()
@@ -19,6 +19,8 @@ void ULookBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue& Valu
 	{
 		Player->AddControllerYawInput(LookInput.X);
 		Player->AddControllerPitchInput(LookInput.Y);
+
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Player Turn"));
 	}
 
 	
