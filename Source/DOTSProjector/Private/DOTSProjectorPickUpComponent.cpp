@@ -29,3 +29,4 @@ void UDOTSProjectorPickUpComponent::OnSphereBeginOverlap(UPrimitiveComponent* Ov
 		OnComponentBeginOverlap.RemoveAll(this);
 	}
 }
+ 
