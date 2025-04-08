@@ -58,12 +58,28 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* RunAction;
 	
-	
+	// Stamina Var
+	bool bIsRunning = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stamina")
+    float MaxStamina = 50.0f; 
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stamina")
+    float CurrentStamina = 50.0f; 
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stamina")
+    float StaminaDrainRate = 10.0f; 
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stamina")
+    float StaminaRegenRate = 5.0f;
+
 	// Player Behavior Func
 	void Move(const FInputActionValue& Value);
 	void LookAround(const FInputActionValue& Value);
 	void Crouch(const FInputActionValue& Value);
 	void Run(const FInputActionValue& Value);
+
+	void OnRunReleased(const FInputActionValue& Value);
 
 	void SetMoveStrategy(TObjectPtr<UObject> NewMoveStrategy);
 

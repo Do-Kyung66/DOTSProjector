@@ -20,4 +20,6 @@ public:
 
 	UFUNCTION()
 	virtual void ExecuteBehavior(AActor* Owner, const FInputActionValue& Value) override;
+
+	bool bCrouched;
 };

@@ -6,7 +6,7 @@
 
 UCrouchBehavior::UCrouchBehavior()
 {
-
+	bCrouched = false;
 }
 
 void UCrouchBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue& Value)
@@ -14,25 +14,16 @@ void UCrouchBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue& Va
 	APhasmophobiaPlayer* Player = Cast<APhasmophobiaPlayer>(Owner);
 	if(!Player) return;
 
-	// 로직 구현
-	/*if (Player->bIsCrouched)
+	if (!bCrouched)
 	{
-		Player->UnCrouch();
+
+		bCrouched = true;
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Player Crouch"));
 	}
 	else
 	{
-		Player->Crouch();
-	}*/
-
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Player Crouch"));
+		bCrouched = false;
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Player UnCrouch"));
+	}
 
 }
-
-// 0407 input 값 부모단에서 늘려서 상속 받기
-//void UCrouchBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue& Value, EInputEventType InputType)
-//{
-//	if (InputType == EInputEventType::Started)
-//		Player->Crouch();
-//	else if (InputType == EInputEventType::Completed)
-//		Player->UnCrouch();
-//}

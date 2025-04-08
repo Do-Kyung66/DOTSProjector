@@ -60,6 +60,16 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!bIsRunning && CurrentStamina < MaxStamina)
+	{
+		CurrentStamina += StaminaRegenRate * DeltaTime;
+		CurrentStamina = FMath::Clamp(CurrentStamina, 0.0f, MaxStamina);
+	}
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, FString::Printf(TEXT("Current Stamina: %f"), CurrentStamina));
+	}
 }
 
 // Called to bind functionality to input
@@ -73,6 +83,8 @@ void APhasmophobiaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::LookAround);
 		EnhancedInput->BindAction(CrouchAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::Crouch);
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Run);
+		EnhancedInput->BindAction(RunAction, ETriggerEvent::Completed, this, &APhasmophobiaPlayer::OnRunReleased);
+
 
 
 
@@ -117,6 +129,7 @@ void APhasmophobiaPlayer::Crouch(const FInputActionValue& Value)
 
 void APhasmophobiaPlayer::Run(const FInputActionValue& Value)
 {
+	bIsRunning = true;
 	if (CurrentRunStrategy && CurrentRunStrategy->GetClass()->ImplementsInterface(UPlayerBehavior::StaticClass()))
 	{
 		IPlayerBehavior* RunStrategy = Cast<IPlayerBehavior>(CurrentRunStrategy);
@@ -125,6 +138,11 @@ void APhasmophobiaPlayer::Run(const FInputActionValue& Value)
 			RunStrategy->ExecuteBehavior(this, Value);
 		}
 	}
+}
+
+void APhasmophobiaPlayer::OnRunReleased(const FInputActionValue& Value)
+{
+	bIsRunning = false;
 }
 
 // 전략 동적 변경
