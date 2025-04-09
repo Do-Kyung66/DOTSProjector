@@ -4,16 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "IGhostBehaviorStrategy.h"
-#include "Behavior_Walking.generated.h"
+#include "Behavior_Chase.generated.h"
 
 /**
  * 
  */
-UCLASS(BlueprintType, EditInlineNew, DefaultToInstanced)
-class DOTSPROJECTOR_API UBehavior_Walking : public UGhostBehaviorStrategy
+UCLASS()
+class DOTSPROJECTOR_API UBehavior_Chase : public UGhostBehaviorStrategy
 {
 	GENERATED_BODY()
-	
+
 public:
 	virtual void ExecuteBehavior(const FGhostBehaviorContext& Context) override;
+	
 };

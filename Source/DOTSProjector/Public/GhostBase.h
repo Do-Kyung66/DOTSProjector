@@ -3,13 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
 #include "IGhostBehaviorStrategy.h"
 #include "DT_Ghost.h"
+#include "GameFramework/Character.h"
+#include "AIController.h"
 #include "GhostBase.generated.h"
 
 UCLASS()
-class DOTSPROJECTOR_API AGhostBase : public APawn
+class DOTSPROJECTOR_API AGhostBase : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -32,10 +33,11 @@ public:
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	class UCapsuleComponent* CapsuleComp;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class UStaticMeshComponent* MeshComp;
+
+	/*UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	class UNavigationInvokerComponent* NavInvokeComp;*/
+
 
 public:
 

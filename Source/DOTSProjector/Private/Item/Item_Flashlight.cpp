@@ -14,14 +14,16 @@ AItem_Flashlight::AItem_Flashlight()
 	SpotLightComp->SetupAttachment(RootComponent);
 	SpotLightComp->SetRelativeLocationAndRotation(FVector(-40.f, 0.f, 0.f), FRotator(0.f, 0.f, 180.f));
 	SpotLightComp->SetVisibility(false);
+
+	static const FString ContextString(TEXT("ItemDataTable"));
+	FItemData* ItemData = ItemDataTable->FindRow<FItemData>("Flashlight", ContextString);
+	MeshComp->SetStaticMesh(ItemData->ItemMesh);
 }
 
 void AItem_Flashlight::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 
-	static const FString ContextString(TEXT("ItemDataTable"));
-	FItemData* ItemData = ItemDataTable->FindRow<FItemData>("Flashlight", ContextString);
-	MeshComp->SetStaticMesh(ItemData->ItemMesh);
+	
 }
 
