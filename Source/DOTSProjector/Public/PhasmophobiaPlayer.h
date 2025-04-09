@@ -61,6 +61,9 @@ public:
 	// Stamina Var
 	bool bIsRunning = false;
 
+	float WalkSpeed = 400.0f;
+	float RunSpeed = 800.0f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stamina")
     float MaxStamina = 50.0f; 
 
