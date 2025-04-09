@@ -2,20 +2,20 @@
 
 
 #include "Behavior_Walking.h"
+#include "AIController.h"
 #include "GhostBase.h" 
+#include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 void UBehavior_Walking::ExecuteBehavior(const FGhostBehaviorContext& Context)
 {
 	if (!Context.Ghost || !Context.Target) return;
 
-	FVector GhostLocation = Context.Ghost->GetActorLocation();
-	FVector TargetLocation = Context.Target->GetActorLocation();
+	Context.Ghost->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 
-	FVector Direction = (TargetLocation - GhostLocation).GetSafeNormal();
-	float Speed = 200.f;
+	AAIController* AIController = Cast<AAIController>(Context.Ghost->GetController());
 
-	FVector NewLocation = GhostLocation + Direction * Speed * Context.Ghost->GetWorld()->GetDeltaSeconds();
-	Context.Ghost->SetActorLocation(NewLocation);
+	AIController->MoveToActor(Context.Target, 100.0f);
 }
 

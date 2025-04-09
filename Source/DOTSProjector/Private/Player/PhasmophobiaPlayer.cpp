@@ -8,6 +8,7 @@
 #include "RunBehavior.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
+#include "Player/Interface/PlayerConcrete/LookBehavior.h"
 
 
 // Sets default values

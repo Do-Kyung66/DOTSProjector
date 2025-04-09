@@ -7,16 +7,14 @@
 #include "DOTSProjectorCharacter.h"
 #include "Behavior_Walking.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "NavigationInvokerComponent.h"
 
 // Sets default values
 AGhostBase::AGhostBase()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComponent"));
-	RootComponent = CapsuleComp;
-	CapsuleComp->SetCapsuleSize(100.f, 200.f, true);
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 	MeshComp->SetupAttachment(RootComponent);
@@ -28,6 +26,8 @@ AGhostBase::AGhostBase()
 		GhostDataTable = TempDT.Object;
 		RowNames = GhostDataTable->GetRowNames();
 	}
+
+	//NavInvokeComp = CreateDefaultSubobject<UNavigationInvokerComponent>(TEXT("NavInvokerComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -58,7 +58,7 @@ void AGhostBase::BeginPlay()
 	{
 		const FGhostBehaviorData& Info = GhostData->BehaviorDatas[0];
 
-		if (*Info.BehaviorClass)
+		if (Info.BehaviorClass)
 		{
 			UGhostBehaviorStrategy* Strategy = NewObject<UGhostBehaviorStrategy>(this, Info.BehaviorClass);
 			SetBehaviorStrategy(Strategy);

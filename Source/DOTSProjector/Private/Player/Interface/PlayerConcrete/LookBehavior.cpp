@@ -22,7 +22,5 @@ void ULookBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue& Valu
 
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Player Turn"));
 	}
-
-	
 }
 
