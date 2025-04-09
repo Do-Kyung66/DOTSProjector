@@ -3,3 +3,9 @@
 
 #include "Ghost_Wraith.h"
 
+AGhost_Wraith::AGhost_Wraith()
+{
+	GhostData = GhostDataTable->FindRow<FGhostData>("Wraith", TEXT("GhostDataTable"));
+	MeshComp->SetStaticMesh(GhostData->GhostMesh);
+
+}

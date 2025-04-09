@@ -13,5 +13,8 @@ UCLASS()
 class DOTSPROJECTOR_API AGhost_Wraith : public AGhostBase
 {
 	GENERATED_BODY()
+
+public:
+	AGhost_Wraith();
 	
 };
