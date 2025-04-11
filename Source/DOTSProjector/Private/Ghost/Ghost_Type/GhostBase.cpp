@@ -51,7 +51,7 @@ void AGhostBase::BeginPlay()
 	{
 		static const FString ContextString(TEXT("GhostDataTable"));
 		GhostData = GhostDataTable->FindRow<FGhostData>(RandomRowName, ContextString);
-		MeshComp->SetStaticMesh(GhostData->GhostMesh);
+		//MeshComp->SetStaticMesh(GhostData->GhostMesh);
 	}
 
 	if (GhostData && GhostData->BehaviorDatas.Num() > 0)

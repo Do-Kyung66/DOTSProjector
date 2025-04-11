@@ -14,4 +14,8 @@ class DOTSPROJECTOR_API AGhost_Spirit : public AGhostBase
 {
 	GENERATED_BODY()
 	
+public:
+	AGhost_Spirit();
+
+	virtual void Tick(float DeltaTime) override;
 };

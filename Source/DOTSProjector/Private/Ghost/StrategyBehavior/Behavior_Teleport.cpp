@@ -3,3 +3,7 @@
 
 #include "Behavior_Teleport.h"
 
+void UBehavior_Teleport::ExecuteBehavior(const FGhostBehaviorContext& Context)
+{
+	
+}

@@ -13,5 +13,8 @@ UCLASS()
 class DOTSPROJECTOR_API UBehavior_Teleport : public UGhostBehaviorStrategy
 {
 	GENERATED_BODY()
+
+public:
+	virtual void ExecuteBehavior(const FGhostBehaviorContext& Context) override;
 	
 };

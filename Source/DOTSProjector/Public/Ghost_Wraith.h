@@ -16,5 +16,8 @@ class DOTSPROJECTOR_API AGhost_Wraith : public AGhostBase
 
 public:
 	AGhost_Wraith();
+
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 	
 };
