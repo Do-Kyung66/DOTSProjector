@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "IGhostBehaviorStrategy.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "DT_Ghost.generated.h"
 
 
@@ -29,7 +30,7 @@ struct FGhostData : public FTableRowBase
 	FName GhostName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost Data")
-	UStaticMesh* GhostMesh;
+	USkeletalMesh* GhostMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost Data")
 	TArray<FGhostBehaviorData> BehaviorDatas;

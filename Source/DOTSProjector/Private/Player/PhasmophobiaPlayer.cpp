@@ -21,8 +21,6 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 		GetMesh()->SetSkeletalMesh(MeshTemp.Object);
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -88.0), FRotator(0.0, -90, 0.0));
 	}
-
-	
 }
 
 // Called when the game starts or when spawned

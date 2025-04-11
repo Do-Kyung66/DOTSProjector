@@ -6,7 +6,8 @@
 AGhost_Spirit::AGhost_Spirit()
 {	
 	GhostData = GhostDataTable->FindRow<FGhostData>("Spirit", TEXT("GhostDataTable"));
-	MeshComp->SetStaticMesh(GhostData->GhostMesh);
+	GetMesh()->SetSkeletalMesh(GhostData->GhostMesh);
+	GetMesh()->SetCanEverAffectNavigation(true);
 }
 
 void AGhost_Spirit::Tick(float DeltaTime)

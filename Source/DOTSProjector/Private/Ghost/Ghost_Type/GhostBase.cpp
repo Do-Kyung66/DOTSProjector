@@ -4,20 +4,21 @@
 #include "GhostBase.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "DOTSProjectorCharacter.h"
 #include "Behavior_Walking.h"
 #include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "NavigationInvokerComponent.h"
+#include "Behavior_Chase.h"
+#include "Behavior_Teleport.h"
+#include "Behavior_Kill.h"
+#include "Behavior_TriggerObject.h"
+#include "Behavior_Throw.h"
+#include "Behavior_Idle.h"
 
 // Sets default values
 AGhostBase::AGhostBase()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-	MeshComp->SetupAttachment(RootComponent);
 
 	ConstructorHelpers::FObjectFinder<UDataTable> TempDT(
 		TEXT("/Script/Engine.DataTable'/Game/UP/Ghost/DT_GhostData.DT_GhostData'"));
@@ -27,7 +28,7 @@ AGhostBase::AGhostBase()
 		RowNames = GhostDataTable->GetRowNames();
 	}
 
-	//NavInvokeComp = CreateDefaultSubobject<UNavigationInvokerComponent>(TEXT("NavInvokerComponent"));
+	NavInvokeComp = CreateDefaultSubobject<UNavigationInvokerComponent>(TEXT("NavigationInvoker"));
 }
 
 // Called when the game starts or when spawned
@@ -35,10 +36,18 @@ void AGhostBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	IdleStrategy = NewObject<UBehavior_Idle>(this);
+	WalkingStrategy = NewObject<UBehavior_Walking>(this);
+	ChaseStrategy = NewObject<UBehavior_Chase>(this);
+	TeleportStrategy = NewObject<UBehavior_Teleport>(this);
+	KillStrategy = NewObject<UBehavior_Kill>(this);
+	TriggerObjectStrategy = NewObject<UBehavior_TriggerObject>(this);
+	ThrowStrategy = NewObject<UBehavior_Throw>(this);
+
 	BehaviorContext.Ghost = this;
 
 	APawn* PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
-	ACharacter* PlayerCharacter = Cast<ACharacter>(PlayerPawn);
+	PlayerCharacter = Cast<APhasmophobiaPlayer>(PlayerPawn);
 
 	if (PlayerCharacter)
 	{
@@ -71,8 +80,6 @@ void AGhostBase::BeginPlay()
 void AGhostBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	ExecuteBehavior(&BehaviorContext);
 
 }
 
@@ -110,8 +117,45 @@ FName AGhostBase::GetRandomGhost()
 	return NAME_None;
 }
 
-//FGhostBehaviorData* AGhostBase::GetRandomBehaviorEntry(const FGhostData* GhostData)
-//{
-//	
-//}
+void AGhostBase::IdleState()
+{
+	SetBehaviorStrategy(IdleStrategy);
+	ExecuteBehavior(&BehaviorContext);;
+}
+
+void AGhostBase::WalkState()
+{
+	SetBehaviorStrategy(WalkingStrategy);
+	ExecuteBehavior(&BehaviorContext);;
+}
+
+void AGhostBase::ChaseState()
+{
+	SetBehaviorStrategy(ChaseStrategy);
+	ExecuteBehavior(&BehaviorContext);;
+}
+
+void AGhostBase::TeleportState()
+{
+	SetBehaviorStrategy(TeleportStrategy);
+	ExecuteBehavior(&BehaviorContext);;
+}
+
+void AGhostBase::KillState()
+{
+	SetBehaviorStrategy(TeleportStrategy);
+	ExecuteBehavior(&BehaviorContext);;
+}
+
+void AGhostBase::TriggerObjectState()
+{
+	SetBehaviorStrategy(TriggerObjectStrategy);
+	ExecuteBehavior(&BehaviorContext);;
+}
+
+void AGhostBase::ThrowState()
+{
+	SetBehaviorStrategy(TeleportStrategy);
+	ExecuteBehavior(&BehaviorContext);;
+}
 

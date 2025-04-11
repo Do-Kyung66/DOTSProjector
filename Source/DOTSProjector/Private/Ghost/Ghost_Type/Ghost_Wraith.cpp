@@ -2,36 +2,105 @@
 
 
 #include "Ghost_Wraith.h"
+#include "Behavior_Chase.h"
 
 AGhost_Wraith::AGhost_Wraith()
 {
 	GhostData = GhostDataTable->FindRow<FGhostData>("Wraith", TEXT("GhostDataTable"));
-	MeshComp->SetStaticMesh(GhostData->GhostMesh);
-	MeshComp->SetCanEverAffectNavigation(true);
+	GetMesh()->SetSkeletalMesh(GhostData->GhostMesh);
+	GetMesh()->SetCanEverAffectNavigation(true);
+	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
 }
 
 void AGhost_Wraith::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GhostData && GhostData->BehaviorDatas.Num() > 0)
-	{
-		const FGhostBehaviorData& Info = GhostData->BehaviorDatas[0];
-
-		if (Info.BehaviorClass)
-		{
-			UGhostBehaviorStrategy* Strategy = NewObject<UGhostBehaviorStrategy>(this, Info.BehaviorClass);
-			SetBehaviorStrategy(Strategy);
-			ExecuteBehavior(&BehaviorContext);
-		}
-	}
 }
 
 void AGhost_Wraith::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	ExecuteBehavior(&BehaviorContext);
+	UpdateFSM();
 }
 
+void AGhost_Wraith::UpdateFSM()
+{
+	FString logMsg = UEnum::GetValueAsString(currentState);
+	GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Green, logMsg);
+
+	switch (currentState) {
+		case GhostState::Idle:
+			IdleState();
+			break;
+		case GhostState::Walking:
+			WalkState();
+			break;
+		case GhostState::Chase:
+			ChaseState();
+			break;
+		case GhostState::Teleport:
+			TeleportState();
+			break;
+		case GhostState::Kill:
+			KillState();
+			break;
+		case GhostState::TriggerObject:
+			TriggerObjectState();
+			break;
+		case GhostState::Throw:
+			ThrowState();
+			break;
+	}
+}
+
+void AGhost_Wraith::IdleState()
+{
+	Super::IdleState();
+	currentState = GhostState::Walking;
+}
+
+void AGhost_Wraith::WalkState()
+{
+	Super::WalkState();
+
+	if ((PlayerCharacter->GetActorLocation() - this->GetActorLocation()).Size() <= AttackRange) 
+	{
+		currentState = GhostState::Teleport;
+	}
+}
+
+void AGhost_Wraith::ChaseState()
+{
+	Super::ChaseState();
+
+	if ((PlayerCharacter->GetActorLocation() - this->GetActorLocation()).Size() <= AttackRange)
+	{
+		currentState = GhostState::Kill;
+	}
+}
+
+void AGhost_Wraith::TeleportState()
+{
+	Super::TeleportState();
+
+	SetActorLocation(GetActorLocation() + FVector(300.f, 0.0f, 0.0f));
+	currentState = GhostState::Idle;
+}
+
+void AGhost_Wraith::KillState()
+{
+	Super::KillState();
+}
+
+void AGhost_Wraith::TriggerObjectState()
+{
+	Super::TriggerObjectState();
+}
+
+void AGhost_Wraith::ThrowState()
+{
+	Super::ThrowState();
+}
 

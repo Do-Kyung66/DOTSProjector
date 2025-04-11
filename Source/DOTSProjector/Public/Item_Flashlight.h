@@ -19,8 +19,6 @@ public:
 	AItem_Flashlight();
 
 public:	
-	virtual void OnConstruction(const FTransform& Transform) override;
-
 	UPROPERTY(VisibleAnywhere, Category = "Flashlight")
     USpotLightComponent* SpotLightComp;
 };
