@@ -5,22 +5,21 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "IItemBehavior.h"
-#include "EquipItemBehavior.generated.h"
+#include "DetachItemBehavior.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DOTSPROJECTOR_API UEquipItemBehavior : public UObject, public IItemBehavior
+class DOTSPROJECTOR_API UDetachItemBehavior : public UObject, public IItemBehavior
 {
 	GENERATED_BODY()
 
 public:
-	UEquipItemBehavior();
+	UDetachItemBehavior();
 
 	UFUNCTION()
 	virtual void ExecuteBehavior(AActor* Owner, const FInputActionValue& Value) override;
-
 
 	
 };

@@ -42,6 +42,12 @@ public:
 	UPROPERTY()
 	TObjectPtr<UObject> CurrentRunStrategy;
 
+	UPROPERTY()
+	TObjectPtr<UObject> CurrentEquipStrategy;
+
+	UPROPERTY()
+	TObjectPtr<UObject> CurrentDetachStrategy;
+
 	// InputAction var
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputMappingContext* PlayerMappingContext;
@@ -57,6 +63,15 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* RunAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputMappingContext* ItemMappingContext;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* EquipItemAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* DetachItemAction;
 	
 	// Stamina Var
 	bool bIsRunning = false;
@@ -76,6 +91,24 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stamina")
     float StaminaRegenRate = 5.0f;
 
+	// Item Var
+	UPROPERTY(VisibleAnywhere)
+	class USceneComponent* ItemComp;
+
+	UPROPERTY(VisibleAnywhere)
+	AActor* ownedItem = nullptr;
+	AActor* currentItem = nullptr;
+
+	
+
+	UPROPERTY()
+	TArray<AActor*> ItemActors;
+
+	bool bHasItem = false;
+
+	int32 CurrentItemIndex = -1;
+	
+
 	// Player Behavior Func
 	void Move(const FInputActionValue& Value);
 	void LookAround(const FInputActionValue& Value);
@@ -83,6 +116,11 @@ public:
 	void Run(const FInputActionValue& Value);
 
 	void OnRunReleased(const FInputActionValue& Value);
+
+	// Item Behavior Func
+	void Equip(const FInputActionValue& Value);
+	void Detach(const FInputActionValue& Value);
+
 
 	void SetMoveStrategy(TObjectPtr<UObject> NewMoveStrategy);
 
