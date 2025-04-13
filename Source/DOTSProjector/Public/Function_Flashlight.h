@@ -15,6 +15,10 @@ class DOTSPROJECTOR_API UFunction_Flashlight : public UItemStrategy
 	GENERATED_BODY()
 
 public:
-	virtual void Use(AActor* OwnerActor) override;
+
+	virtual void Use(AItem_Base* Item) override;
+
+	UPROPERTY()
+	bool bOn = false;
 	
 };

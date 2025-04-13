@@ -3,3 +3,7 @@
 
 #include "Behavior_Kill.h"
 
+void UBehavior_Kill::ExecuteBehavior(const FGhostBehaviorContext& Context)
+{
+	
+}

@@ -4,14 +4,21 @@
 #include "Function_Flashlight.h"
 #include "Item_Flashlight.h"
 
-void UFunction_Flashlight::Use(AActor* OwnerActor)
+void UFunction_Flashlight::Use(AItem_Base* Item)
 {
-    if (AItem_Flashlight* Flash = Cast<AItem_Flashlight>(OwnerActor))
+
+    if (AItem_Flashlight* Flash = Cast<AItem_Flashlight>(Item))
     {
         if (Flash->SpotLightComp)
         {
-            bool bIsOn = Flash->SpotLightComp->IsVisible();
-            Flash->SpotLightComp->SetVisibility(!bIsOn);
+            bOn = !Flash->SpotLightComp->IsVisible();
+
+            if (bOn) {
+                Flash->SpotLightComp->SetVisibility(bOn);
+            }
+            else {
+                Flash->SpotLightComp->SetVisibility(bOn);
+            }
         }
     }
 }

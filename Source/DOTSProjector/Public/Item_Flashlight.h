@@ -18,9 +18,8 @@ public:
 	// Sets default values for this actor's properties
 	AItem_Flashlight();
 
+	virtual void BeginPlay() override;
 public:	
 	UPROPERTY(VisibleAnywhere, Category = "Flashlight")
     USpotLightComponent* SpotLightComp;
-
-	
 };

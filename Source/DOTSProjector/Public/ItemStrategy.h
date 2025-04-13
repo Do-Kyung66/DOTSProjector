@@ -15,6 +15,6 @@ class DOTSPROJECTOR_API UItemStrategy : public UObject
 	GENERATED_BODY()
 
 public:
-	virtual void Use(AActor* OwnerActor);
+	virtual void Use(class AItem_Base* Item) {};
 
 };

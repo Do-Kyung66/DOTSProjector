@@ -12,7 +12,7 @@ AItem_Base::AItem_Base()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-	UsageStrategy = nullptr;
+	ItemStrategy = nullptr;
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 	RootComponent = MeshComp;
@@ -42,14 +42,16 @@ void AItem_Base::Tick(float DeltaTime)
 
 void AItem_Base::SetUsageStrategy(UItemStrategy* NewStrategy)
 {
-	UsageStrategy = NewStrategy;
+	if (ItemStrategy != NewStrategy) {
+		ItemStrategy = NewStrategy;
+	}
 }
 
 void AItem_Base::UseItem()
 {
-	if (UsageStrategy)
+	if (ItemStrategy)
 	{
-		UsageStrategy->Use(this);
+		ItemStrategy->Use(this);
 	}
 }
 

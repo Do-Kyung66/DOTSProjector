@@ -7,6 +7,7 @@
 #include "IPlayerBehavior.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
 #include "Observer.h"
+#include "Item_Base.h"
 #include "PhasmophobiaPlayer.generated.h"
 
 UCLASS()
@@ -120,7 +121,7 @@ public:
 	// Player Behavior Func
 	void Move(const FInputActionValue& Value);
 	void LookAround(const FInputActionValue& Value);
-	void Crouch(const FInputActionValue& Value);
+	void PlayerCrouch(const FInputActionValue& Value);
 	void Run(const FInputActionValue& Value);
 
 	void OnRunReleased(const FInputActionValue& Value);

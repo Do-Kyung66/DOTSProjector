@@ -13,6 +13,7 @@
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
 #include "PhasmophobiaPlayerController.h"
 #include "IItemBehavior.h"
+#include "ItemStrategy.h"
 
 
 
@@ -32,7 +33,6 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 		GetMesh()->SetSkeletalMesh(MeshTemp.Object);
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -88.0), FRotator(0.0, -90, 0.0));
 	}
-
 
 	// 아이템 붙이기
 	ItemComp = CreateDefaultSubobject<USceneComponent>(TEXT("ItemComp"));
@@ -71,9 +71,6 @@ void APhasmophobiaPlayer::BeginPlay()
 	CurrentEquipStrategy = NewObject<UEquipItemBehavior>(this);
 	CurrentSwitchStrategy = NewObject<USwitchItemBehavior>(this);
 	CurrentDetachStrategy = NewObject<UDetachItemBehavior>(this);
-	
-
-
 }
 
 // Called every frame
@@ -90,7 +87,7 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, FString::Printf(TEXT("Current Stamina: %f"), CurrentStamina));
+		// GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, FString::Printf(TEXT("Current Stamina: %f"), CurrentStamina));
 	}
 }
 
@@ -104,21 +101,15 @@ void APhasmophobiaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Move);
 		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::LookAround);
 
-		EnhancedInput->BindAction(UseAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::UseItem);
+		EnhancedInput->BindAction(UseAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::UseItem);
 
-		EnhancedInput->BindAction(CrouchAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::Crouch);
+		EnhancedInput->BindAction(CrouchAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::PlayerCrouch);
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Run);
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Completed, this, &APhasmophobiaPlayer::OnRunReleased);
 
 		EnhancedInput->BindAction(EquipItemAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::Equip);
 		EnhancedInput->BindAction(SwitchItemAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Switch);
 		EnhancedInput->BindAction(DetachItemAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::Detach);
-
-
-
-
-
-
 	}
 }
 
@@ -146,7 +137,7 @@ void APhasmophobiaPlayer::LookAround(const FInputActionValue& Value)
 	}
 }
 
-void APhasmophobiaPlayer::Crouch(const FInputActionValue& Value)
+void APhasmophobiaPlayer::PlayerCrouch(const FInputActionValue& Value)
 {
 	if (CurrentCrouchStrategy && CurrentCrouchStrategy->GetClass()->ImplementsInterface(UPlayerBehavior::StaticClass()))
 	{
@@ -264,6 +255,13 @@ void APhasmophobiaPlayer::DecreaseSanity(float Amount)
 
 void APhasmophobiaPlayer::UseItem()
 {
-	
+	if (currentItem != nullptr) {
+		AItem_Base* HoldingItem = Cast<AItem_Base>(currentItem);
+		if (HoldingItem)
+		{
+			HoldingItem->SetUsageStrategy(HoldingItem->ItemStrategy);
+			HoldingItem->UseItem();
+		}
+	}
 }
 

@@ -2,8 +2,3 @@
 
 
 #include "ItemStrategy.h"
-
-void UItemStrategy::Use(AActor* OwnerActor)
-{
-
-}

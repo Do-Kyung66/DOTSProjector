@@ -17,6 +17,7 @@ public:
 	// Sets default values for this actor's properties
 	AItem_Base();
 
+	UFUNCTION(BlueprintCallable, Category="Item")
 	void SetUsageStrategy(UItemStrategy* NewStrategy);
 
 	UFUNCTION(BlueprintCallable, Category="Item")
@@ -34,9 +35,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class UStaticMeshComponent* MeshComp;
 
-protected:
-	UPROPERTY(EditAnywhere, Instanced, Category = "Item")
-	UItemStrategy* UsageStrategy;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Strategy")
+	UItemStrategy* ItemStrategy;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")

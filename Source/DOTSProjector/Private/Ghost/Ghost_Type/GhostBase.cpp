@@ -96,7 +96,10 @@ void AGhostBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void AGhostBase::SetBehaviorStrategy(UGhostBehaviorStrategy* NewStrategy)
 {
-	CurrentStrategy = NewStrategy;
+	if (CurrentStrategy != NewStrategy)
+	{
+		CurrentStrategy = NewStrategy;
+	}
 }
 
 void AGhostBase::ExecuteBehavior(const FGhostBehaviorContext* Context)
