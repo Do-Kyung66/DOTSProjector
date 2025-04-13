@@ -3,9 +3,20 @@
 
 #include "PhasmophobiaPlayer.h"
 #include "MoveBehavior.h"
+#include "LookBehavior.h"
+#include "CrouchBehavior.h"
+#include "RunBehavior.h"
+#include "EquipItemBehavior.h"
+#include "SwitchItemBehavior.h"
+#include "DetachItemBehavior.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
-#include "LookBehavior.h"
+#include "PhasmophobiaPlayerController.h"
+#include "IItemBehavior.h"
+
+
+
+
 
 // Sets default values
 APhasmophobiaPlayer::APhasmophobiaPlayer()
@@ -21,6 +32,16 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 		GetMesh()->SetSkeletalMesh(MeshTemp.Object);
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -88.0), FRotator(0.0, -90, 0.0));
 	}
+
+
+	// 아이템 붙이기
+	ItemComp = CreateDefaultSubobject<USceneComponent>(TEXT("ItemComp"));
+	ItemComp->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
+
+	// 아이템 슬롯 초기화
+	ItemActors.SetNum(4);
+	ItemActors[0] = nullptr;
+	
 }
 
 // Called when the game starts or when spawned
@@ -29,19 +50,29 @@ void APhasmophobiaPlayer::BeginPlay()
 	Super::BeginPlay();
 
 	// input mapping
-	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	if (APhasmophobiaPlayerController* PC = Cast<APhasmophobiaPlayerController>(GetController()))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(PlayerMappingContext, 0); // 우선순위 0
+			Subsystem->AddMappingContext(ItemMappingContext, 1);
+
 
 		}
 	}
 
 	// 런타임에서만 사용
 	// 기본 이동 전략 설정
-	CurrentMoveStrategy = NewObject<UMoveBehavior>(this); 
+	CurrentMoveStrategy = NewObject<UMoveBehavior>(this);
 	CurrentLookStrategy = NewObject<ULookBehavior>(this);
+	CurrentCrouchStrategy = NewObject<UCrouchBehavior>(this);
+	CurrentRunStrategy = NewObject<URunBehavior>(this);
+
+	CurrentEquipStrategy = NewObject<UEquipItemBehavior>(this);
+	CurrentSwitchStrategy = NewObject<USwitchItemBehavior>(this);
+	CurrentDetachStrategy = NewObject<UDetachItemBehavior>(this);
+	
+
 
 }
 
@@ -50,6 +81,17 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!bIsRunning && CurrentStamina < MaxStamina)
+	{
+		CurrentStamina += StaminaRegenRate * DeltaTime;
+		CurrentStamina = FMath::Clamp(CurrentStamina, 0.0f, MaxStamina);
+	}
+
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, FString::Printf(TEXT("Current Stamina: %f"), CurrentStamina));
+	}
 }
 
 // Called to bind functionality to input
@@ -60,9 +102,23 @@ void APhasmophobiaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Move);
-
 		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::LookAround);
+
 		EnhancedInput->BindAction(UseAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::UseItem);
+
+		EnhancedInput->BindAction(CrouchAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::Crouch);
+		EnhancedInput->BindAction(RunAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Run);
+		EnhancedInput->BindAction(RunAction, ETriggerEvent::Completed, this, &APhasmophobiaPlayer::OnRunReleased);
+
+		EnhancedInput->BindAction(EquipItemAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::Equip);
+		EnhancedInput->BindAction(SwitchItemAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Switch);
+		EnhancedInput->BindAction(DetachItemAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::Detach);
+
+
+
+
+
+
 	}
 }
 
@@ -88,6 +144,86 @@ void APhasmophobiaPlayer::LookAround(const FInputActionValue& Value)
 			LookStrategy->ExecuteBehavior(this, Value);
 		}
 	}
+}
+
+void APhasmophobiaPlayer::Crouch(const FInputActionValue& Value)
+{
+	if (CurrentCrouchStrategy && CurrentCrouchStrategy->GetClass()->ImplementsInterface(UPlayerBehavior::StaticClass()))
+	{
+		IPlayerBehavior* CrouchStrategy = Cast<IPlayerBehavior>(CurrentCrouchStrategy);
+		if (CrouchStrategy)
+		{
+			CrouchStrategy->ExecuteBehavior(this, Value);
+		}
+	}
+}
+
+void APhasmophobiaPlayer::Run(const FInputActionValue& Value)
+{
+	if (GetVelocity().Size() <= 0.1f) return;
+	bIsRunning = true;
+	if (CurrentRunStrategy && CurrentRunStrategy->GetClass()->ImplementsInterface(UPlayerBehavior::StaticClass()))
+	{
+		IPlayerBehavior* RunStrategy = Cast<IPlayerBehavior>(CurrentRunStrategy);
+		if (RunStrategy)
+		{
+			RunStrategy->ExecuteBehavior(this, Value);
+		}
+	}
+	
+}
+
+void APhasmophobiaPlayer::OnRunReleased(const FInputActionValue& Value)
+{
+	bIsRunning = false;
+}
+
+void APhasmophobiaPlayer::Equip(const FInputActionValue& Value)
+{
+	// if (ItemActors.Num() >= 4) return;
+	APhasmophobiaPlayerController* PC = Cast<APhasmophobiaPlayerController>(GetController());
+	
+	if (PC && PC->TargetItem && !ItemActors.Contains(PC->TargetItem))
+	{
+		ownedItem = PC->TargetItem;
+		ownedItem->SetOwner(this);
+
+		if (CurrentEquipStrategy && CurrentEquipStrategy->GetClass()->ImplementsInterface(UItemBehavior::StaticClass()))
+		{
+			IItemBehavior* EquipStrategy = Cast<IItemBehavior>(CurrentEquipStrategy);
+			if (EquipStrategy)
+			{
+				EquipStrategy->ExecuteBehavior(this, Value);
+			}
+		}
+	}
+	if (ItemActors.Num() > 0) {bHasItem = true;};
+	
+}
+
+void APhasmophobiaPlayer::Switch(const FInputActionValue& Value)
+{
+	if (CurrentSwitchStrategy && CurrentSwitchStrategy->GetClass()->ImplementsInterface(UItemBehavior::StaticClass()))
+	{
+		IItemBehavior* SwitchStrategy = Cast<IItemBehavior>(CurrentSwitchStrategy);
+		if (SwitchStrategy)
+		{
+			SwitchStrategy->ExecuteBehavior(this, Value);
+		}
+	}
+}
+
+void APhasmophobiaPlayer::Detach(const FInputActionValue& Value)
+{
+	if (CurrentDetachStrategy && CurrentDetachStrategy->GetClass()->ImplementsInterface(UItemBehavior::StaticClass()))
+	{
+		IItemBehavior* DetachStrategy = Cast<IItemBehavior>(CurrentDetachStrategy);
+		if (DetachStrategy)
+		{
+			DetachStrategy->ExecuteBehavior(this, Value);
+		}
+	}
+	if (ItemActors.Num() == 0) { bHasItem = false; };
 }
 
 // 전략 동적 변경

@@ -21,4 +21,6 @@ public:
 public:	
 	UPROPERTY(VisibleAnywhere, Category = "Flashlight")
     USpotLightComponent* SpotLightComp;
+
+	
 };

@@ -48,4 +48,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
 	int32 ItemID;
 
+	virtual void NotifyActorBeginCursorOver() override;
+	virtual void NotifyActorEndCursorOver() override;
+
 };

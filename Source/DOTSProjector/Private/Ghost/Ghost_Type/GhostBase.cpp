@@ -81,6 +81,10 @@ void AGhostBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
+	//ExecuteBehavior(&BehaviorContext);
+
+
 }
 
 // Called to bind functionality to input

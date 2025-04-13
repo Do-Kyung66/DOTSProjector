@@ -19,3 +19,4 @@ AItem_Flashlight::AItem_Flashlight()
 	FItemData* ItemData = ItemDataTable->FindRow<FItemData>("Flashlight", ContextString);
 	MeshComp->SetStaticMesh(ItemData->ItemMesh);
 }
+
