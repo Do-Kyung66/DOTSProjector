@@ -10,7 +10,9 @@
 #include "PhasmophobiaPlayer.h"
 #include "Engine/SkeletalMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Observer.h"
 #include "GhostBase.generated.h"
+
 
 UENUM()
 enum class GhostState : uint8 { 
@@ -24,7 +26,7 @@ enum class GhostState : uint8 {
 };
 
 UCLASS()
-class DOTSPROJECTOR_API AGhostBase : public ACharacter
+class DOTSPROJECTOR_API AGhostBase : public ACharacter, public IObserver
 {
 	GENERATED_BODY()
 
@@ -108,4 +110,7 @@ public:
 	virtual void KillState();
 	virtual void TriggerObjectState();
 	virtual void ThrowState();
+
+public:
+	virtual void PlayerSanityChanged(float NewSanity) override;
 };

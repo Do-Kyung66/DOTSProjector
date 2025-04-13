@@ -62,7 +62,7 @@ void APhasmophobiaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Move);
 
 		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::LookAround);
-
+		EnhancedInput->BindAction(UseAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::UseItem);
 	}
 }
 
@@ -99,4 +99,35 @@ void APhasmophobiaPlayer::SetMoveStrategy(TObjectPtr<UObject> NewMoveStrategy)
 	}
 }
 
+void APhasmophobiaPlayer::AddObserver(IObserver* Observer)
+{
+	Observers.Add(Observer);
+}
+
+void APhasmophobiaPlayer::RemoveObserver(IObserver* Observer)
+{
+	Observers.Remove(Observer);
+}
+
+void APhasmophobiaPlayer::NotifySanityChanged()
+{
+	for (IObserver* Observer : Observers)
+	{
+		if (Observer)
+		{
+			Observer->PlayerSanityChanged(Sanity);
+		}
+	}
+}
+
+void APhasmophobiaPlayer::DecreaseSanity(float Amount)
+{
+	Sanity -= Amount;
+	NotifySanityChanged();
+}
+
+void APhasmophobiaPlayer::UseItem()
+{
+	
+}
 

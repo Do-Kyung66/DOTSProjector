@@ -50,7 +50,8 @@ void AGhostBase::BeginPlay()
 	PlayerCharacter = Cast<APhasmophobiaPlayer>(PlayerPawn);
 
 	if (PlayerCharacter)
-	{
+	{	
+		PlayerCharacter->AddObserver(this);
 		BehaviorContext.Target = PlayerCharacter;
 	}
 
@@ -60,7 +61,6 @@ void AGhostBase::BeginPlay()
 	{
 		static const FString ContextString(TEXT("GhostDataTable"));
 		GhostData = GhostDataTable->FindRow<FGhostData>(RandomRowName, ContextString);
-		//MeshComp->SetStaticMesh(GhostData->GhostMesh);
 	}
 
 	if (GhostData && GhostData->BehaviorDatas.Num() > 0)
@@ -157,5 +157,10 @@ void AGhostBase::ThrowState()
 {
 	SetBehaviorStrategy(TeleportStrategy);
 	ExecuteBehavior(&BehaviorContext);;
+}
+
+void AGhostBase::PlayerSanityChanged(float NewSanity)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("NewSanity"));
 }
 

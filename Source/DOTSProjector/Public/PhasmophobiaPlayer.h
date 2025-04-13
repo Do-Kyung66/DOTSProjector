@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "IPlayerBehavior.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
+#include "Observer.h"
 #include "PhasmophobiaPlayer.generated.h"
 
 UCLASS()
@@ -46,6 +47,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* UseAction;
 	
 	
 	// function
@@ -56,4 +60,14 @@ public:
 
 	void SetMoveStrategy(TObjectPtr<UObject> NewMoveStrategy);
 
+	void AddObserver(IObserver* Observer);
+	void RemoveObserver(IObserver* Observer);
+	void NotifySanityChanged();
+	void DecreaseSanity(float Amount);
+
+	void UseItem();
+
+	TArray<IObserver*> Observers;
+
+	float Sanity = 100.0f;
 };
