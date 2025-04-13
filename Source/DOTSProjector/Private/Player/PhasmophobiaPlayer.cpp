@@ -7,11 +7,13 @@
 #include "CrouchBehavior.h"
 #include "RunBehavior.h"
 #include "EquipItemBehavior.h"
+#include "SwitchItemBehavior.h"
 #include "DetachItemBehavior.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
 #include "PhasmophobiaPlayerController.h"
 #include "IItemBehavior.h"
+
 
 
 
@@ -35,7 +37,9 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 	ItemComp = CreateDefaultSubobject<USceneComponent>(TEXT("ItemComp"));
 	ItemComp->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
 
-	// input 고정 시켜두기
+	// 아이템 슬롯 초기화
+	ItemActors.SetNum(4);
+	ItemActors[0] = nullptr;
 	
 }
 
@@ -64,7 +68,9 @@ void APhasmophobiaPlayer::BeginPlay()
 	CurrentRunStrategy = NewObject<URunBehavior>(this);
 
 	CurrentEquipStrategy = NewObject<UEquipItemBehavior>(this);
+	CurrentSwitchStrategy = NewObject<USwitchItemBehavior>(this);
 	CurrentDetachStrategy = NewObject<UDetachItemBehavior>(this);
+	
 
 
 }
@@ -101,7 +107,7 @@ void APhasmophobiaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Completed, this, &APhasmophobiaPlayer::OnRunReleased);
 
 		EnhancedInput->BindAction(EquipItemAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::Equip);
-
+		EnhancedInput->BindAction(SwitchItemAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Switch);
 		EnhancedInput->BindAction(DetachItemAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::Detach);
 
 
@@ -169,15 +175,13 @@ void APhasmophobiaPlayer::OnRunReleased(const FInputActionValue& Value)
 
 void APhasmophobiaPlayer::Equip(const FInputActionValue& Value)
 {
-	if (ItemActors.Num() >= 3) return;
+	// if (ItemActors.Num() >= 4) return;
 	APhasmophobiaPlayerController* PC = Cast<APhasmophobiaPlayerController>(GetController());
 	
 	if (PC && PC->TargetItem && !ItemActors.Contains(PC->TargetItem))
 	{
 		ownedItem = PC->TargetItem;
 		ownedItem->SetOwner(this);
-		ItemActors.Add(ownedItem);
-		UE_LOG(LogTemp, Log, TEXT("Item Add: %s / Item count: %d"), *ownedItem->GetName(), ItemActors.Num());
 
 		if (CurrentEquipStrategy && CurrentEquipStrategy->GetClass()->ImplementsInterface(UItemBehavior::StaticClass()))
 		{
@@ -190,6 +194,18 @@ void APhasmophobiaPlayer::Equip(const FInputActionValue& Value)
 	}
 	if (ItemActors.Num() > 0) {bHasItem = true;};
 	
+}
+
+void APhasmophobiaPlayer::Switch(const FInputActionValue& Value)
+{
+	if (CurrentSwitchStrategy && CurrentSwitchStrategy->GetClass()->ImplementsInterface(UItemBehavior::StaticClass()))
+	{
+		IItemBehavior* SwitchStrategy = Cast<IItemBehavior>(CurrentSwitchStrategy);
+		if (SwitchStrategy)
+		{
+			SwitchStrategy->ExecuteBehavior(this, Value);
+		}
+	}
 }
 
 void APhasmophobiaPlayer::Detach(const FInputActionValue& Value)

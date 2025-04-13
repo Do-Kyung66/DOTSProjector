@@ -46,6 +46,9 @@ public:
 	TObjectPtr<UObject> CurrentEquipStrategy;
 
 	UPROPERTY()
+	TObjectPtr<UObject> CurrentSwitchStrategy;
+
+	UPROPERTY()
 	TObjectPtr<UObject> CurrentDetachStrategy;
 
 	// InputAction var
@@ -69,6 +72,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* EquipItemAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* SwitchItemAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* DetachItemAction;
@@ -99,13 +105,10 @@ public:
 	AActor* ownedItem = nullptr;
 	AActor* currentItem = nullptr;
 
-	
-
 	UPROPERTY()
 	TArray<AActor*> ItemActors;
 
 	bool bHasItem = false;
-
 	int32 CurrentItemIndex = -1;
 	
 
@@ -119,6 +122,7 @@ public:
 
 	// Item Behavior Func
 	void Equip(const FInputActionValue& Value);
+	void Switch(const FInputActionValue& Value);
 	void Detach(const FInputActionValue& Value);
 
 
