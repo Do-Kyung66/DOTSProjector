@@ -31,6 +31,15 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
+	UPROPERTY(VisibleAnywhere, Category = "Controller")
+	class APhasmophobiaPlayerController* PC;
+
+	UPROPERTY(EditAnywhere, Category = Camera)
+	class USpringArmComponent* SpringArmComp;
+
+	UPROPERTY(EditAnywhere, Category = Camera)
+	class UCameraComponent* CamComp;
+
 	// Strategy var
 	UPROPERTY()
 	TObjectPtr<UObject> CurrentMoveStrategy;
@@ -84,6 +93,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* DetachItemAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* JournalAction;
+
 	
 	// Stamina Var
 	bool bIsRunning = false;
@@ -116,12 +128,14 @@ public:
 
 	bool bHasItem = false;
 	int32 CurrentItemIndex = -1;
-	
 
+	
 	// Player Behavior Func
 	void Move(const FInputActionValue& Value);
 	void LookAround(const FInputActionValue& Value);
+
 	void PlayerCrouch(const FInputActionValue& Value);
+
 	void Run(const FInputActionValue& Value);
 
 	void OnRunReleased(const FInputActionValue& Value);
@@ -130,6 +144,8 @@ public:
 	void Equip(const FInputActionValue& Value);
 	void Switch(const FInputActionValue& Value);
 	void Detach(const FInputActionValue& Value);
+
+	void Journal(const FInputActionValue& Value);
 
 
 	void SetMoveStrategy(TObjectPtr<UObject> NewMoveStrategy);

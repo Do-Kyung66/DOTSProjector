@@ -26,6 +26,6 @@ void UMoveBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue& Valu
 	{
 		Player->AddMovementInput(MoveDir.GetSafeNormal(), 0.5f);
 
-		// GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Player Move"));
+
 	}
 }
