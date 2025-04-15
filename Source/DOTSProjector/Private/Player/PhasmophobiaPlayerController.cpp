@@ -5,7 +5,7 @@
 #include "Engine/UserInterfaceSettings.h"
 #include "Framework/Application/SlateApplication.h"
 #include "HAL/PlatformApplicationMisc.h"
-#include "PhasmophobiaHUD.h"
+
 
 APhasmophobiaPlayerController::APhasmophobiaPlayerController()
 {

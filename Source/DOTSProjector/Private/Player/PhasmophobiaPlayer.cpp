@@ -348,7 +348,6 @@ void APhasmophobiaPlayer::UseItem()
 
 void APhasmophobiaPlayer::CheckGhostOnScreen(float DeltaTime)
 {
-	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (!PC) return;
 
 	FVector CameraLoc;
