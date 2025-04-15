@@ -21,9 +21,15 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetCursorForInteraction(bool bIsInteractable, AActor* tempItem);
+	void ItemTrace();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
 	bool bCanInteract = false;
+
+	// door
+	AActor* TargetDoor = nullptr;
+	bool bDraggingDoor = false;
+	float LastMousX = 0.f;
 
 protected:
 	virtual void BeginPlay() override;

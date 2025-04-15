@@ -20,7 +20,7 @@ void ULookBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue& Valu
 		Player->AddControllerYawInput(LookInput.X);
 		Player->AddControllerPitchInput(LookInput.Y);
 
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Player Turn"));
+		GEngine->AddOnScreenDebugMessage(2, 2.0f, FColor::Green, TEXT("Player Turn"));
 	}
 }
 

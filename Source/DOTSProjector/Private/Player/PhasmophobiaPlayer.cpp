@@ -13,6 +13,10 @@
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
 #include "PhasmophobiaPlayerController.h"
 #include "IItemBehavior.h"
+#include "PhasmophobiaHUD.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 
 
 
@@ -33,6 +37,26 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -88.0), FRotator(0.0, -90, 0.0));
 	}
 
+	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
+	SpringArmComp->SetupAttachment(RootComponent);
+	SpringArmComp->SetRelativeLocation(FVector(0.0f, 0.0f, 64.0f));
+	SpringArmComp->bUsePawnControlRotation = true;
+	SpringArmComp->TargetArmLength = 0.0f;
+
+	CamComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
+	CamComp->SetupAttachment(SpringArmComp);
+	CamComp->bUsePawnControlRotation = false;
+
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = true;
+	bUseControllerRotationRoll = false;
+
+	// 계단 오르기
+	GetCharacterMovement()->MaxStepHeight = 45.f;
+	GetCharacterMovement()->SetWalkableFloorAngle(60.f);
+	GetCharacterMovement()->bCanWalkOffLedges = true;
+	GetCharacterMovement()->bCanWalkOffLedgesWhenCrouching = true;
+
 	// 아이템 붙이기
 	ItemComp = CreateDefaultSubobject<USceneComponent>(TEXT("ItemComp"));
 	ItemComp->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
@@ -47,9 +71,9 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 void APhasmophobiaPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-
+	PC = Cast<APhasmophobiaPlayerController>(GetController());
 	// input mapping
-	if (APhasmophobiaPlayerController* PC = Cast<APhasmophobiaPlayerController>(GetController()))
+	if (PC)
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
 		{
@@ -80,16 +104,35 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// 문 상호작용
+	/*FHitResult DoorHit;
+	PC->GetHitResultUnderCursor(ECC_Visibility, false, DoorHit);
+
+	if (DoorHit.bBlockingHit && DoorHit.GetActor() && DoorHit.GetActor()->GetName().Contains(TEXT("Door")))
+	{
+		PC->CurrentMouseCursor = EMouseCursor::Hand;
+		PC->TargetDoor = DoorHit.GetActor();
+		UE_LOG(LogTemp, Warning, TEXT("Door Open"));
+	}
+
+	else
+	{
+		PC->CurrentMouseCursor = EMouseCursor::Default;
+		PC->TargetDoor = nullptr;
+	}*/
+
+	
+
+	// 스태미나 채우기
 	if (!bIsRunning && CurrentStamina < MaxStamina)
 	{
 		CurrentStamina += StaminaRegenRate * DeltaTime;
 		CurrentStamina = FMath::Clamp(CurrentStamina, 0.0f, MaxStamina);
 	}
 
-
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, FString::Printf(TEXT("Current Stamina: %f"), CurrentStamina));
+		GEngine->AddOnScreenDebugMessage(1, 1.5f, FColor::Green, FString::Printf(TEXT("Current Stamina: %f"), CurrentStamina));
 	}
 }
 
@@ -102,6 +145,7 @@ void APhasmophobiaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	{
 		EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Move);
 		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::LookAround);
+
 		EnhancedInput->BindAction(CrouchAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::Crouch);
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Run);
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Completed, this, &APhasmophobiaPlayer::OnRunReleased);
@@ -109,6 +153,9 @@ void APhasmophobiaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		EnhancedInput->BindAction(EquipItemAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::Equip);
 		EnhancedInput->BindAction(SwitchItemAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Switch);
 		EnhancedInput->BindAction(DetachItemAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::Detach);
+
+		//EnhancedInput->BindAction(JournalAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::Journal);
+
 
 
 
@@ -140,6 +187,7 @@ void APhasmophobiaPlayer::LookAround(const FInputActionValue& Value)
 		}
 	}
 }
+
 
 void APhasmophobiaPlayer::Crouch(const FInputActionValue& Value)
 {
@@ -176,7 +224,7 @@ void APhasmophobiaPlayer::OnRunReleased(const FInputActionValue& Value)
 void APhasmophobiaPlayer::Equip(const FInputActionValue& Value)
 {
 	// if (ItemActors.Num() >= 4) return;
-	APhasmophobiaPlayerController* PC = Cast<APhasmophobiaPlayerController>(GetController());
+	/*APhasmophobiaPlayerController* PC = Cast<APhasmophobiaPlayerController>(GetController());*/
 	
 	if (PC && PC->TargetItem && !ItemActors.Contains(PC->TargetItem))
 	{
@@ -220,6 +268,29 @@ void APhasmophobiaPlayer::Detach(const FInputActionValue& Value)
 	}
 	if (ItemActors.Num() == 0) { bHasItem = false; };
 }
+
+//void APhasmophobiaPlayer::Journal(const FInputActionValue& Value)
+//{
+//	if (Value.Get<bool>()) 
+//	{
+//		if (APhasmophobiaPlayerController* PC = GetController())
+//		{
+//			if (APhasmophobiaHUD* HUD = Cast<APhasmophobiaHUD>(PC->GetHUD()))
+//			{
+//				HUD->ToggleJournalUI();
+//				UE_LOG(LogTemp, Warning, TEXT("Journal toggled from PhasmophobiaPlayer"));
+//			}
+//			else
+//			{
+//				UE_LOG(LogTemp, Warning, TEXT("Failed to cast HUD to AMyPhasmophobiaHUD"));
+//			}
+//		}
+//		else
+//		{
+//			UE_LOG(LogTemp, Warning, TEXT("No PlayerController found"));
+//		}
+//	}
+//}
 
 // 전략 동적 변경
 void APhasmophobiaPlayer::SetMoveStrategy(TObjectPtr<UObject> NewMoveStrategy)

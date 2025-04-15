@@ -5,20 +5,24 @@
 #include "Engine/UserInterfaceSettings.h"
 #include "Framework/Application/SlateApplication.h"
 #include "HAL/PlatformApplicationMisc.h"
+#include "PhasmophobiaHUD.h"
 
 APhasmophobiaPlayerController::APhasmophobiaPlayerController()
 {
-	bShowMouseCursor = true;
-	bEnableClickEvents = true;
+	// bShowMouseCursor = true;
 	bEnableMouseOverEvents = true;
+	/*
 
-	DefaultMouseCursor = EMouseCursor::Default;
+	DefaultMouseCursor = EMouseCursor::Default;*/
+	
 }
 
 void APhasmophobiaPlayerController::BeginPlay()
 {
 	// 커서 표시 및 입력 모드 설정
-	SetInputMode(FInputModeGameAndUI());
+	/*FInputModeGameAndUI InputMode{ FInputModeGameAndUI()};
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
+	SetInputMode(InputMode);*/
 
 }
 
@@ -26,27 +30,78 @@ void APhasmophobiaPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 
+	ItemTrace();
+
+
 }
 
 void APhasmophobiaPlayerController::SetCursorForInteraction(bool bIsInteractable, AActor* tempItem)
 {
-	if (bIsInteractable)
+	/*APhasmophobiaHUD* HUD = Cast<APhasmophobiaHUD>(GetHUD());
+	if (HUD && HUD->bIsJournalOpen) return;*/
+
+	//if (bIsInteractable)
+	//{
+	//	bCanInteract = true;
+	//	TargetItem = tempItem;
+	//	CurrentMouseCursor = EMouseCursor::Hand;
+	//	UE_LOG(LogTemp, Warning, TEXT("Cursor : Hand"));
+	//}
+	//else
+	//{
+	//	bCanInteract = false;
+	//	TargetItem = nullptr;
+	//	CurrentMouseCursor = EMouseCursor::Default;
+	//	UE_LOG(LogTemp, Warning, TEXT("Cursor : Default"));
+	//}
+
+	//FInputModeGameAndUI InputMode;
+	
+}
+
+void APhasmophobiaPlayerController::ItemTrace()
+{
+	FVector worldLocation;
+	FVector worldDirection;
+
+	int32 ViewportSizeX, ViewportSizeY;
+	GetViewportSize(ViewportSizeX, ViewportSizeY);
+
+	FVector2D screenCenter(ViewportSizeX / 2.0f, ViewportSizeY / 2.0f);
+	DeprojectScreenPositionToWorld(screenCenter.X, screenCenter.Y, worldLocation, worldDirection);
+
+	FVector Start = worldLocation;
+	FVector End = Start + (worldDirection * 300.0f);
+
+	FHitResult Hitinfo;
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(GetPawn());
+
+	if (GetWorld()->LineTraceSingleByChannel(Hitinfo, Start, End, ECC_Visibility, params))
 	{
-		bCanInteract = true;
-		TargetItem = tempItem;
-		CurrentMouseCursor = EMouseCursor::Hand;
-		UE_LOG(LogTemp, Warning, TEXT("Cursor : Hand"));
-	}
-	else
-	{
-		bCanInteract = false;
-		TargetItem = nullptr;
-		CurrentMouseCursor = EMouseCursor::Default;
-		UE_LOG(LogTemp, Warning, TEXT("Cursor : Default"));
+		GEngine->AddOnScreenDebugMessage(2, 2.0f, FColor::Green, FString::Printf(TEXT("Hit: %s"), *Hitinfo.GetActor()->GetName()));
+
+		AActor* HitActor = Hitinfo.GetActor();
+		if (HitActor)
+		{
+			FString ActorName = HitActor->GetName();
+
+			if (ActorName.Contains(TEXT("item"), ESearchCase::IgnoreCase)) // 대소문자 무시
+			{
+				bCanInteract = true;
+				TargetItem = HitActor;
+				UE_LOG(LogTemp, Warning, TEXT("Hit Item"));
+
+			}
+			else
+			{
+				TargetItem = nullptr;
+				UE_LOG(LogTemp, Warning, TEXT("Item X"));
+			}
+		}
+		
 	}
 
-	FInputModeGameAndUI InputMode;
-	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	SetInputMode(InputMode);
+	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.05f, 0, 2.0f);
 }
 

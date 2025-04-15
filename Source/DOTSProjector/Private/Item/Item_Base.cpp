@@ -24,6 +24,8 @@ AItem_Base::AItem_Base()
 		ItemDataTable = TempDT.Object;
 		RowNames = ItemDataTable->GetRowNames();
 	}
+
+	MeshComp->SetSimulatePhysics(false);
 }
 
 // Called when the game starts or when spawned
