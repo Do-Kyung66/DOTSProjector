@@ -4,6 +4,7 @@
 #include "Item_Base.h"
 #include "Components/StaticMeshComponent.h"
 #include "DT_Item.h"
+#include "PhasmophobiaPlayerController.h"
 
 
 // Sets default values
@@ -23,6 +24,8 @@ AItem_Base::AItem_Base()
 		ItemDataTable = TempDT.Object;
 		RowNames = ItemDataTable->GetRowNames();
 	}
+
+	MeshComp->SetSimulatePhysics(false);
 }
 
 // Called when the game starts or when spawned
@@ -49,5 +52,31 @@ void AItem_Base::UseItem()
 	if (UsageStrategy)
 	{
 		UsageStrategy->Use(this);
+	}
+}
+
+void AItem_Base::NotifyActorBeginCursorOver()
+{
+	Super::NotifyActorBeginCursorOver();
+
+	APhasmophobiaPlayerController* PC = Cast<APhasmophobiaPlayerController>(GetWorld()->GetFirstPlayerController());
+
+	if (PC)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cursor!"));
+		PC->SetCursorForInteraction(true, this);
+
+	}
+
+}
+
+void AItem_Base::NotifyActorEndCursorOver()
+{
+	Super::NotifyActorEndCursorOver();
+
+	APhasmophobiaPlayerController* PC = Cast<APhasmophobiaPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC)
+	{
+		PC->SetCursorForInteraction(false, nullptr);
 	}
 }

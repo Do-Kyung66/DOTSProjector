@@ -72,7 +72,7 @@ void AGhostBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	ExecuteBehavior(&BehaviorContext);
+	//ExecuteBehavior(&BehaviorContext);
 
 }
 

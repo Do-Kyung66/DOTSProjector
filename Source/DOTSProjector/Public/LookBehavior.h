@@ -21,4 +21,6 @@ public:
 	UFUNCTION()
 	virtual void ExecuteBehavior(AActor* Owner, const FInputActionValue& Value) override;
 
+	UPROPERTY(VisibleAnywhere, Category = "Controller")
+	class APhasmophobiaPlayerController* PC;
 };
