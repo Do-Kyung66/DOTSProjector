@@ -3,3 +3,7 @@
 
 #include "Function_VideoCamera.h"
 
+void UFunction_VideoCamera::Use(AItem_Base* Item)
+{
+	
+}

@@ -3,3 +3,7 @@
 
 #include "Behavior_Throw.h"
 
+void UBehavior_Throw::ExecuteBehavior(const FGhostBehaviorContext& Context)
+{
+	
+}

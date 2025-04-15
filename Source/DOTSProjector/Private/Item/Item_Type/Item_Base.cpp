@@ -24,6 +24,7 @@ AItem_Base::AItem_Base()
 		ItemDataTable = TempDT.Object;
 		RowNames = ItemDataTable->GetRowNames();
 	}
+
 }
 
 // Called when the game starts or when spawned

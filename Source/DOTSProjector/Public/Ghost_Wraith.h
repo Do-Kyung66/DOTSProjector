@@ -30,9 +30,4 @@ public:
 	virtual void TriggerObjectState() override;
 	virtual void ThrowState() override;
 
-
-// Ghost Stat variable
-public:
-	float AttackRange = 150.f;
-	float MovementSpeed = 350.f;
 };

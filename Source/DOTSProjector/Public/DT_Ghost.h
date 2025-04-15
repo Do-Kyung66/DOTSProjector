@@ -34,4 +34,15 @@ struct FGhostData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost Data")
 	TArray<FGhostBehaviorData> BehaviorDatas;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost Data")
+	float AttackRange;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost Data")
+	float MovementSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost Data")
+	float SanityDestroyRate;
+
+
 };

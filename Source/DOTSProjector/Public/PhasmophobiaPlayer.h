@@ -144,4 +144,7 @@ public:
 	TArray<IObserver*> Observers;
 
 	float Sanity = 100.0f;
+
+	void CheckGhostOnScreen(float DeltaTime);
+
 };

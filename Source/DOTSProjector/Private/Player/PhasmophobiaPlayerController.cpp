@@ -8,17 +8,17 @@
 
 APhasmophobiaPlayerController::APhasmophobiaPlayerController()
 {
-	bShowMouseCursor = true;
+	//bShowMouseCursor = true;
 	bEnableClickEvents = true;
-	bEnableMouseOverEvents = true;
+	//bEnableMouseOverEvents = true;
 
-	DefaultMouseCursor = EMouseCursor::Default;
+	//DefaultMouseCursor = EMouseCursor::Default;
 }
 
 void APhasmophobiaPlayerController::BeginPlay()
 {
 	// 커서 표시 및 입력 모드 설정
-	SetInputMode(FInputModeGameAndUI());
+	// SetInputMode(FInputModeGameAndUI());
 
 }
 
@@ -34,19 +34,19 @@ void APhasmophobiaPlayerController::SetCursorForInteraction(bool bIsInteractable
 	{
 		bCanInteract = true;
 		TargetItem = tempItem;
-		CurrentMouseCursor = EMouseCursor::Hand;
+		//CurrentMouseCursor = EMouseCursor::Hand;
 		UE_LOG(LogTemp, Warning, TEXT("Cursor : Hand"));
 	}
 	else
 	{
 		bCanInteract = false;
 		TargetItem = nullptr;
-		CurrentMouseCursor = EMouseCursor::Default;
+		//CurrentMouseCursor = EMouseCursor::Default;
 		UE_LOG(LogTemp, Warning, TEXT("Cursor : Default"));
 	}
 
-	FInputModeGameAndUI InputMode;
-	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	SetInputMode(InputMode);
+	//FInputModeGameAndUI InputMode;
+	//InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	//SetInputMode(InputMode);
 }
 

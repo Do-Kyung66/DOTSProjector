@@ -124,6 +124,37 @@ FName AGhostBase::GetRandomGhost()
 	return NAME_None;
 }
 
+void AGhostBase::StartGhostVisibleEvent()
+{
+	ToggleVisible();
+
+	GetWorld()->GetTimerManager().SetTimer(
+		EndVisibleTimerHandle, this, &AGhostBase::EndGhostVisibleEvent, 3.0f, false
+	);
+}
+
+void AGhostBase::ToggleVisible()
+{
+	bIsVisible = !bIsVisible;
+	SetActorHiddenInGame(!bIsVisible);
+
+	// VisibleMode.Broadcast();
+
+	float NextInterval = FMath::FRandRange(0.5f, 1.f);
+
+	GetWorld()->GetTimerManager().SetTimer(
+		VisibleTimerHandle, this, &AGhostBase::ToggleVisible, NextInterval, false
+	);
+}
+
+void AGhostBase::EndGhostVisibleEvent()
+{
+	bIsVisible = false;
+	SetActorHiddenInGame(true);
+
+	GetWorld()->GetTimerManager().ClearTimer(VisibleTimerHandle);
+}
+
 void AGhostBase::IdleState()
 {
 	SetBehaviorStrategy(IdleStrategy);
@@ -168,6 +199,22 @@ void AGhostBase::ThrowState()
 
 void AGhostBase::PlayerSanityChanged(float NewSanity)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("NewSanity"));
+
 }
+
+float AGhostBase::GetAttackRange()
+{
+	return GhostData->AttackRange;
+}	
+
+float AGhostBase::GetMovementSpeed()
+{
+	return GhostData->MovementSpeed;
+}
+
+float AGhostBase::GetSanityDestoryRate()
+{
+	return GhostData->SanityDestroyRate;
+}
+
 

@@ -13,6 +13,7 @@
 #include "Observer.h"
 #include "GhostBase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGhostVisibleEvent);
 
 UENUM()
 enum class GhostState : uint8 { 
@@ -78,8 +79,8 @@ public:
 
 	FGhostData* GhostData;
 
-	//class ADOTSProjectorCharacter* PlayerCharacter;
 
+// List of Strategy
 public:
 	UPROPERTY()
 	class UBehavior_Walking* WalkingStrategy;
@@ -102,6 +103,23 @@ public:
 	UPROPERTY()
 	class UBehavior_Idle* IdleStrategy;
 
+// Ghost Basic Ability
+public:
+	void StartGhostVisibleEvent();
+	void ToggleVisible();
+	void EndGhostVisibleEvent();
+
+	FTimerHandle VisibleTimerHandle;
+	FTimerHandle EndVisibleTimerHandle;
+
+	bool bIsVisible;
+
+	UPROPERTY()
+	FGhostVisibleEvent VisibleMode;
+
+	
+// Behavior FSM Function
+public:
 	virtual void UpdateFSM() {};
 	virtual void IdleState();
 	virtual void WalkState();
@@ -111,6 +129,14 @@ public:
 	virtual void TriggerObjectState();
 	virtual void ThrowState();
 
+// Observer
 public:
 	virtual void PlayerSanityChanged(float NewSanity) override;
+
+
+// Ghost Stat
+public:
+	float GetAttackRange();
+	float GetMovementSpeed();
+	float GetSanityDestoryRate();
 };

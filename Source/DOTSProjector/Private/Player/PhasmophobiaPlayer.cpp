@@ -14,6 +14,9 @@
 #include "PhasmophobiaPlayerController.h"
 #include "IItemBehavior.h"
 #include "ItemStrategy.h"
+#include "GhostBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "EngineUtils.h"
 
 
 
@@ -83,6 +86,7 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 		CurrentStamina += StaminaRegenRate * DeltaTime;
 		CurrentStamina = FMath::Clamp(CurrentStamina, 0.0f, MaxStamina);
 	}
+	CheckGhostOnScreen(DeltaTime);
 
 
 	if (GEngine)
@@ -251,6 +255,8 @@ void APhasmophobiaPlayer::DecreaseSanity(float Amount)
 {
 	Sanity -= Amount;
 	NotifySanityChanged();
+
+	GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Blue, FString::Printf(TEXT("%.2f"), Sanity));
 }
 
 void APhasmophobiaPlayer::UseItem()
@@ -265,3 +271,48 @@ void APhasmophobiaPlayer::UseItem()
 	}
 }
 
+void APhasmophobiaPlayer::CheckGhostOnScreen(float DeltaTime)
+{
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (!PC) return;
+
+	FVector CameraLoc;
+	FRotator CameraRot;
+	PC->GetPlayerViewPoint(CameraLoc, CameraRot);
+
+	int32 ViewX, ViewY;
+	PC->GetViewportSize(ViewX, ViewY);
+
+	for (TActorIterator<AGhostBase> It(GetWorld()); It; ++It)
+	{
+		AGhostBase* Ghost = *It;
+		if (!Ghost || Ghost->IsHidden()) continue;
+
+		FVector2D ScreenLocation;
+		bool bOnScreen = UGameplayStatics::ProjectWorldToScreen(PC, Ghost->GetActorLocation(), ScreenLocation);
+
+		if (bOnScreen &&
+			ScreenLocation.X >= 0 && ScreenLocation.X <= ViewX &&
+			ScreenLocation.Y >= 0 && ScreenLocation.Y <= ViewY)
+		{
+			FHitResult Hit;
+			FCollisionQueryParams TraceParams;
+			TraceParams.AddIgnoredActor(this);
+			TraceParams.AddIgnoredActor(Ghost);
+
+			bool bHit = GetWorld()->LineTraceSingleByChannel(
+				Hit,
+				CameraLoc,
+				Ghost->GetActorLocation() + FVector(0.f, 0.f, 80.f),
+				ECollisionChannel::ECC_Visibility,
+				TraceParams
+			);
+
+			if (!bHit || Hit.GetActor() == Ghost)
+			{	
+				DecreaseSanity(DeltaTime * Ghost->GetSanityDestoryRate());
+				break;
+			}
+		}
+	}
+}
