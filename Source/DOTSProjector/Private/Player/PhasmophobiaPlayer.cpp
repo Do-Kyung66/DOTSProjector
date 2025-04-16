@@ -21,6 +21,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "PlayerAnimInstance.h"
 
 
 
@@ -33,7 +34,9 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// 캐릭터 메시 로드
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/rp_manuel_rigged_001_ue4.rp_manuel_rigged_001_ue4'"));
+	/*ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/rp_manuel_rigged_001_ue4.rp_manuel_rigged_001_ue4'"));*/
+
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/PlayerHandMesh2.PlayerHandMesh2'"));
 
 	if (MeshTemp.Succeeded())
 	{
@@ -42,8 +45,8 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 	}
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-	SpringArmComp->SetupAttachment(RootComponent);
-	SpringArmComp->SetRelativeLocation(FVector(0.0f, 0.0f, 64.0f));
+	SpringArmComp->SetupAttachment(GetMesh());
+	SpringArmComp->SetRelativeLocation(FVector(0.0f, 27.0f, 153.0f));
 	SpringArmComp->bUsePawnControlRotation = true;
 	SpringArmComp->TargetArmLength = 0.0f;
 
@@ -253,7 +256,24 @@ void APhasmophobiaPlayer::Equip(const FInputActionValue& Value)
 			}
 		}
 	}
-	if (ItemActors.Num() > 0) {bHasItem = true;};
+
+	for (AActor* Item : ItemActors)
+	{
+		if (Item != nullptr)
+		{
+			bHasItem = true;
+			break;
+		}
+	}
+
+	/*if (bHasItem)
+	{	
+		UPlayerAnimInstance* AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+		if (AnimInstance)
+		{
+			AnimInstance->bHasItem = bHasItem;
+		}
+	}*/
 	
 }
 
@@ -279,7 +299,24 @@ void APhasmophobiaPlayer::Detach(const FInputActionValue& Value)
 			DetachStrategy->ExecuteBehavior(this, Value);
 		}
 	}
-	if (ItemActors.Num() == 0) { bHasItem = false; };
+
+	for (AActor* Item : ItemActors)
+	{
+		if (Item == nullptr)
+		{
+			bHasItem = false;
+			break;
+		}
+	}
+
+	/*if (!bHasItem)
+	{
+		UPlayerAnimInstance* AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+		if (AnimInstance)
+		{
+			AnimInstance->bHasItem = bHasItem;
+		}
+	}*/
 }
 
 //void APhasmophobiaPlayer::Journal(const FInputActionValue& Value)

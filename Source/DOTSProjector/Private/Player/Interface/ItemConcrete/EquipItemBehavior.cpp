@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PhasmophobiaPlayer.h"
 #include "PhasmophobiaPlayerController.h"
+#include "PlayerAnimInstance.h"
 
 UEquipItemBehavior::UEquipItemBehavior()
 {
@@ -65,8 +66,50 @@ void UEquipItemBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue&
 	Player->currentItem = Player->ownedItem;
 	UE_LOG(LogTemp, Log, TEXT("CurrentItem: %s"), *Player->currentItem->GetName());
 	Player->CurrentItemIndex = Player->ItemActors.Find(Player->currentItem);
-
 	UE_LOG(LogTemp, Log, TEXT("Index in ItemActors: %d"), Player->CurrentItemIndex);
+
+	// 아이템마다 애니메이션 교체
+	/*AnimInstance = Cast<UPlayerAnimInstance>(Player->GetMesh()->GetAnimInstance());
+	if (AnimInstance)
+	{
+		if (Player->currentItem->GetName().Contains(TEXT("Flashlight"), ESearchCase::IgnoreCase))
+		{
+			AnimInstance->CurrentItemType = EItemType::Flashlight;
+			UE_LOG(LogTemp, Log, TEXT("Flashlight state"));
+		}
+		else if (Player->currentItem->GetName().Contains(TEXT("Crucifix"), ESearchCase::IgnoreCase))
+		{
+			AnimInstance->CurrentItemType = EItemType::Crucifix;
+			UE_LOG(LogTemp, Log, TEXT("Crucifix state"));
+		}
+		else if (Player->currentItem->GetName().Contains(TEXT("DotProjector"), ESearchCase::IgnoreCase))
+		{
+			AnimInstance->CurrentItemType = EItemType::DotProjector;
+			UE_LOG(LogTemp, Log, TEXT("DotProjector state"));
+		}
+		else if (Player->currentItem->GetName().Contains(TEXT("EMFReader"), ESearchCase::IgnoreCase))
+		{
+			AnimInstance->CurrentItemType = EItemType::EMFReader;
+			UE_LOG(LogTemp, Log, TEXT("EMFReader state"));
+
+		}
+		else if (Player->currentItem->GetName().Contains(TEXT("UVLight"), ESearchCase::IgnoreCase))
+		{
+			AnimInstance->CurrentItemType = EItemType::UVLight;
+			UE_LOG(LogTemp, Log, TEXT("UVLight state"));
+		}
+		else if (Player->currentItem->GetName().Contains(TEXT("Thermometer"), ESearchCase::IgnoreCase))
+		{
+			AnimInstance->CurrentItemType = EItemType::Thermometer;
+			UE_LOG(LogTemp, Log, TEXT("Thermometer state"));
+		}
+		else if (Player->currentItem->GetName().Contains(TEXT("VideoCamera"), ESearchCase::IgnoreCase))
+		{
+			AnimInstance->CurrentItemType = EItemType::VideoCamera;
+			UE_LOG(LogTemp, Log, TEXT("VideoCamera state"));
+		}
+	}*/
+	
 
 	if (UPrimitiveComponent* Mesh = Cast<UPrimitiveComponent>(Player->currentItem->GetComponentByClass(UStaticMeshComponent::StaticClass())))
 	{
