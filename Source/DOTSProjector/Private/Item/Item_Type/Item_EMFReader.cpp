@@ -3,27 +3,45 @@
 
 #include "Item_EMFReader.h"
 #include "GhostBase.h"
+#include "Function_EMFReader.h"
 
 AItem_EMFReader::AItem_EMFReader()
 {
-	DetectGhostSphere = CreateDefaultSubobject<USphereComponent>(TEXT("DetectGhostSphere"));
-	DetectGhostSphere->InitSphereRadius(500.f);
-	DetectGhostSphere->SetupAttachment(RootComponent);
+	PrimaryActorTick.bCanEverTick = true;
 
+	//DetectGhostSphere = CreateDefaultSubobject<USphereComponent>(TEXT("DetectGhostSphere"));
+	//DetectGhostSphere->InitSphereRadius(500.f);
+	//DetectGhostSphere->SetupAttachment(RootComponent);
 
-	DetectGhostSphere->SetGenerateOverlapEvents(true);
+	//DetectGhostSphere->SetGenerateOverlapEvents(true);
+
+	static const FString ContextString(TEXT("ItemDataTable"));
+	FItemData* ItemData = ItemDataTable->FindRow<FItemData>("EMFReader", ContextString);
+	MeshComp->SetStaticMesh(ItemData->ItemMesh);
 }
 
 void AItem_EMFReader::BeginPlay()
 {
 	Super::BeginPlay();
-	DetectGhostSphere->OnComponentBeginOverlap.AddDynamic(this, &AItem_EMFReader::GhostInRange);
+	ItemStrategy = NewObject<UFunction_EMFReader>(this);
+	//DetectGhostSphere->OnComponentBeginOverlap.AddDynamic(this, &AItem_EMFReader::GhostInRange);
 }
 
-void AItem_EMFReader::GhostInRange(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AItem_EMFReader::Tick(float DeltaTime)
 {
-	if (AGhostBase* Ghost = Cast<AGhostBase>(OtherActor))
+	Super::Tick(DeltaTime);
+
+	if (UFunction_EMFReader* EMFLogic = Cast<UFunction_EMFReader>(ItemStrategy))
 	{
-		GEngine->AddOnScreenDebugMessage(2, 1.0f, FColor::Red, TEXT("Ghost Detected!"));
+		EMFLogic->Tick(DeltaTime, this);
 	}
 }
+
+
+//void AItem_EMFReader::GhostInRange(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+//{
+//	if (AGhostBase* Ghost = Cast<AGhostBase>(OtherActor))
+//	{
+//
+//	}
+//}

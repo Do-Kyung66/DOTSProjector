@@ -91,6 +91,15 @@ void APhasmophobiaPlayer::BeginPlay()
 		}
 	}
 
+	if (CenterWidget)
+	{
+		CenterUI = CreateWidget<UUserWidget>(GetWorld(), CenterWidget);
+		if (CenterUI)
+		{
+			CenterUI->AddToViewport();
+		}
+	}
+
 	// 런타임에서만 사용
 	// 기본 이동 전략 설정
 	CurrentMoveStrategy = NewObject<UMoveBehavior>(this);
@@ -377,7 +386,7 @@ void APhasmophobiaPlayer::UseItem()
 		AItem_Base* HoldingItem = Cast<AItem_Base>(currentItem);
 		if (HoldingItem)
 		{
-			HoldingItem->SetUsageStrategy(HoldingItem->ItemStrategy);
+			HoldingItem->SetItemStrategy(HoldingItem->ItemStrategy);
 			HoldingItem->UseItem();
 		}
 	}

@@ -119,7 +119,7 @@ void APhasmophobiaPlayerController::ItemTrace()
 		
 	}
 
-	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.05f, 0, 2.0f);
+	//DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.05f, 0, 2.0f);
 
 }
 

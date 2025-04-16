@@ -18,7 +18,7 @@ public:
 	AItem_Base();
 
 	UFUNCTION(BlueprintCallable, Category="Item")
-	void SetUsageStrategy(UItemStrategy* NewStrategy);
+	void SetItemStrategy(UItemStrategy* NewStrategy);
 
 	UFUNCTION(BlueprintCallable, Category="Item")
 	void UseItem();

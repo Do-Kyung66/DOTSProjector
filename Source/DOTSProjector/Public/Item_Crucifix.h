@@ -14,4 +14,8 @@ class DOTSPROJECTOR_API AItem_Crucifix : public AItem_Base
 {
 	GENERATED_BODY()
 	
+public:
+	AItem_Crucifix();
+
+	virtual void BeginPlay() override;
 };

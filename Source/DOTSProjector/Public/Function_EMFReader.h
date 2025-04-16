@@ -16,4 +16,6 @@ class DOTSPROJECTOR_API UFunction_EMFReader : public UItemStrategy
 	
 public:
 	virtual void Use(AItem_Base* Item) override;
+	void Tick(float DeltaTime, class AItem_EMFReader* EMFReader);
+	bool bOn = false;
 };

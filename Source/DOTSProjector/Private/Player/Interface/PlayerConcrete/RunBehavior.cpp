@@ -25,7 +25,7 @@ void URunBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue& Value
 		// Stamina
 		Player->CurrentStamina -= Player->StaminaDrainRate * GetWorld()->GetDeltaSeconds();
 		Player->CurrentStamina = FMath::Clamp(Player->CurrentStamina, 0.0f, Player->MaxStamina);
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Player Run"));
+		GEngine->AddOnScreenDebugMessage(3, 2.0f, FColor::Yellow, TEXT("Player Run"));
 	}
 
 		

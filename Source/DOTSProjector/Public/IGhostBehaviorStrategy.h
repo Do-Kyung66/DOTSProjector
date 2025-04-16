@@ -17,6 +17,10 @@ struct FGhostBehaviorContext
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost Behavior")
 	AActor* Target;
+
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost Behavior")
+	class AItem_Base* Item;
 };
 
 UCLASS(Blueprintable, EditInlineNew, DefaultToInstanced)
@@ -26,6 +30,4 @@ class DOTSPROJECTOR_API UGhostBehaviorStrategy : public UObject
 
 public:
 	virtual void ExecuteBehavior(const FGhostBehaviorContext& Context);
-
-	//virtual void ExecuteBehavior_Implementation(const FGhostBehaviorContext& Context);
 };
