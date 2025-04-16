@@ -14,4 +14,6 @@ class DOTSPROJECTOR_API UFunction_Crucifix : public UItemStrategy
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void Use(AItem_Base* Item) override;
 };

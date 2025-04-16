@@ -44,7 +44,7 @@ void AItem_Base::Tick(float DeltaTime)
 
 }
 
-void AItem_Base::SetUsageStrategy(UItemStrategy* NewStrategy)
+void AItem_Base::SetItemStrategy(UItemStrategy* NewStrategy)
 {
 	if (ItemStrategy != NewStrategy) {
 		ItemStrategy = NewStrategy;

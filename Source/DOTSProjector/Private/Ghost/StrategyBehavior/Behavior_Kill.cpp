@@ -5,5 +5,7 @@
 
 void UBehavior_Kill::ExecuteBehavior(const FGhostBehaviorContext& Context)
 {
+	if (!Context.Ghost || !Context.Target) return;
+
 	
 }

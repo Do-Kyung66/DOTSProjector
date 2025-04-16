@@ -14,9 +14,6 @@ class DOTSPROJECTOR_API AGhost_Wraith : public AGhostBase
 public:
 	AGhost_Wraith();
 
-	UPROPERTY(VisibleAnywhere) 
-	GhostState currentState = GhostState::Idle;
-
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override; 
 

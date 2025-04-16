@@ -58,7 +58,16 @@ void AGhost_Wraith::UpdateFSM()
 void AGhost_Wraith::IdleState()
 {
 	Super::IdleState();
-	currentState = GhostState::Walking;
+
+	int32 RandomBehavior = FMath::RandRange(0, 10);
+
+	if (RandomBehavior < 5) {
+		currentState = GhostState::Walking;
+	}
+	else {
+		currentState = GhostState::Chase;
+	}
+	
 }
 
 void AGhost_Wraith::WalkState()
@@ -67,7 +76,6 @@ void AGhost_Wraith::WalkState()
 
 	if ((PlayerCharacter->GetActorLocation() - this->GetActorLocation()).Size() <= GetAttackRange())
 	{
-		// PlayerCharacter->DecreaseSanity(1);
 		currentState = GhostState::Teleport;
 	}
 }
@@ -76,10 +84,12 @@ void AGhost_Wraith::ChaseState()
 {
 	Super::ChaseState();
 
+	StartGhostVisibleEvent();
 	if ((PlayerCharacter->GetActorLocation() - this->GetActorLocation()).Size() <= GetAttackRange())
 	{
 		currentState = GhostState::Kill;
 	}
+	currentState = GhostState::Teleport;
 }
 
 void AGhost_Wraith::TeleportState()
@@ -105,6 +115,8 @@ void AGhost_Wraith::TriggerObjectState()
 void AGhost_Wraith::ThrowState()
 {
 	Super::ThrowState();
+
+	GhostState::Idle;
 }
 
 

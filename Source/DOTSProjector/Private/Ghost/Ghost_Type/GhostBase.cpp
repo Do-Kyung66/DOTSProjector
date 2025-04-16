@@ -13,12 +13,19 @@
 #include "Behavior_TriggerObject.h"
 #include "Behavior_Throw.h"
 #include "Behavior_Idle.h"
+#include "Components/SphereComponent.h"
+#include "Item_Base.h"
 
 // Sets default values
 AGhostBase::AGhostBase()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	DetectItemSphere = CreateDefaultSubobject<USphereComponent>(TEXT("DetectItemSphere"));
+	DetectItemSphere->InitSphereRadius(400.f);
+	DetectItemSphere->SetupAttachment(RootComponent);
+	DetectItemSphere->SetGenerateOverlapEvents(true);
 
 	ConstructorHelpers::FObjectFinder<UDataTable> TempDT(
 		TEXT("/Script/Engine.DataTable'/Game/UP/Ghost/DT_GhostData.DT_GhostData'"));
@@ -35,6 +42,8 @@ AGhostBase::AGhostBase()
 void AGhostBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	DetectItemSphere->OnComponentBeginOverlap.AddDynamic(this, &AGhostBase::ItemInRange);
 
 	IdleStrategy = NewObject<UBehavior_Idle>(this);
 	WalkingStrategy = NewObject<UBehavior_Walking>(this);
@@ -181,7 +190,7 @@ void AGhostBase::TeleportState()
 
 void AGhostBase::KillState()
 {
-	SetBehaviorStrategy(TeleportStrategy);
+	SetBehaviorStrategy(KillStrategy);
 	ExecuteBehavior(&BehaviorContext);;
 }
 
@@ -193,13 +202,13 @@ void AGhostBase::TriggerObjectState()
 
 void AGhostBase::ThrowState()
 {
-	SetBehaviorStrategy(TeleportStrategy);
+	SetBehaviorStrategy(ThrowStrategy);
 	ExecuteBehavior(&BehaviorContext);;
 }
 
 void AGhostBase::PlayerSanityChanged(float NewSanity)
 {
-
+	
 }
 
 float AGhostBase::GetAttackRange()
@@ -217,4 +226,11 @@ float AGhostBase::GetSanityDestoryRate()
 	return GhostData->SanityDestroyRate;
 }
 
+void AGhostBase::ItemInRange(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (AItem_Base* Item = Cast<AItem_Base>(OtherActor)) {
+		BehaviorContext.Item = Item;
+		currentState = GhostState::Throw;
+	}
+}
 

@@ -8,6 +8,7 @@
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
 #include "Observer.h"
 #include "Item_Base.h"
+#include "Blueprint/UserWidget.h"
 #include "PhasmophobiaPlayer.generated.h"
 
 UCLASS()
@@ -162,5 +163,10 @@ public:
 	float Sanity = 100.0f;
 
 	void CheckGhostOnScreen(float DeltaTime);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
+	TSubclassOf<UUserWidget> CenterWidget;
+
+	UUserWidget* CenterUI;
 
 };
