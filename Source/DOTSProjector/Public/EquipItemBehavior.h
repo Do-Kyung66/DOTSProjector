@@ -21,6 +21,7 @@ public:
 	UFUNCTION()
 	virtual void ExecuteBehavior(AActor* Owner, const FInputActionValue& Value) override;
 
+	class UPlayerAnimInstance* AnimInstance;
 
 	
 };
