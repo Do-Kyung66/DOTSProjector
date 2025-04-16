@@ -34,7 +34,9 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// 캐릭터 메시 로드
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/rp_manuel_rigged_001_ue4.rp_manuel_rigged_001_ue4'"));
+	/*ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/rp_manuel_rigged_001_ue4.rp_manuel_rigged_001_ue4'"));*/
+
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/PlayerHandMesh2.PlayerHandMesh2'"));
 
 	if (MeshTemp.Succeeded())
 	{
@@ -44,7 +46,7 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	SpringArmComp->SetupAttachment(GetMesh());
-	SpringArmComp->SetRelativeLocation(FVector(0.0f, 0.0f, 153.0f));
+	SpringArmComp->SetRelativeLocation(FVector(0.0f, 27.0f, 153.0f));
 	SpringArmComp->bUsePawnControlRotation = true;
 	SpringArmComp->TargetArmLength = 0.0f;
 
