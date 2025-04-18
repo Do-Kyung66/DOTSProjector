@@ -113,9 +113,54 @@ void UEquipItemBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue&
 
 	if (UPrimitiveComponent* Mesh = Cast<UPrimitiveComponent>(Player->currentItem->GetComponentByClass(UStaticMeshComponent::StaticClass())))
 	{
+		/*Mesh->SetSimulatePhysics(false);
+		Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+		Mesh->AttachToComponent(Player->ItemComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale);*/
+
 		Mesh->SetSimulatePhysics(false);
 		Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-		Mesh->AttachToComponent(Player->ItemComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		if (Player->currentItem->GetName().Contains(TEXT("Flashlight")))
+		{
+			FName SocketName = TEXT("FlashlightSocket");
+			Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+			UE_LOG(LogTemp, Log, TEXT("SoketName : %s"),*SocketName.ToString());
+		}
+		else if (Player->currentItem->GetName().Contains(TEXT("Crucifix")))
+		{
+			FName SocketName = TEXT("CrucifixSocket");
+			Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+			UE_LOG(LogTemp, Log, TEXT("SoketName : %s"), *SocketName.ToString());
+		}
+		else if (Player->currentItem->GetName().Contains(TEXT("DotProjector")))
+		{
+			FName SocketName = TEXT("DotProjectorSocket");
+			Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+			UE_LOG(LogTemp, Log, TEXT("SoketName : %s"), *SocketName.ToString());
+		}
+		else if (Player->currentItem->GetName().Contains(TEXT("EMFReader")))
+		{
+			FName SocketName = TEXT("EMFReaderSocket");
+			Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+			UE_LOG(LogTemp, Log, TEXT("SoketName : %s"), *SocketName.ToString());
+		}
+		else if (Player->currentItem->GetName().Contains(TEXT("UVLight")))
+		{
+			FName SocketName = TEXT("UVLightSocket");
+			Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+			UE_LOG(LogTemp, Log, TEXT("SoketName : %s"), *SocketName.ToString());
+		}
+		else if (Player->currentItem->GetName().Contains(TEXT("Thermometer")))
+		{
+			FName SocketName = TEXT("ThermometerSocket");
+			Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+			UE_LOG(LogTemp, Log, TEXT("SoketName : %s"), *SocketName.ToString());
+		}
+		else if (Player->currentItem->GetName().Contains(TEXT("VideoCamera")))
+		{
+			FName SocketName = TEXT("VideoCameraSocket");
+			Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+			UE_LOG(LogTemp, Log, TEXT("SoketName : %s"), *SocketName.ToString());
+		}
 	}
 }
 

@@ -4,11 +4,21 @@
 #include "Function_EMFReader.h"
 #include "Item_EMFReader.h"
 #include "GhostBase.h"
+#include "Components/PointLightComponent.h"
 
 void UFunction_EMFReader::Use(AItem_Base* Item)
 {
 	if (AItem_EMFReader* EMFReader = Cast<AItem_EMFReader>(Item)) {
 		bOn = !bOn;
+
+		if (!bOn)
+		{
+			EMFReader->PointLight1->SetVisibility(false);
+			EMFReader->PointLight2->SetVisibility(false);
+			EMFReader->PointLight3->SetVisibility(false);
+			EMFReader->PointLight4->SetVisibility(false);
+			EMFReader->PointLight5->SetVisibility(false);
+		}
 	}
 }
 
@@ -43,8 +53,22 @@ void UFunction_EMFReader::Tick(float DeltaTime, AItem_EMFReader* EMFReader)
 			{
 				FVector GhostLocation = Ghost->GetActorLocation();
 				DrawDebugSphere(EMFReader->GetWorld(), GhostLocation, 25.f, 12, FColor::Red, false, 1.f);
+
+				EMFReader->PointLight1->SetVisibility(true);
+				EMFReader->PointLight2->SetVisibility(true);
+				EMFReader->PointLight3->SetVisibility(true);
+				EMFReader->PointLight4->SetVisibility(true);
+				EMFReader->PointLight5->SetVisibility(true);
 			}
 		}
+	}
+	else
+	{
+		EMFReader->PointLight1->SetVisibility(false);
+		EMFReader->PointLight2->SetVisibility(false);
+		EMFReader->PointLight3->SetVisibility(false);
+		EMFReader->PointLight4->SetVisibility(false);
+		EMFReader->PointLight5->SetVisibility(false);
 	}
 
 	DrawDebugSphere(EMFReader->GetWorld(), Start, EMFReader->DetectionRadius, 32, FColor::Green, false, 0.5f);
