@@ -35,9 +35,9 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// 캐릭터 메시 로드
-	/*ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/rp_manuel_rigged_001_ue4.rp_manuel_rigged_001_ue4'"));*/
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/rp_manuel_rigged_001_ue4.rp_manuel_rigged_001_ue4'"));
 
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/PlayerHandMesh2.PlayerHandMesh2'"));
+	//ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/PlayerHandMesh2.PlayerHandMesh2'"));
 
 	if (MeshTemp.Succeeded())
 	{
@@ -66,8 +66,8 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 	GetCharacterMovement()->bCanWalkOffLedgesWhenCrouching = true;
 
 	// 아이템 붙이기
-	ItemComp = CreateDefaultSubobject<USceneComponent>(TEXT("ItemComp"));
-	ItemComp->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
+	/*ItemComp = CreateDefaultSubobject<USceneComponent>(TEXT("ItemComp"));
+	ItemComp->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));*/
 
 	// 아이템 슬롯 초기화
 	ItemActors.SetNum(4);
