@@ -167,6 +167,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
 	TSubclassOf<UUserWidget> CenterWidget;
 
-	UUserWidget* CenterUI;
+	class UDefaultCursorWidget* CenterUI;
 
 };

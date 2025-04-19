@@ -20,8 +20,7 @@ APhasmophobiaPlayerController::APhasmophobiaPlayerController()
 
 void APhasmophobiaPlayerController::BeginPlay()
 {
-	// 커서 표시 및 입력 모드 설정
-
+	
 
 
 }
@@ -112,11 +111,18 @@ void APhasmophobiaPlayerController::ItemTrace()
 			}
 			else
 			{
+				bCanInteract = false;
 				TargetItem = nullptr;
 				UE_LOG(LogTemp, Warning, TEXT("Item X"));
 			}
 		}
 		
+	}
+	else
+	{
+		bCanInteract = false;
+		TargetItem = nullptr;
+		UE_LOG(LogTemp, Warning, TEXT("Nothing Hit"));
 	}
 
 	//DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.05f, 0, 2.0f);

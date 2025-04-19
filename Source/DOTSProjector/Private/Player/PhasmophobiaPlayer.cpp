@@ -22,6 +22,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "PlayerAnimInstance.h"
+#include "DefaultCursorWidget.h"
+#include "Components/Image.h"
 
 
 
@@ -91,14 +93,24 @@ void APhasmophobiaPlayer::BeginPlay()
 		}
 	}
 
-	if (CenterWidget)
+	/*if (CenterWidget)
 	{
 		CenterUI = CreateWidget<UUserWidget>(GetWorld(), CenterWidget);
 		if (CenterUI)
 		{
 			CenterUI->AddToViewport();
 		}
+	}*/
+
+	if (CenterWidget)
+	{
+		CenterUI = CreateWidget<UDefaultCursorWidget>(GetWorld(), CenterWidget);
+		CenterUI->AddToViewport();
+		
+		CenterUI->ShowDefaultCursor();
 	}
+
+	
 
 	// 런타임에서만 사용
 	// 기본 이동 전략 설정
@@ -149,6 +161,18 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 
 		GEngine->AddOnScreenDebugMessage(4, 1.5f, FColor::Green, FString::Printf(TEXT("Current Stamina: %f"), CurrentStamina));
 	}
+	if (PC)
+	{
+		if (PC->bCanInteract)
+		{
+			CenterUI->ShowHandCursor();
+		}
+		else
+		{
+			CenterUI->ShowDefaultCursor();
+		}
+	}
+	
 }
 
 // Called to bind functionality to input

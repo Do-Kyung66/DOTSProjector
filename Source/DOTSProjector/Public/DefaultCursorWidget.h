@@ -13,5 +13,15 @@ UCLASS()
 class DOTSPROJECTOR_API UDefaultCursorWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UImage* img_defaultCursor;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UImage* img_handCursor;
+
+	void ShowDefaultCursor();
+	void ShowHandCursor();
 	
 };
