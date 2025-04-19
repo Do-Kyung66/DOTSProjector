@@ -27,4 +27,4 @@ public:
 	virtual void TriggerObjectState() override;
 	virtual void ThrowState() override;
 
-};
+}; 

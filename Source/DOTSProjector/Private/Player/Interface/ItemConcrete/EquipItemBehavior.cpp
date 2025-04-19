@@ -16,8 +16,8 @@ UEquipItemBehavior::UEquipItemBehavior()
 void UEquipItemBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue& Value)
 {
 	
-	auto pc = Cast<APhasmophobiaPlayerController>(GetWorld()->GetFirstPlayerController());
-	if (!pc || !pc->bCanInteract) return;
+	/*auto pc = Cast<APhasmophobiaPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (!pc || !pc->bCanInteract) return;*/
 	
 	/*GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("EquipItem"));*/
 	UE_LOG(LogTemp, Warning, TEXT("EquipItem"));

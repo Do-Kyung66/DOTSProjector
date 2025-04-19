@@ -11,6 +11,13 @@
 #include "Engine/SkeletalMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Observer.h"
+#include "Behavior_Walking.h"
+#include "Behavior_Chase.h"
+#include "Behavior_Teleport.h"
+#include "Behavior_Kill.h"
+#include "Behavior_TriggerObject.h"
+#include "Behavior_Throw.h"
+#include "Behavior_Idle.h"
 #include "GhostBase.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGhostVisibleEvent);
@@ -141,6 +148,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere) 
 	GhostState currentState = GhostState::Idle;
+
 	float GetAttackRange();
 	float GetMovementSpeed();
 	float GetSanityDestoryRate();
@@ -151,4 +159,8 @@ public:
 	void ItemInRange(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 					   UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 					   bool bFromSweep, const FHitResult& SweepResult);
+
+public:
+	float PlayerSanity = 0;
+	float HuntBegin = false;
 };

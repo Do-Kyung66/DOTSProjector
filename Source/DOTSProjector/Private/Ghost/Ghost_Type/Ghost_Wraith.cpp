@@ -49,9 +49,9 @@ void AGhost_Wraith::UpdateFSM()
 		case GhostState::TriggerObject:
 			TriggerObjectState();
 			break;
-		case GhostState::Throw:
+		/*case GhostState::Throw:
 			ThrowState();
-			break;
+			break;*/
 	}
 }
 
@@ -104,7 +104,12 @@ void AGhost_Wraith::TeleportState()
 
 void AGhost_Wraith::KillState()
 {
-	Super::KillState();
+	if (PlayerCharacter->Sanity <= 60) {
+		SetBehaviorStrategy(KillStrategy);
+		ExecuteBehavior(&BehaviorContext);
+	}
+
+	currentState = GhostState::Idle;
 }
 
 void AGhost_Wraith::TriggerObjectState()

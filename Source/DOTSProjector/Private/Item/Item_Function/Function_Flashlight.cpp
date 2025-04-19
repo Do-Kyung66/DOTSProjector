@@ -6,7 +6,6 @@
 
 void UFunction_Flashlight::Use(AItem_Base* Item)
 {
-
     if (AItem_Flashlight* Flash = Cast<AItem_Flashlight>(Item))
     {
         if (Flash->SpotLightComp)

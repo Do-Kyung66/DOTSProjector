@@ -11,6 +11,7 @@
 #include "Blueprint/UserWidget.h"
 #include "PhasmophobiaPlayer.generated.h"
 
+
 UCLASS()
 class DOTSPROJECTOR_API APhasmophobiaPlayer : public ACharacter
 {
@@ -54,7 +55,7 @@ public:
 	UPROPERTY()
 	TObjectPtr<UObject> CurrentRunStrategy;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TObjectPtr<UObject> CurrentEquipStrategy;
 
 	UPROPERTY()
@@ -120,8 +121,10 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	class USceneComponent* ItemComp;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(Replicated)
 	AActor* ownedItem = nullptr;
+
+	UPROPERTY(Replicated)
 	AActor* currentItem = nullptr;
 
 	UPROPERTY()
@@ -160,6 +163,7 @@ public:
 
 	TArray<IObserver*> Observers;
 
+	UPROPERTY(Replicated)
 	float Sanity = 100.0f;
 
 	void CheckGhostOnScreen(float DeltaTime);
@@ -169,4 +173,40 @@ public:
 
 	UUserWidget* CenterUI;
 
+	float IsDead = false;
+
+	class IItemBehavior* EquipStrategy;
+
+	class IItemBehavior* DetachStrategy;
+
+	UPROPERTY(Replicated)
+	AActor* TargetItem = nullptr;
+
+	void ItemTrace();
+
+// Network
+public:
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Equip();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_Equip();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ItemTrace();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_UseItem();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_UseItem(AItem_Base* Item);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Detach();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_Detach();
 };

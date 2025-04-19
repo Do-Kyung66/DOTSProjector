@@ -2,10 +2,11 @@
 
 
 #include "Behavior_Kill.h"
+#include "PhasmophobiaPlayer.h"
 
 void UBehavior_Kill::ExecuteBehavior(const FGhostBehaviorContext& Context)
 {
-	if (!Context.Ghost || !Context.Target) return;
-
-	
+	if (APhasmophobiaPlayer* PlayerCharacter = Cast<APhasmophobiaPlayer>(Context.Target)) {
+		PlayerCharacter->IsDead = true;
+	}
 }

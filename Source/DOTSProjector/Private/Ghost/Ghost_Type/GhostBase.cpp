@@ -4,15 +4,8 @@
 #include "GhostBase.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Behavior_Walking.h"
 #include "GameFramework/Character.h"
 #include "NavigationInvokerComponent.h"
-#include "Behavior_Chase.h"
-#include "Behavior_Teleport.h"
-#include "Behavior_Kill.h"
-#include "Behavior_TriggerObject.h"
-#include "Behavior_Throw.h"
-#include "Behavior_Idle.h"
 #include "Components/SphereComponent.h"
 #include "Item_Base.h"
 
@@ -191,7 +184,7 @@ void AGhostBase::TeleportState()
 void AGhostBase::KillState()
 {
 	SetBehaviorStrategy(KillStrategy);
-	ExecuteBehavior(&BehaviorContext);;
+	ExecuteBehavior(&BehaviorContext);
 }
 
 void AGhostBase::TriggerObjectState()
@@ -208,7 +201,8 @@ void AGhostBase::ThrowState()
 
 void AGhostBase::PlayerSanityChanged(float NewSanity)
 {
-	
+	PlayerSanity = NewSanity;
+	HuntBegin = true;
 }
 
 float AGhostBase::GetAttackRange()
