@@ -12,6 +12,7 @@
 #include "PhasmophobiaPlayer.generated.h"
 
 
+
 UCLASS()
 class DOTSPROJECTOR_API APhasmophobiaPlayer : public ACharacter
 {
@@ -130,6 +131,7 @@ public:
 	UPROPERTY()
 	TArray<AActor*> ItemActors;
 
+	UPROPERTY(Replicated)
 	bool bHasItem = false;
 	int32 CurrentItemIndex = -1;
 
@@ -184,8 +186,12 @@ public:
 
 	void ItemTrace();
 
+
 // Network
 public:
+
+	UPROPERTY(Replicated, BlueprintReadWrite)
+	EItemType CurrentItemType = EItemType::None;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
@@ -209,4 +215,6 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_Detach();
+
+
 };

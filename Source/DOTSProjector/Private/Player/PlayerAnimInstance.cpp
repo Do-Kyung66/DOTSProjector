@@ -3,6 +3,7 @@
 
 #include "PlayerAnimInstance.h"
 #include "PhasmophobiaPlayer.h"
+#include "Net/UnrealNetwork.h"
 
 void UPlayerAnimInstance::NativeInitializeAnimation()
 {
@@ -26,51 +27,50 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		// 아이템 소유 여부
 		bHasItem = Player->bHasItem;
 
-		// 들고 있는 아이템 업데이트
 		if (Player->currentItem)
 		{
 			if (Player->currentItem->GetName().Contains(TEXT("Flashlight"), ESearchCase::IgnoreCase))
 			{
-				CurrentItemType = EItemType::Flashlight;
+				Player->CurrentItemType = EItemType::Flashlight;
 				UE_LOG(LogTemp, Log, TEXT("Flashlight state"));
 			}
 			else if (Player->currentItem->GetName().Contains(TEXT("Crucifix"), ESearchCase::IgnoreCase))
 			{
-				CurrentItemType = EItemType::Crucifix;
+				Player->CurrentItemType = EItemType::Crucifix;
 				UE_LOG(LogTemp, Log, TEXT("Crucifix state"));
 			}
 			else if (Player->currentItem->GetName().Contains(TEXT("DotProjector"), ESearchCase::IgnoreCase))
 			{
-				CurrentItemType = EItemType::DotProjector;
+				Player->CurrentItemType = EItemType::DotProjector;
 				UE_LOG(LogTemp, Log, TEXT("DotProjector state"));
 			}
 			else if (Player->currentItem->GetName().Contains(TEXT("EMFReader"), ESearchCase::IgnoreCase))
 			{
-				CurrentItemType = EItemType::EMFReader;
+				Player->CurrentItemType = EItemType::EMFReader;
 				UE_LOG(LogTemp, Log, TEXT("EMFReader state"));
-
 			}
 			else if (Player->currentItem->GetName().Contains(TEXT("UVLight"), ESearchCase::IgnoreCase))
 			{
-				CurrentItemType = EItemType::UVLight;
+				Player->CurrentItemType = EItemType::UVLight;
 				UE_LOG(LogTemp, Log, TEXT("UVLight state"));
 			}
 			else if (Player->currentItem->GetName().Contains(TEXT("Thermometer"), ESearchCase::IgnoreCase))
 			{
-				CurrentItemType = EItemType::Thermometer;
+				Player->CurrentItemType = EItemType::Thermometer;
 				UE_LOG(LogTemp, Log, TEXT("Thermometer state"));
 			}
 			else if (Player->currentItem->GetName().Contains(TEXT("VideoCamera"), ESearchCase::IgnoreCase))
 			{
-				CurrentItemType = EItemType::VideoCamera;
+				Player->CurrentItemType = EItemType::VideoCamera;
 				UE_LOG(LogTemp, Log, TEXT("VideoCamera state"));
 			}
 		}
 		else
 		{
-			CurrentItemType = EItemType::None;
+			Player->CurrentItemType = EItemType::None;
 			UE_LOG(LogTemp, Log, TEXT("None state"));
 		}
-		
+		CurrentItemType = Player->CurrentItemType;
+	
 	}
 }

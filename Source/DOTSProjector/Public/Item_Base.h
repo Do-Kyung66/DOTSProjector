@@ -8,6 +8,19 @@
 #include "DT_Item.h"
 #include "Item_Base.generated.h"
 
+UENUM(BlueprintType)
+enum class EItemType : uint8
+{
+	None,
+	Flashlight,
+	Crucifix,
+	DotProjector,
+	EMFReader,
+	UVLight,
+	Thermometer,
+	VideoCamera
+};
+
 UCLASS()
 class DOTSPROJECTOR_API AItem_Base : public AActor
 {

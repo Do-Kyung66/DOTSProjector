@@ -407,6 +407,8 @@ void APhasmophobiaPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(APhasmophobiaPlayer, ownedItem);
 	DOREPLIFETIME(APhasmophobiaPlayer, TargetItem);
 	DOREPLIFETIME(APhasmophobiaPlayer, currentItem);
+	DOREPLIFETIME(APhasmophobiaPlayer, CurrentItemType);
+	DOREPLIFETIME(APhasmophobiaPlayer, bHasItem);
 }
 
 void APhasmophobiaPlayer::ServerRPC_Equip_Implementation()
@@ -431,6 +433,7 @@ void APhasmophobiaPlayer::ServerRPC_Equip_Implementation()
 			break;
 		}
 	}
+
 }
 
 void APhasmophobiaPlayer::MulticastRPC_Equip_Implementation()
@@ -487,14 +490,15 @@ void APhasmophobiaPlayer::ServerRPC_UseItem_Implementation()
 		if (HoldingItem)
 		{
 			HoldingItem->SetItemStrategy(HoldingItem->ItemStrategy);
-			MulticastRPC_UseItem(HoldingItem);
+			HoldingItem->UseItem();
+			// MulticastRPC_UseItem(HoldingItem);
 		}
 	}
 }
 
 void APhasmophobiaPlayer::MulticastRPC_UseItem_Implementation(AItem_Base* Item)
 {
-	Item->UseItem();
+	// Item->UseItem();
 }
 
 void APhasmophobiaPlayer::ServerRPC_Detach_Implementation()
@@ -502,7 +506,7 @@ void APhasmophobiaPlayer::ServerRPC_Detach_Implementation()
 	if (CurrentDetachStrategy && CurrentDetachStrategy->GetClass()->ImplementsInterface(UItemBehavior::StaticClass()))
 	{
 		DetachStrategy = Cast<IItemBehavior>(CurrentDetachStrategy);
-
+		
 		MulticastRPC_Detach();
 	}
 
