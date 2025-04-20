@@ -16,5 +16,7 @@ class DOTSPROJECTOR_API APhasmophobiaGameMode : public AGameModeBase
 
 public:
 	APhasmophobiaGameMode();
+
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 	
 };

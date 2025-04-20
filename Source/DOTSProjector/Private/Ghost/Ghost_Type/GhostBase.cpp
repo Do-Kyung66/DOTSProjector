@@ -5,9 +5,10 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/Character.h"
-#include "NavigationInvokerComponent.h"
 #include "Components/SphereComponent.h"
 #include "Item_Base.h"
+#include "GameFramework/GameStateBase.h"
+#include "GameFramework/PlayerState.h"
 
 // Sets default values
 AGhostBase::AGhostBase()
@@ -36,6 +37,8 @@ void AGhostBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (!HasAuthority()) return;
+
 	DetectItemSphere->OnComponentBeginOverlap.AddDynamic(this, &AGhostBase::ItemInRange);
 
 	IdleStrategy = NewObject<UBehavior_Idle>(this);
@@ -45,6 +48,7 @@ void AGhostBase::BeginPlay()
 	KillStrategy = NewObject<UBehavior_Kill>(this);
 	TriggerObjectStrategy = NewObject<UBehavior_TriggerObject>(this);
 	ThrowStrategy = NewObject<UBehavior_Throw>(this);
+	PatrolStrategy = NewObject<UBehavior_Patrol>(this);
 
 	BehaviorContext.Ghost = this;
 
@@ -76,6 +80,15 @@ void AGhostBase::BeginPlay()
 			ExecuteBehavior(&BehaviorContext);
 		}
 	}
+
+	if (GetRandomPositionInNavMesh(GetActorLocation(), 800.f, RandomPos))
+	{
+		AAIController* AIController = Cast<AAIController>(GetController());
+		if (AIController)
+		{
+			AIController->MoveToLocation(RandomPos);
+		}
+	}
 }
 
 // Called every frame
@@ -83,10 +96,11 @@ void AGhostBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	ThrowDelay += DeltaTime;
 
-	//ExecuteBehavior(&BehaviorContext);
-
-
+	if (ThrowDelay > 15) {
+		CanThrow = true;
+	}
 }
 
 // Called to bind functionality to input
@@ -193,9 +207,15 @@ void AGhostBase::TriggerObjectState()
 	ExecuteBehavior(&BehaviorContext);;
 }
 
-void AGhostBase::ThrowState()
+void AGhostBase::ThrowState()	
 {
 	SetBehaviorStrategy(ThrowStrategy);
+	ExecuteBehavior(&BehaviorContext);
+}
+
+void AGhostBase::PatrolState()
+{
+	SetBehaviorStrategy(PatrolStrategy);
 	ExecuteBehavior(&BehaviorContext);;
 }
 
@@ -222,9 +242,78 @@ float AGhostBase::GetSanityDestoryRate()
 
 void AGhostBase::ItemInRange(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (!CanThrow) return;
+
 	if (AItem_Base* Item = Cast<AItem_Base>(OtherActor)) {
-		BehaviorContext.Item = Item;
-		currentState = GhostState::Throw;
+		if (Item != PlayerCharacter->currentItem) {
+			BehaviorContext.Item = Item;
+			currentState = GhostState::Throw;
+		}
 	}
 }
 
+void AGhostBase::SelectTargetPlayer() 
+{
+	if (HasAuthority())
+	{
+		UWorld* World = GetWorld();
+		AGameStateBase* GS = World->GetGameState();
+
+		int32 RandomTargetBehavior = FMath::RandRange(0, 2);
+
+		TArray<APhasmophobiaPlayer*> NumberOfPlayers;
+
+		for (APlayerState* PS : GS->PlayerArray)
+		{
+			APhasmophobiaPlayer* NewPlayer = Cast<APhasmophobiaPlayer>(PS->GetPawn());
+			if (NewPlayer)
+			{
+				NumberOfPlayers.Add(NewPlayer);
+
+				if (RandomTargetBehavior == 0) {
+					//GEngine->AddOnScreenDebugMessage(15, 2.0f, FColor::Cyan, TEXT("Based on Distance Target!"));
+					float NearDist = FVector::DistSquared(NewPlayer->GetActorLocation(), GetActorLocation());
+					if (NearDist < NearestDist)
+					{
+						NearestDist = NearDist;
+						PlayerCharacter = NewPlayer;
+					}
+				}
+				if (RandomTargetBehavior == 1)
+				{
+					//GEngine->AddOnScreenDebugMessage(16, 2.0f, FColor::Cyan, TEXT("Based on Sanity Target!"));
+					if (MinSanity > NewPlayer->Sanity) {
+						MinSanity = NewPlayer->Sanity;
+						PlayerCharacter = NewPlayer;
+					}
+				}
+			}
+		}
+
+		if (RandomTargetBehavior == 2)
+		{
+			//GEngine->AddOnScreenDebugMessage(17, 2.0f, FColor::Cyan, TEXT("Random Target!"));
+			int32 RandomIndex = FMath::RandRange(0, NumberOfPlayers.Num() - 1);
+			PlayerCharacter = NumberOfPlayers[RandomIndex];
+		}
+
+		if (PlayerCharacter)
+		{
+			BehaviorContext.Target = PlayerCharacter;
+			FString PlayerName = PlayerCharacter->GetPlayerState()->GetPlayerName();
+			//GEngine->AddOnScreenDebugMessage(6, 2.0f, FColor::White, FString::Printf(TEXT("Ghost Target : %s"), *PlayerName));
+		}
+	}
+}
+
+bool AGhostBase::GetRandomPositionInNavMesh(FVector CenterLocation, float Radius, FVector& Destination)
+{
+	auto NavSys = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+
+	FNavLocation Loc;
+
+	bool result = NavSys->GetRandomReachablePointInRadius(CenterLocation, Radius, Loc);
+	Destination = Loc.Location;
+
+	return result;
+}

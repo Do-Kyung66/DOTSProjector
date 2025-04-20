@@ -26,5 +26,5 @@ public:
 	virtual void KillState() override;
 	virtual void TriggerObjectState() override;
 	virtual void ThrowState() override;
-
+	virtual void PatrolState() override;
 }; 
