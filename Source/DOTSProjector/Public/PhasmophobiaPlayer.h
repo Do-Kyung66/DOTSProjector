@@ -9,6 +9,7 @@
 #include "Observer.h"
 #include "Item_Base.h"
 #include "Blueprint/UserWidget.h"
+#include "IItemBehavior.h"
 #include "PhasmophobiaPlayer.generated.h"
 
 
@@ -59,7 +60,7 @@ public:
 	UPROPERTY(Replicated)
 	TObjectPtr<UObject> CurrentEquipStrategy;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TObjectPtr<UObject> CurrentSwitchStrategy;
 
 	UPROPERTY()
@@ -78,6 +79,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 
 	class UInputAction* UseAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+
+	class UInputAction* ItemAction;
 
 	class UInputAction* CrouchAction;
 
@@ -128,11 +133,13 @@ public:
 	UPROPERTY(Replicated)
 	AActor* currentItem = nullptr;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TArray<AActor*> ItemActors;
 
 	UPROPERTY(Replicated)
 	bool bHasItem = false;
+
+	UPROPERTY(Replicated)
 	int32 CurrentItemIndex = -1;
 
 	
@@ -162,6 +169,7 @@ public:
 	void DecreaseSanity(float Amount);
 
 	void UseItem();
+	void ActivateItem();
 
 	TArray<IObserver*> Observers;
 
@@ -180,6 +188,9 @@ public:
 	class IItemBehavior* EquipStrategy;
 
 	class IItemBehavior* DetachStrategy;
+
+	UPROPERTY(Replicated)
+	TScriptInterface<IItemBehavior> SwitchStrategy;
 
 	UPROPERTY(Replicated)
 	AActor* TargetItem = nullptr;
@@ -216,5 +227,21 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_Detach();
 
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Switch(float ScrollData);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_Switch(int32 NextItemIndex);
+
+	UPROPERTY(Replicated)
+	float ScrollValue = 0.f;
+
+	UPROPERTY(Replicated)
+	int32 NextIndex = 0.f;
+
+	UPROPERTY(Replicated)
+	int32 StartIndex = 0.f;
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ItemAction();
 };

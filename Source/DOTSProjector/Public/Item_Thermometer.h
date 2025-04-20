@@ -13,5 +13,10 @@ UCLASS()
 class DOTSPROJECTOR_API AItem_Thermometer : public AItem_Base
 {
 	GENERATED_BODY()
-	
+
+public:
+	AItem_Thermometer();
+
+	virtual void BeginPlay() override;
+
 };

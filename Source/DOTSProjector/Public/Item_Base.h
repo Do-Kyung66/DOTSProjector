@@ -46,6 +46,9 @@ public:
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	class USceneComponent* RootScene;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class UStaticMeshComponent* MeshComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Strategy")
@@ -60,6 +63,9 @@ public:
 		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
 	int32 ItemID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
+	bool bCanGhostTrigger = false;
 
 	virtual void NotifyActorBeginCursorOver() override;
 	virtual void NotifyActorEndCursorOver() override;

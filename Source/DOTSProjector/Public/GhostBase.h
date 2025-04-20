@@ -58,7 +58,7 @@ struct StructBehaviorTimer
 	float KillTimerEnd = 20.f;
 
 	float PatrolTimerStart = 0.f;
-	float PatrolTimerEnd = 5.f;
+	float PatrolTimerEnd = 7.f;
 
 	float TriggerObjectTimerStart = 0.f;
 	float TriggerObjectTimerEnd = 10.f;
@@ -152,6 +152,7 @@ public:
 	void StartGhostVisibleEvent();
 	void ToggleVisible();
 	void EndGhostVisibleEvent();
+	void VisibleRateEvent();
 
 	FTimerHandle VisibleTimerHandle;
 	FTimerHandle EndVisibleTimerHandle;
@@ -194,9 +195,11 @@ public:
 	float GetSanityDestoryRate();
 
 	bool CanThrow = true;
+	bool CanTrigger = true;
 	float ThrowDelay = 0.f;
 
 	FVector RandomPos;
+	bool bPatrol = false;
 
 	bool GetRandomPositionInNavMesh(FVector CenterLocation, float Radius, FVector& Destination);
 
@@ -208,7 +211,6 @@ public:
 					   bool bFromSweep, const FHitResult& SweepResult);
 
 public:
-	float PlayerSanity = 0;
 	float HuntBegin = false;
 
 

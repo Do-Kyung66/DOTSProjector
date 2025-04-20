@@ -12,7 +12,6 @@
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
 #include "PhasmophobiaPlayerController.h"
-#include "IItemBehavior.h"
 #include "ItemStrategy.h"
 #include "GhostBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -163,7 +162,7 @@ void APhasmophobiaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Move);
 		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::LookAround);
 
-
+		EnhancedInput->BindAction(ItemAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::ActivateItem);
 		EnhancedInput->BindAction(UseAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::UseItem);
 
 		EnhancedInput->BindAction(CrouchAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::PlayerCrouch);
@@ -262,14 +261,7 @@ void APhasmophobiaPlayer::Equip(const FInputActionValue& Value)
 
 void APhasmophobiaPlayer::Switch(const FInputActionValue& Value)
 {
-	if (CurrentSwitchStrategy && CurrentSwitchStrategy->GetClass()->ImplementsInterface(UItemBehavior::StaticClass()))
-	{
-		IItemBehavior* SwitchStrategy = Cast<IItemBehavior>(CurrentSwitchStrategy);
-		if (SwitchStrategy)
-		{
-			SwitchStrategy->ExecuteBehavior(this, Value);
-		}
-	}
+	ServerRPC_Switch(Value.Get<float>());
 }
 
 void APhasmophobiaPlayer::Detach(const FInputActionValue& Value)
@@ -355,6 +347,11 @@ void APhasmophobiaPlayer::UseItem()
 	ServerRPC_UseItem();
 }
 
+void APhasmophobiaPlayer::ActivateItem()
+{
+	ServerRPC_ItemAction();
+}
+
 void APhasmophobiaPlayer::CheckGhostOnScreen(float DeltaTime)
 {
 	if (!PC) return;
@@ -409,6 +406,14 @@ void APhasmophobiaPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(APhasmophobiaPlayer, currentItem);
 	DOREPLIFETIME(APhasmophobiaPlayer, CurrentItemType);
 	DOREPLIFETIME(APhasmophobiaPlayer, bHasItem);
+	DOREPLIFETIME(APhasmophobiaPlayer, ItemActors);
+	DOREPLIFETIME(APhasmophobiaPlayer, CurrentSwitchStrategy);
+	DOREPLIFETIME(APhasmophobiaPlayer, SwitchStrategy);
+	DOREPLIFETIME(APhasmophobiaPlayer, CurrentItemIndex);
+	DOREPLIFETIME(APhasmophobiaPlayer, ScrollValue);
+	DOREPLIFETIME(APhasmophobiaPlayer, NextIndex);
+	DOREPLIFETIME(APhasmophobiaPlayer, StartIndex);
+
 }
 
 void APhasmophobiaPlayer::ServerRPC_Equip_Implementation()
@@ -461,7 +466,7 @@ void APhasmophobiaPlayer::ServerRPC_ItemTrace_Implementation()
 
 	if (GetWorld()->LineTraceSingleByChannel(Hitinfo, Start, End, ECC_Visibility, params))
 	{
-		GEngine->AddOnScreenDebugMessage(2, 2.0f, FColor::Green, FString::Printf(TEXT("Hit: %s"), *Hitinfo.GetActor()->GetName()));
+		// GEngine->AddOnScreenDebugMessage(2, 2.0f, FColor::Green, FString::Printf(TEXT("Hit: %s"), *Hitinfo.GetActor()->GetName()));
 
 		AActor* HitActor = Hitinfo.GetActor();
 		if (HitActor)
@@ -471,13 +476,10 @@ void APhasmophobiaPlayer::ServerRPC_ItemTrace_Implementation()
 			if (ActorName.Contains(TEXT("item"), ESearchCase::IgnoreCase))
 			{
 				TargetItem = HitActor;
-				UE_LOG(LogTemp, Warning, TEXT("Hit Item"));
-
 			}
 			else
 			{
 				TargetItem = nullptr;
-				UE_LOG(LogTemp, Warning, TEXT("Item X"));
 			}
 		}
 	}
@@ -525,6 +527,59 @@ void APhasmophobiaPlayer::MulticastRPC_Detach_Implementation()
 	if (DetachStrategy)
 	{
 		DetachStrategy->ExecuteBehavior(this, 0);
+	}
+}
+
+void APhasmophobiaPlayer::ServerRPC_Switch_Implementation(float ScrollData)
+{
+	if (CurrentSwitchStrategy && CurrentSwitchStrategy->GetClass()->ImplementsInterface(UItemBehavior::StaticClass()))
+	{
+		//GEngine->AddOnScreenDebugMessage(22, 1.5f, FColor::Green, TEXT("On Switch Function"));
+
+		SwitchStrategy.SetObject(CurrentSwitchStrategy);
+		SwitchStrategy.SetInterface(Cast<IItemBehavior>(CurrentSwitchStrategy));
+
+		if (SwitchStrategy)
+		{
+			SwitchStrategy->ExecuteBehavior(this, ScrollData);
+			// GEngine->AddOnScreenDebugMessage(23, 1.5f, FColor::Green, TEXT("Switch Working?"));
+			MulticastRPC_Switch(CurrentItemIndex);
+		}
+	}
+}
+
+void APhasmophobiaPlayer::MulticastRPC_Switch_Implementation(int32 NextItemIndex)
+{
+
+	if (ItemActors.IsValidIndex(NextItemIndex))
+	{
+		if (currentItem)
+		{
+			currentItem->SetActorHiddenInGame(true);
+		}
+
+		currentItem = ItemActors[NextItemIndex];
+		CurrentItemIndex = NextItemIndex;
+
+		if (currentItem)
+		{
+			currentItem->SetActorHiddenInGame(false);
+			currentItem->AttachToComponent(ItemComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		}
+	}
+	
+
+}
+
+void APhasmophobiaPlayer::ServerRPC_ItemAction_Implementation()
+{
+	if (TargetItem)
+	{
+		AItem_Base* Item = Cast<AItem_Base>(TargetItem);
+		if (Item)
+		{
+			Item->UseItem();
+		}
 	}
 }
 

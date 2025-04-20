@@ -140,6 +140,8 @@ FName AGhostBase::GetRandomGhost()
 	return NAME_None;
 }
 
+
+
 void AGhostBase::StartGhostVisibleEvent()
 {
 	ToggleVisible();
@@ -169,6 +171,23 @@ void AGhostBase::EndGhostVisibleEvent()
 	SetActorHiddenInGame(true);
 
 	GetWorld()->GetTimerManager().ClearTimer(VisibleTimerHandle);
+}
+
+void AGhostBase::VisibleRateEvent()
+{
+	if (!PlayerCharacter) return;
+
+	float PlayerSanity = PlayerCharacter->Sanity;
+	float SanityNormalized = FMath::Clamp(PlayerSanity / 100.0f, 0.0f, 1.0f);
+
+	float Probability = 1.0f - SanityNormalized;
+
+	float RandomChance = FMath::FRand();
+
+	if (RandomChance < Probability)
+	{
+		StartGhostVisibleEvent();
+	}
 }
 
 void AGhostBase::IdleState()
@@ -221,7 +240,6 @@ void AGhostBase::PatrolState()
 
 void AGhostBase::PlayerSanityChanged(float NewSanity)
 {
-	PlayerSanity = NewSanity;
 	HuntBegin = true;
 }
 
@@ -242,12 +260,14 @@ float AGhostBase::GetSanityDestoryRate()
 
 void AGhostBase::ItemInRange(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!CanThrow) return;
-
 	if (AItem_Base* Item = Cast<AItem_Base>(OtherActor)) {
-		if (Item != PlayerCharacter->currentItem) {
+		if (Item != PlayerCharacter->currentItem && !Item->bCanGhostTrigger) {
 			BehaviorContext.Item = Item;
 			currentState = GhostState::Throw;
+		}
+		else if (Item != PlayerCharacter->currentItem && Item->bCanGhostTrigger) {
+			BehaviorContext.Item = Item;
+			currentState = GhostState::TriggerObject;
 		}
 	}
 }

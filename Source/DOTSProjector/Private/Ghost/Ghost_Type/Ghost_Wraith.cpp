@@ -10,13 +10,12 @@ AGhost_Wraith::AGhost_Wraith()
 	GetMesh()->SetCanEverAffectNavigation(true);
 	GetCharacterMovement()->MaxWalkSpeed = GetMovementSpeed();
 
-	currentState = GhostState::Patrol;
 }
 
 void AGhost_Wraith::BeginPlay()
 {
 	Super::BeginPlay();
-
+	currentState = GhostState::Patrol;
 }
 
 void AGhost_Wraith::Tick(float DeltaSeconds)
@@ -30,6 +29,13 @@ void AGhost_Wraith::Tick(float DeltaSeconds)
 		if (BehaviorTimer.ThrowTimerStart > BehaviorTimer.ThrowTimerEnd) {
 			BehaviorTimer.ThrowTimerStart = 0.f;
 			CanThrow = true;
+		}
+	}
+	if (!CanTrigger) {
+		BehaviorTimer.TriggerObjectTimerStart += GetWorld()->GetDeltaSeconds();
+		if (BehaviorTimer.TriggerObjectTimerStart > BehaviorTimer.TriggerObjectTimerEnd) {
+			BehaviorTimer.TriggerObjectTimerStart = 0.f;
+			CanTrigger = true;
 		}
 	}
 }
@@ -119,7 +125,7 @@ void AGhost_Wraith::ChaseState()
 {
 	Super::ChaseState();
 
-	StartGhostVisibleEvent();
+	VisibleRateEvent();
 
 	if (PlayerCharacter) {
 		if ((PlayerCharacter->GetActorLocation() - this->GetActorLocation()).Size() <= GetAttackRange())
@@ -139,14 +145,14 @@ void AGhost_Wraith::TeleportState()
 {
 	Super::TeleportState();
 
-	StartGhostVisibleEvent();
+	VisibleRateEvent();
 	SetActorLocation(GetActorLocation() + FVector(300.f, 0.0f, 0.0f));
 	currentState = GhostState::Idle;
 }
 
 void AGhost_Wraith::KillState()
 {
-	if (PlayerCharacter->Sanity <= 60) {
+	if (HuntBegin) {
 		SetBehaviorStrategy(KillStrategy);
 		ExecuteBehavior(&BehaviorContext);
 	}
@@ -156,7 +162,13 @@ void AGhost_Wraith::KillState()
 
 void AGhost_Wraith::TriggerObjectState()
 {
-	Super::TriggerObjectState();
+	if (CanTrigger) {
+		SetBehaviorStrategy(TriggerObjectStrategy);
+		ExecuteBehavior(&BehaviorContext);;
+	}
+	else {
+		currentState = GhostState::Idle;
+	}
 }
 
 void AGhost_Wraith::ThrowState()
@@ -178,5 +190,7 @@ void AGhost_Wraith::PatrolState()
 	if (BehaviorTimer.PatrolTimerStart > BehaviorTimer.PatrolTimerEnd) {
 		BehaviorTimer.PatrolTimerStart = 0.f;
 		currentState = GhostState::Idle;
+		bPatrol = false;
+		VisibleRateEvent();
 	}
 }

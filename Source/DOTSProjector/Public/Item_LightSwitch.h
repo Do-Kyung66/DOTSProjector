@@ -3,25 +3,26 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "ItemStrategy.h"
 #include "Item_Base.h"
 #include "Components/SpotLightComponent.h"
-#include "Item_Flashlight.generated.h"
+#include "HouseItem_Base.h"
+#include "Item_LightSwitch.generated.h"
 
+/**
+ * 
+ */
 UCLASS()
-class DOTSPROJECTOR_API AItem_Flashlight : public AItem_Base
+class DOTSPROJECTOR_API AItem_LightSwitch : public AItem_Base
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	AItem_Flashlight();
+
+public:
+	AItem_LightSwitch();
 
 	virtual void BeginPlay() override;
 
 public:	
-	UPROPERTY(VisibleAnywhere, Category = "Flashlight")
+	UPROPERTY(VisibleAnywhere)
     USpotLightComponent* SpotLightComp;
 
 

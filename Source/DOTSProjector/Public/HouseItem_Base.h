@@ -4,25 +4,24 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "ItemStrategy.h"
 #include "Item_Base.h"
-#include "Components/SpotLightComponent.h"
-#include "Item_Flashlight.generated.h"
+#include "HouseItem_Base.generated.h"
 
 UCLASS()
-class DOTSPROJECTOR_API AItem_Flashlight : public AItem_Base
+class DOTSPROJECTOR_API AHouseItem_Base : public AItem_Base
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AItem_Flashlight();
+	AHouseItem_Base();
 
+protected:
+	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	UPROPERTY(VisibleAnywhere, Category = "Flashlight")
-    USpotLightComponent* SpotLightComp;
-
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 
 };
