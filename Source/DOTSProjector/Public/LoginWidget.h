@@ -15,6 +15,33 @@ class DOTSPROJECTOR_API ULoginWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UWidgetSwitcher* WidgetSwitcher;
+
+	// 메인
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UButton* btn_start;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UButton* btn_exit;
+
+	// 방 리스트
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UButton* btn_Refesh;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UButton* btn_Create;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UButton* btn_PrivateEnter;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UScrollBox* Scroll_RoomList;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class USessionSlotWidget> SessionInfoWidget;
+
+	// 방 만들기
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UButton* btn_createRoom;
 
@@ -27,12 +54,67 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UCheckBox* CheckBox_PrivateRoom;
 
+	// private key 입력
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	class UEditableText* edit_privatekey;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	class UButton* btn_join;
+
+	// waiting room
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	class UTextBlock* txt_RoomName;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	class UTextBlock* txt_CodeLabel;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	class UTextBlock* txt_privateKey;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	class UButton* btn_leave;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	class UButton* btn_ready;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	class UButton* btn_gamestart;
+
+
+	
+	// 뒤로가기
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	class UButton* btn_BackMain;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	class UButton* btn_BackRoomList_1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	class UButton* btn_BackRoomList_2;
+	
 	UPROPERTY()
 	class UNetGameInstance* gi;
 
 public:
 	virtual void NativeConstruct() override;
 
+	// 메인
+	UFUNCTION()
+	void OnStartClicked();
+
+	UFUNCTION()
+	void OnExitClicked();
+
+	// 방 리스트
+	UFUNCTION()
+	void OnRefeshClicked();
+
+	UFUNCTION()
+	void OnCreateClicked();
+
+	UFUNCTION()
+	void OnPrivateEnterClicked();
+
+	UFUNCTION()
+	void AddSlotWidget(const struct FSessionInfo& InSessionInfo);
+
+	// 방 만들기
 	UFUNCTION()
 	void CreateRoom();
 
@@ -43,4 +125,13 @@ public:
 	void OnPublicheckBoxChanged(bool Check);
 	UFUNCTION()
 	void OnPrivateCheckBoxChanged(bool Check);
+
+	// private room enter 클릭
+
+	// 뒤로가기 함수
+	UFUNCTION()
+	void BackToMain();
+
+	UFUNCTION()
+	void BackToRoomList();
 };

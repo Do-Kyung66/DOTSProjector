@@ -2,10 +2,11 @@
 
 
 #include "NetGameInstance.h"
-#include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/OnlineSessionSettings.h"
-#include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/OnlineSubsystem.h"
+#include "OnlineSessionSettings.h"
+#include "OnlineSubsystem.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "DOTSProjector.h"
+#include "../../../../Plugins/Online/OnlineBase/Source/Public/Online/OnlineSessionNames.h"
 
 void UNetGameInstance::Init()
 {
@@ -21,15 +22,17 @@ void UNetGameInstance::Init()
 		// 세션 생성 완료 시 호출될 델리게이트(언리얼내부에서 처리됨)에 이 객체의 콜백 함수 바인딩
 		// OnCreateSessionComplete 함수가 세션 생성 결과 처리
 		sessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UNetGameInstance::OnCreateSessionComplete);
+		sessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UNetGameInstance::OnFindSessionComplete);
 
-		// 임의로 세션 생성
-		/*FTimerHandle handle;
-		GetWorld()->GetTimerManager().SetTimer(handle,
-										FTimerDelegate::CreateLambda([&]
-										{
-										CreateMySession(mySessionName, false);
-										}
-										), 2.0f, false);*/
+		// 세션 테스트
+		//FTimerHandle handle;
+		//GetWorld()->GetTimerManager().SetTimer(handle,
+		//								FTimerDelegate::CreateLambda([&]
+		//								{
+		//								//CreateMySession(mySessionName, false);
+		//								FindOtherSession();
+		//								}
+		//								), 2.0f, false);
 	}
 }
 
@@ -88,4 +91,72 @@ void UNetGameInstance::CreateMySession(FString roomName, bool bIsPrivate)
 void UNetGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
 {
 	PRINTLOG(TEXT("SessionName : %s, bWasSuccessful : %d"), *SessionName.ToString(), bWasSuccessful);
+}
+
+void UNetGameInstance::FindOtherSession()
+{
+	onSearchState.Broadcast(true);
+	// 세션 검색 객체 생성
+	sessionSearch = MakeShareable(new FOnlineSessionSearch());
+
+	// 1. 세션 검색 조건 설정 (Presence: 온라인 상태의 세션만 검색)
+	sessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+	// 2. Lan 여부 (NULL 서브시스템이면 LAN)
+	sessionSearch->bIsLanQuery = IOnlineSubsystem::Get()->GetSubsystemName() == FName("NULL");
+	// 3. 최대 검색 세션 수
+	sessionSearch->MaxSearchResults = 10;
+
+	// 4. 세션검색 (로컬 플레이어 인덱스는 0)
+	sessionInterface->FindSessions(0, sessionSearch.ToSharedRef());
+}
+
+void UNetGameInstance::OnFindSessionComplete(bool bWasSuccessful)
+{
+	// 찾기 실패시
+	if (!bWasSuccessful)
+	{
+		onSearchState.Broadcast(false);
+		PRINTLOG(TEXT("Session search failed..."));
+		return;
+	}
+	
+	// 세션 검색결과 배열
+	auto results = sessionSearch->SearchResults;
+	PRINTLOG(TEXT("Search Result Count : %d"), results.Num());
+
+	// 검색된 각 세션 정보를 처리
+	for (int i = 0; i < results.Num(); ++i)
+	{
+		auto sr = results[i];
+
+		// 정보가 유효한지 체크
+		if(!sr.IsValid()) continue;
+
+		// 세션정보 구조체 선언
+		FSessionInfo sessionInfo;
+		sessionInfo.index = i;
+		
+		// 세션 설정에서 방 이름과 호스트 이름 추출
+		sr.Session.SessionSettings.Get(FName("ROOM_NAME"), sessionInfo.roomName);
+		sr.Session.SessionSettings.Get(FName("HOST_NAME"), sessionInfo.hostName);
+
+		// 세션 주인(방장) 이름
+		FString userName = sr.Session.OwningUserName;
+		// 입장 가능한 플레이어 수 (방 최대 인원)
+		int32 maxPlayerCount = sr.Session.SessionSettings.NumPublicConnections;
+		// 현재 입장한 플레이어 수 (최대 - 현재 입장 가능한 수)
+		// NumOpenPublicConnetions 스팀에서만 정상적으로 값이 들어온다. 
+		int32 currentPlayerCount = maxPlayerCount - sr.Session.NumOpenPublicConnections;
+		sessionInfo.playerCount = FString::Printf(TEXT("%d/%d"), currentPlayerCount, maxPlayerCount);
+
+		// 핑(ms) 정보
+		int32 pingSpeed = sr.PingInMs;
+
+		// 세션 정보 출력
+		PRINTLOG(TEXT("%s"), *sessionInfo.ToString());
+
+		// 세션 검색이 끝나면 델리게이트 호출 (이벤트 호출 세션 정보 넘김)
+		onSearchCompleted.Broadcast(sessionInfo);
+	}
+	onSearchState.Broadcast(false);
 }

@@ -7,6 +7,35 @@
 #include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlineSessionInterface.h"
 #include "NetGameInstance.generated.h"
 
+USTRUCT(BlueprintType)
+struct FSessionInfo
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(BlueprintReadOnly)
+	FString roomName;
+	UPROPERTY(BlueprintReadOnly)
+	FString hostName;
+	UPROPERTY(BlueprintReadOnly)
+	FString playerCount;
+	UPROPERTY(BlueprintReadOnly)
+	int32 pingSpeed;
+	UPROPERTY(BlueprintReadOnly)
+	int32 index; // 검색된 섹션의 인덱스
+	
+	inline FString ToString()
+	{
+		return FString::Printf(TEXT("[%d] %s : %s - %s, %dms"), index, *roomName, *hostName, *playerCount, pingSpeed);
+	}
+};
+
+// 세션 검색이 끝났을 때 호출되는 델리게이트
+// 델리게이트 매크로로 FSessionInfo 인자로 받는 FSearchSignature 이름의 새로운 이벤트 타입을 만든다. 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSearchSignature, const FSessionInfo&, sessionInfo);
+
+// 세션 검색 상태 델리게이트
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSearchStateSignature, bool, bIsSearching);
+
 /**
  * 
  */
@@ -33,5 +62,16 @@ public:
 	// 생성된 세션 이름, 세션 생성 성공 여부
 	UFUNCTION()
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
+
+	// 방검색
+	TSharedPtr<FOnlineSessionSearch> sessionSearch;
 	
+	void FindOtherSession();
+
+	void OnFindSessionComplete(bool bWasSuccessful);
+
+	// 방찾기 완료 콜백을 등록할 델리게이트
+	FSearchSignature onSearchCompleted;
+	// 방찾기상태 콜백 델리게이트
+	FSearchStateSignature onSearchState;
 };
