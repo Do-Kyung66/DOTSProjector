@@ -117,7 +117,6 @@ void AGhost_Wraith::WalkState()
 		else {
 			currentState = GhostState::Patrol;
 		}
-		
 	}
 }
 
