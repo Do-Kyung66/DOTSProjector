@@ -15,6 +15,7 @@ AItem_Flashlight::AItem_Flashlight()
 	SpotLightComp->SetRelativeLocationAndRotation(FVector(-40.f, 0.f, 0.f), FRotator(0.f, 0.f, 180.f));
 
 	static const FString ContextString(TEXT("ItemDataTable"));
+
 	FItemData* ItemData = ItemDataTable->FindRow<FItemData>("Flashlight", ContextString);
 	MeshComp->SetStaticMesh(ItemData->ItemMesh);
 }

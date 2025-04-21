@@ -2,15 +2,14 @@
 
 
 #include "Behavior_Walking.h"
-#include "AIController.h"
 #include "GhostBase.h" 
-#include "Blueprint/AIBlueprintHelperLibrary.h"
-#include "GameFramework/CharacterMovementComponent.h"
 
 
 void UBehavior_Walking::ExecuteBehavior(const FGhostBehaviorContext& Context)
 {
 	if (!Context.Ghost || !Context.Target) return;
+
+	Context.Ghost->GetCharacterMovement()->MaxWalkSpeed = 300.f;
 
 	AAIController* AIController = Cast<AAIController>(Context.Ghost->GetController());
 

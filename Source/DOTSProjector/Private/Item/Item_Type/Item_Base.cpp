@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "DT_Item.h"
 #include "PhasmophobiaPlayerController.h"
+#include "Components/SceneComponent.h"
 
 
 // Sets default values
@@ -14,8 +15,11 @@ AItem_Base::AItem_Base()
 	PrimaryActorTick.bCanEverTick = false;
 	ItemStrategy = nullptr;
 
+	RootScene = CreateDefaultSubobject<USceneComponent>(TEXT("RootScene"));
+	RootComponent = RootScene;
+
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-	RootComponent = MeshComp;
+	MeshComp->SetupAttachment(RootComponent);
 
 	ConstructorHelpers::FObjectFinder<UDataTable> TempDT(
 		TEXT("/Script/Engine.DataTable'/Game/UP/Item/DT_ItemData.DT_ItemData'"));

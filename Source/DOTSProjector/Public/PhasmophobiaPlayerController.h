@@ -17,11 +17,14 @@ class DOTSPROJECTOR_API APhasmophobiaPlayerController : public APlayerController
 public:
 	APhasmophobiaPlayerController();
 
+
+	UPROPERTY(Replicated)
 	AActor* TargetItem = nullptr;
 
 	UFUNCTION(BlueprintCallable)
 	void SetCursorForInteraction(bool bIsInteractable, AActor* tempItem);
-	void ItemTrace();
+
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
 	bool bCanInteract = false;
@@ -31,7 +34,12 @@ public:
 	bool bDraggingDoor = false;
 	float LastMousX = 0.f;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void PlayerTick(float DeltaTime) override;
+
+
+
 };

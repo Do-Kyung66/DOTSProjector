@@ -3,3 +3,12 @@
 
 #include "Item_Thermometer.h"
 
+AItem_Thermometer::AItem_Thermometer()
+{
+
+}
+
+void AItem_Thermometer::BeginPlay()
+{
+
+}

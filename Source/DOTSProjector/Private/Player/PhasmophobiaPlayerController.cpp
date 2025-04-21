@@ -5,6 +5,7 @@
 #include "Engine/UserInterfaceSettings.h"
 #include "Framework/Application/SlateApplication.h"
 #include "HAL/PlatformApplicationMisc.h"
+#include "Net/UnrealNetwork.h"
 
 
 APhasmophobiaPlayerController::APhasmophobiaPlayerController()
@@ -29,14 +30,10 @@ void APhasmophobiaPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 
-	ItemTrace();
-
-
 }
 
 void APhasmophobiaPlayerController::SetCursorForInteraction(bool bIsInteractable, AActor* tempItem)
 {
-
 	if (bIsInteractable)
 	{
 		bCanInteract = true;
@@ -75,8 +72,13 @@ void APhasmophobiaPlayerController::SetCursorForInteraction(bool bIsInteractable
 	
 }
 
-void APhasmophobiaPlayerController::ItemTrace()
+
+void APhasmophobiaPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
+
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APhasmophobiaPlayerController, TargetItem);
+
 	FVector worldLocation;
 	FVector worldDirection;
 

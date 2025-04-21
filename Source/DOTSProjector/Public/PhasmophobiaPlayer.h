@@ -9,7 +9,10 @@
 #include "Observer.h"
 #include "Item_Base.h"
 #include "Blueprint/UserWidget.h"
+#include "IItemBehavior.h"
 #include "PhasmophobiaPlayer.generated.h"
+
+
 
 UCLASS()
 class DOTSPROJECTOR_API APhasmophobiaPlayer : public ACharacter
@@ -54,10 +57,10 @@ public:
 	UPROPERTY()
 	TObjectPtr<UObject> CurrentRunStrategy;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TObjectPtr<UObject> CurrentEquipStrategy;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TObjectPtr<UObject> CurrentSwitchStrategy;
 
 	UPROPERTY()
@@ -76,6 +79,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 
 	class UInputAction* UseAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+
+	class UInputAction* ItemAction;
 
 	class UInputAction* CrouchAction;
 
@@ -120,14 +127,19 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	class USceneComponent* ItemComp;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(Replicated)
 	AActor* ownedItem = nullptr;
+
+	UPROPERTY(Replicated)
 	AActor* currentItem = nullptr;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TArray<AActor*> ItemActors;
 
+	UPROPERTY(Replicated)
 	bool bHasItem = false;
+
+	UPROPERTY(Replicated)
 	int32 CurrentItemIndex = -1;
 
 	
@@ -157,9 +169,11 @@ public:
 	void DecreaseSanity(float Amount);
 
 	void UseItem();
+	void ActivateItem();
 
 	TArray<IObserver*> Observers;
 
+	UPROPERTY(Replicated)
 	float Sanity = 100.0f;
 
 	void CheckGhostOnScreen(float DeltaTime);
@@ -169,4 +183,65 @@ public:
 
 	class UDefaultCursorWidget* CenterUI;
 
+	float IsDead = false;
+
+	class IItemBehavior* EquipStrategy;
+
+	class IItemBehavior* DetachStrategy;
+
+	UPROPERTY(Replicated)
+	TScriptInterface<IItemBehavior> SwitchStrategy;
+
+	UPROPERTY(Replicated)
+	AActor* TargetItem = nullptr;
+
+	void ItemTrace();
+
+
+// Network
+public:
+
+	UPROPERTY(Replicated, BlueprintReadWrite)
+	EItemType CurrentItemType = EItemType::None;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Equip();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_Equip();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ItemTrace();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_UseItem();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_UseItem(AItem_Base* Item);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Detach();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_Detach();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Switch(float ScrollData);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_Switch(int32 NextItemIndex);
+
+	UPROPERTY(Replicated)
+	float ScrollValue = 0.f;
+
+	UPROPERTY(Replicated)
+	int32 NextIndex = 0.f;
+
+	UPROPERTY(Replicated)
+	int32 StartIndex = 0.f;
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ItemAction();
 };

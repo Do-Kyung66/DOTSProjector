@@ -8,6 +8,19 @@
 #include "DT_Item.h"
 #include "Item_Base.generated.h"
 
+UENUM(BlueprintType)
+enum class EItemType : uint8
+{
+	None,
+	Flashlight,
+	Crucifix,
+	DotProjector,
+	EMFReader,
+	UVLight,
+	Thermometer,
+	VideoCamera
+};
+
 UCLASS()
 class DOTSPROJECTOR_API AItem_Base : public AActor
 {
@@ -33,6 +46,9 @@ public:
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	class USceneComponent* RootScene;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class UStaticMeshComponent* MeshComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Strategy")
@@ -47,6 +63,9 @@ public:
 		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
 	int32 ItemID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
+	bool bCanGhostTrigger = false;
 
 	virtual void NotifyActorBeginCursorOver() override;
 	virtual void NotifyActorEndCursorOver() override;

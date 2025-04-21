@@ -16,7 +16,7 @@ void USwitchItemBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue
 
 	UE_LOG(LogTemp, Log, TEXT("Switch Switch"));
 
-	float ScrollValue = Value.Get<float>();
+	Player->ScrollValue = Value.Get<float>();
 
 	if (Player->currentItem)
 	{
@@ -24,34 +24,36 @@ void USwitchItemBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue
 	}
 
 	// ½½·Ô ¼øÈ¯¿ë ÀÎµ¦½º
-	int32 StartIndex = Player->CurrentItemIndex;
-	int32 NextIndex = StartIndex;
+	Player->StartIndex = Player->CurrentItemIndex;
+	Player->NextIndex = Player->StartIndex;
 
 
-	if (ScrollValue > 0.f)
+	if (Player->ScrollValue > 0.f)
 	{
+		// GEngine->AddOnScreenDebugMessage(2, 2.0f, FColor::Green, FString::Printf(TEXT("ScrollValue : %.2f"), Player->ScrollValue));
 		do {
-			NextIndex = (NextIndex + 1) % Player->ItemActors.Num();
-		} while (NextIndex != StartIndex && NextIndex != 0 && Player->ItemActors[NextIndex] == nullptr);
+			Player->NextIndex = (Player->NextIndex + 1) % Player->ItemActors.Num();
+		} while (Player->NextIndex != Player->StartIndex && Player->NextIndex != 0 && Player->ItemActors[Player->NextIndex] == nullptr);
 		//Player->CurrentItemIndex = (Player->CurrentItemIndex + 1) % Player->ItemActors.Num();
 	}
 
-	else if (ScrollValue < 0.f)
+	else if (Player->ScrollValue < 0.f)
 	{
+		// GEngine->AddOnScreenDebugMessage(2, 2.0f, FColor::Green, FString::Printf(TEXT("ScrollValue : %.2f"), Player->ScrollValue));
 		do {
-			NextIndex = (NextIndex - 1 + Player->ItemActors.Num()) % Player->ItemActors.Num();
-		} while (NextIndex != StartIndex && NextIndex != 0 && Player->ItemActors[NextIndex] == nullptr);
+			Player->NextIndex = (Player->NextIndex - 1 + Player->ItemActors.Num()) % Player->ItemActors.Num();
+		} while (Player->NextIndex != Player->StartIndex && Player->NextIndex != 0 && Player->ItemActors[Player->NextIndex] == nullptr);
 		// Player->CurrentItemIndex = (Player->CurrentItemIndex - 1 + Player->ItemActors.Num()) % Player->ItemActors.Num();
 	}
 
-	Player->CurrentItemIndex = NextIndex;
-	Player->currentItem = Player->ItemActors[NextIndex];
+	Player->CurrentItemIndex = Player->NextIndex;
+	Player->currentItem = Player->ItemActors[Player->NextIndex];
 
 	if (Player->currentItem)
 	{
 		Player->currentItem->SetActorHiddenInGame(false);
 		Player->currentItem->AttachToComponent(Player->ItemComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		UE_LOG(LogTemp, Log, TEXT("Switched to Item: %s (Index: %d)"), *Player->currentItem->GetName(), NextIndex);
+		UE_LOG(LogTemp, Log, TEXT("Switched to Item: %s (Index: %d)"), *Player->currentItem->GetName(), Player->NextIndex);
 	}
 	else
 	{

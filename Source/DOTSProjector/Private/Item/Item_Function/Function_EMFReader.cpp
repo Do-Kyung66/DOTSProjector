@@ -55,7 +55,7 @@ void UFunction_EMFReader::Tick(float DeltaTime, AItem_EMFReader* EMFReader)
 			{
 				bGhostDetected = true;
 				FVector GhostLocation = Ghost->GetActorLocation();
-				DrawDebugSphere(EMFReader->GetWorld(), GhostLocation, 25.f, 12, FColor::Red, false, 1.f);
+				// DrawDebugSphere(EMFReader->GetWorld(), GhostLocation, 25.f, 12, FColor::Red, false, 1.f);
 
 			}
 		}
@@ -66,5 +66,5 @@ void UFunction_EMFReader::Tick(float DeltaTime, AItem_EMFReader* EMFReader)
 	EMFReader->PointLight4->SetVisibility(bGhostDetected);
 	EMFReader->PointLight5->SetVisibility(bGhostDetected);
 
-	DrawDebugSphere(EMFReader->GetWorld(), Start, EMFReader->DetectionRadius, 32, FColor::Green, false, 0.5f);
+	// DrawDebugSphere(EMFReader->GetWorld(), Start, EMFReader->DetectionRadius, 32, FColor::Green, false, 0.5f);
 }
