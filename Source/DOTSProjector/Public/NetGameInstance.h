@@ -22,10 +22,14 @@ struct FSessionInfo
 	int32 pingSpeed;
 	UPROPERTY(BlueprintReadOnly)
 	int32 index; // 검색된 섹션의 인덱스
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsPrivate = false;
+	UPROPERTY(BlueprintReadOnly)
+	FString roomCode = "";  //랜덤한 6자리 숫자로 만들어지고 퍼블릭으로 방이 만들어질때는 값이 X roomcode = IsEmpty()로 체크
 	
 	inline FString ToString()
 	{
-		return FString::Printf(TEXT("[%d] %s : %s - %s, %dms"), index, *roomName, *hostName, *playerCount, pingSpeed);
+		return FString::Printf(TEXT("[%d] %s : %s - %s, %dms, %s"), index, *roomName, *hostName, *playerCount, pingSpeed, *roomCode);
 	}
 };
 
@@ -74,4 +78,9 @@ public:
 	FSearchSignature onSearchCompleted;
 	// 방찾기상태 콜백 델리게이트
 	FSearchStateSignature onSearchState;
+
+	//세션방 입장
+	void JoinSelectedSession(int32 index);
+	void JoinPrivateRoom(FString Code);
+	void OnJoinSessionComlete(FName sessionName, EOnJoinSessionCompleteResult::Type result);
 };

@@ -119,7 +119,8 @@ public:
 	void CreateRoom();
 
 	// 비공개방 체크되면 호출되는 함수
-	bool bIsPublic;
+	bool bIsPrivate;
+	int32 SessionNumber;
 
 	UFUNCTION()
 	void OnPublicheckBoxChanged(bool Check);
@@ -127,6 +128,8 @@ public:
 	void OnPrivateCheckBoxChanged(bool Check);
 
 	// private room enter 클릭
+	UFUNCTION()
+	void JoinSession();
 
 	// 뒤로가기 함수
 	UFUNCTION()

@@ -15,6 +15,7 @@ void UNetGameInstance::Init()
 	// OnlineSubsystem에서 기본 서브시스템 인스턴스를 가져옴
 	if (auto subsys = IOnlineSubsystem::Get())
 	{	
+		mySessionName.Append(FString::Printf(TEXT("_%d_%d"), FMath::Rand32(), FDateTime::Now().GetMillisecond()));
 		// 서브시스템으로부터 세션인터페이스 가져오기
 		// 세션 인터페이스는 멀티플레이어 세션 생성, 관리, 참여 등을 처리
 		sessionInterface = subsys->GetSessionInterface();
@@ -38,6 +39,7 @@ void UNetGameInstance::Init()
 
 void UNetGameInstance::CreateMySession(FString roomName, bool bIsPrivate)
 {
+	FSessionInfo sessionInfo;
 	// 세션 설정 변수
 	FOnlineSessionSettings sessionSettings;
 	
@@ -54,6 +56,10 @@ void UNetGameInstance::CreateMySession(FString roomName, bool bIsPrivate)
 	if (bIsPrivate == true)
 	{
 		sessionSettings.bShouldAdvertise = false;
+		// 프라이빗 코드 생성
+		int32 Code = FMath::RandRange(100000, 999999);
+		sessionInfo.roomCode = FString::FromInt(Code);
+		PRINTLOG(TEXT("roomCode : %s"), *sessionInfo.roomCode);
 	}
 	else
 	{
@@ -159,4 +165,58 @@ void UNetGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 		onSearchCompleted.Broadcast(sessionInfo);
 	}
 	onSearchState.Broadcast(false);
+}
+
+void UNetGameInstance::JoinSelectedSession(int32 index)
+{	
+	auto sr = sessionSearch->SearchResults;
+
+	sr[index].Session.SessionSettings.bUseLobbiesIfAvailable = true;
+	sr[index].Session.SessionSettings.bUsesPresence = true;
+
+	sessionInterface->JoinSession(0, FName(mySessionName), sr[index]);
+}
+
+void UNetGameInstance::JoinPrivateRoom(FString Code)
+{
+	FSessionInfo sessionInfo;
+	// 위젯에서 에디트 입력값 받아서 비교 후 세션 조인
+	auto sr = sessionSearch->SearchResults;
+	for (int i = 0; i <= sr.Num(); i++)
+	{
+		if (sessionInfo.roomCode == Code)
+		{
+			PRINTLOG(TEXT("join! %s = %s"), *sessionInfo.roomCode, *Code);
+			//PRINTLOG(TEXT("join!"));
+
+		}
+		else
+		{
+			PRINTLOG(TEXT("join faild"));
+		}
+	}
+
+	
+}
+
+void UNetGameInstance::OnJoinSessionComlete(FName sessionName, EOnJoinSessionCompleteResult::Type result)
+{
+	if (result == EOnJoinSessionCompleteResult::Success)
+	{
+		auto pc = GetWorld()->GetFirstPlayerController();
+		FString url;
+
+		sessionInterface->GetResolvedConnectString(sessionName, url);
+
+		PRINTLOG(TEXT("Join URL : %s"), *url);
+
+		if(!url.IsEmpty())
+		{
+			pc->ClientTravel(url, ETravelType::TRAVEL_Absolute);
+		}
+	}
+	else
+	{
+		PRINTLOG(TEXT("Join Session failed : %d"), result);
+	}
 }

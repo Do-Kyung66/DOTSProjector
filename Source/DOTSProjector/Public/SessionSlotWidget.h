@@ -29,5 +29,11 @@ public:
 	int32 SessionNumber;
 
 	void Set(const struct FSessionInfo& InSessionInfo);
+
+	// 세션 조인
+	virtual void NativeConstruct() override;
+	
+	UFUNCTION()
+	void JoinSession();
 	
 };
