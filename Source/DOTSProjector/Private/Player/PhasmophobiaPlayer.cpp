@@ -91,26 +91,19 @@ void APhasmophobiaPlayer::BeginPlay()
 		{
 			Subsystem->AddMappingContext(PlayerMappingContext, 0); // 우선순위 0
 			Subsystem->AddMappingContext(ItemMappingContext, 1);
-
-
 		}
 	}
+	
 
-	/*if (CenterWidget)
-	{
-		CenterUI = CreateWidget<UUserWidget>(GetWorld(), CenterWidget);
-		if (CenterUI)
-		{
-			CenterUI->AddToViewport();
-		}
-	}*/
-
-	if (CenterWidget)
+	if (CenterWidget && PC)
 	{
 		CenterUI = CreateWidget<UDefaultCursorWidget>(GetWorld(), CenterWidget);
 		CenterUI->AddToViewport();
 		
 		CenterUI->ShowDefaultCursor();
+
+		FInputModeGameOnly InputMode;
+		PC->SetInputMode(InputMode);
 	}
 
 	

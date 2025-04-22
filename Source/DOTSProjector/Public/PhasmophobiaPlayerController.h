@@ -35,6 +35,12 @@ public:
 	float LastMousX = 0.f;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_RequestStartGame();
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<class UWaitingRoomWidget> WaitingRoomWidgetClass;
+
 
 protected:
 	virtual void BeginPlay() override;

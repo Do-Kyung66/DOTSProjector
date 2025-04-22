@@ -37,10 +37,6 @@ void ULoginWidget::NativeConstruct()
 	// room join
 	btn_join->OnClicked.AddDynamic(this, &ULoginWidget::JoinSession);
 
-	// 웨이팅 룸
-	// 게임 시작
-	btn_leave->OnClicked.AddDynamic(this, &ULoginWidget::OnStartClicked);
-
 	// 뒤로가기 버튼
 	btn_BackMain->OnClicked.AddDynamic(this, &ULoginWidget::BackToMain);
 	btn_BackRoomList_1->OnClicked.AddDynamic(this, &ULoginWidget::BackToRoomList);

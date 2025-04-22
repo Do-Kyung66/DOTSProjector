@@ -6,6 +6,7 @@
 #include "Framework/Application/SlateApplication.h"
 #include "HAL/PlatformApplicationMisc.h"
 #include "Net/UnrealNetwork.h"
+#include "WaitingRoomWidget.h"
 
 
 APhasmophobiaPlayerController::APhasmophobiaPlayerController()
@@ -21,8 +22,35 @@ APhasmophobiaPlayerController::APhasmophobiaPlayerController()
 
 void APhasmophobiaPlayerController::BeginPlay()
 {
-	
+	if (IsLocalController() && WaitingRoomWidgetClass)
+	{
+		UWaitingRoomWidget* UI = CreateWidget<UWaitingRoomWidget>(this, WaitingRoomWidgetClass);
+		if (UI)
+		{
+			UI->bIsFocusable = true;
+			UI->AddToViewport();
+			UE_LOG(LogTemp, Warning, TEXT("waiting room!!!!!"));
 
+		}
+	}
+
+	/*APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (PC)
+	{
+		if (WaitingRoomWidget)
+		{
+			Widget = CreateWidget<UWaitingRoomWidget>(PC, WaitingRoomWidget);
+			Widget->bIsFocusable = true;
+			Widget->AddToViewport();
+
+			FInputModeUIOnly InputMode;
+			InputMode.SetWidgetToFocus(Widget->TakeWidget());
+			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+			PC->SetInputMode(InputMode);
+			PC->bShowMouseCursor = true;
+		}
+	}*/
 
 }
 
@@ -79,55 +107,22 @@ void APhasmophobiaPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(APhasmophobiaPlayerController, TargetItem);
 
-	FVector worldLocation;
-	FVector worldDirection;
-
-	int32 ViewportSizeX, ViewportSizeY;
-	GetViewportSize(ViewportSizeX, ViewportSizeY);
-
-	FVector2D screenCenter(ViewportSizeX / 2.0f, ViewportSizeY / 2.0f);
-	DeprojectScreenPositionToWorld(screenCenter.X, screenCenter.Y, worldLocation, worldDirection);
-
-	FVector Start = worldLocation;
-	FVector End = Start + (worldDirection * 300.0f);
-
-	FHitResult Hitinfo;
-	FCollisionQueryParams params;
-	params.AddIgnoredActor(GetPawn());
-
-	if (GetWorld()->LineTraceSingleByChannel(Hitinfo, Start, End, ECC_Visibility, params))
-	{
-		GEngine->AddOnScreenDebugMessage(2, 2.0f, FColor::Green, FString::Printf(TEXT("Hit: %s"), *Hitinfo.GetActor()->GetName()));
-
-		AActor* HitActor = Hitinfo.GetActor();
-		if (HitActor)
-		{
-			FString ActorName = HitActor->GetName();
-
-			if (ActorName.Contains(TEXT("item"), ESearchCase::IgnoreCase)) // 대소문자 무시
-			{
-				bCanInteract = true;
-				TargetItem = HitActor;
-				UE_LOG(LogTemp, Warning, TEXT("Hit Item"));
-
-			}
-			else
-			{
-				bCanInteract = false;
-				TargetItem = nullptr;
-				UE_LOG(LogTemp, Warning, TEXT("Item X"));
-			}
-		}
-		
-	}
-	else
-	{
-		bCanInteract = false;
-		TargetItem = nullptr;
-		UE_LOG(LogTemp, Warning, TEXT("Nothing Hit"));
-	}
-
-	//DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.05f, 0, 2.0f);
-
 }
 
+void APhasmophobiaPlayerController::ServerRPC_RequestStartGame_Implementation()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PC = It->Get();
+		if (PC && !PC->IsLocalController()) // 클라이언트한테만
+		{
+			PC->ClientTravel("/Game/FirstPerson/Maps/FirstPersonMap", TRAVEL_Absolute);
+		}
+	}
+	
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->ServerTravel(TEXT("/Game/FirstPerson/Maps/FirstPersonMap?listen"));
+	}
+}
