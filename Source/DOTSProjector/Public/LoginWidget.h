@@ -24,6 +24,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	class UButton* btn_exit;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UEditableText* edit_userName;
 
 	// 방 리스트
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -60,22 +63,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UButton* btn_join;
-
-	// waiting room
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UTextBlock* txt_RoomName;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UTextBlock* txt_CodeLabel;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UTextBlock* txt_privateKey;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UButton* btn_leave;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UButton* btn_ready;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UButton* btn_gamestart;
-
 
 	
 	// 뒤로가기
@@ -119,7 +106,8 @@ public:
 	void CreateRoom();
 
 	// 비공개방 체크되면 호출되는 함수
-	bool bIsPublic;
+	bool bIsPrivate;
+	int32 SessionNumber;
 
 	UFUNCTION()
 	void OnPublicheckBoxChanged(bool Check);
@@ -127,6 +115,8 @@ public:
 	void OnPrivateCheckBoxChanged(bool Check);
 
 	// private room enter 클릭
+	UFUNCTION()
+	void JoinSession();
 
 	// 뒤로가기 함수
 	UFUNCTION()

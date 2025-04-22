@@ -32,13 +32,10 @@ void ULoginWidget::NativeConstruct()
 	CheckBox_PrivateRoom->OnCheckStateChanged.AddDynamic(this, &ULoginWidget::OnPrivateCheckBoxChanged);
 	CheckBox_PublicRoom->SetCheckedState(ECheckBoxState::Checked);
 	CheckBox_PrivateRoom->SetCheckedState(ECheckBoxState::Unchecked);
-	bIsPublic = true;
+	bIsPrivate = false;
 	// 프라이빗 룸 키
 	// room join
-
-	// 웨이팅 룸
-	// 게임 시작
-	btn_leave->OnClicked.AddDynamic(this, &ULoginWidget::OnStartClicked);
+	btn_join->OnClicked.AddDynamic(this, &ULoginWidget::JoinSession);
 
 	// 뒤로가기 버튼
 	btn_BackMain->OnClicked.AddDynamic(this, &ULoginWidget::BackToMain);
@@ -94,8 +91,8 @@ void ULoginWidget::CreateRoom()
 	if(!gi || edit_roomName->GetText().IsEmpty()) return;
 	if(CheckBox_PublicRoom->GetCheckedState() == ECheckBoxState::Unchecked && CheckBox_PrivateRoom->GetCheckedState() == ECheckBoxState::Unchecked) return; // 두개 선택은 막아둠
 	
-	gi->CreateMySession(edit_roomName->GetText().ToString(), bIsPublic);
-	WidgetSwitcher->SetActiveWidgetIndex(4); // 웨이팅룸 입장
+	gi->CreateMySession(edit_roomName->GetText().ToString(), bIsPrivate);
+	// WidgetSwitcher->SetActiveWidgetIndex(4); // 웨이팅룸 입장
 }
 
 void ULoginWidget::OnPublicheckBoxChanged(bool Check)
@@ -103,18 +100,30 @@ void ULoginWidget::OnPublicheckBoxChanged(bool Check)
 	// 만약에 privateroom에 체크가 되어 있는데 publicroom을 체크하게 되면 privateroom은 체크가 해제되어야 한다.
 	if (CheckBox_PublicRoom->GetCheckedState() == ECheckBoxState::Checked)
 	{
-		bIsPublic = true;
+		bIsPrivate = false;
 		CheckBox_PrivateRoom->SetCheckedState(ECheckBoxState::Unchecked);
 	}
 }
-
 void ULoginWidget::OnPrivateCheckBoxChanged(bool Check)
 {
 	if (CheckBox_PrivateRoom->GetCheckedState() == ECheckBoxState::Checked)
 	{
-		bIsPublic = false;
+		bIsPrivate = true;
 		CheckBox_PublicRoom->SetCheckedState(ECheckBoxState::Unchecked);
 	}
+}
+
+void ULoginWidget::JoinSession()
+{
+	// 이버튼은 프라이빗 방 입장 버튼
+	// 키값에 맞는 세션 인덱스를 찾아서 조인하면 된다. 
+	// 만약에 키값이 맞지 않으면 조인 불가
+	FString Code = edit_privatekey->GetText().ToString();
+	if (gi)
+	{
+		gi->JoinPrivateRoom(Code);
+	}
+
 }
 
 void ULoginWidget::BackToMain()

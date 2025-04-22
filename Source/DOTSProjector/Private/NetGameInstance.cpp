@@ -15,6 +15,7 @@ void UNetGameInstance::Init()
 	// OnlineSubsystem에서 기본 서브시스템 인스턴스를 가져옴
 	if (auto subsys = IOnlineSubsystem::Get())
 	{	
+		mySessionName.Append(FString::Printf(TEXT("_%d_%d"), FMath::Rand32(), FDateTime::Now().GetMillisecond()));
 		// 서브시스템으로부터 세션인터페이스 가져오기
 		// 세션 인터페이스는 멀티플레이어 세션 생성, 관리, 참여 등을 처리
 		sessionInterface = subsys->GetSessionInterface();
@@ -38,6 +39,10 @@ void UNetGameInstance::Init()
 
 void UNetGameInstance::CreateMySession(FString roomName, bool bIsPrivate)
 {
+	// FSessionInfo sessionInfo;
+	// 웨이팅룸에 넘겨줄 정보 저장
+	sessionInfo.roomName = roomName;
+	sessionInfo.bIsPrivate = bIsPrivate;
 	// 세션 설정 변수
 	FOnlineSessionSettings sessionSettings;
 	
@@ -54,6 +59,11 @@ void UNetGameInstance::CreateMySession(FString roomName, bool bIsPrivate)
 	if (bIsPrivate == true)
 	{
 		sessionSettings.bShouldAdvertise = false;
+		// 프라이빗 코드 생성
+		int32 Code = FMath::RandRange(100000, 999999);
+		sessionInfo.roomCode = FString::FromInt(Code);
+		PRINTLOG(TEXT("roomCode : %s"), *sessionInfo.roomCode);
+		sessionSettings.Set(FName("roomCode"), sessionInfo.roomCode, EOnlineDataAdvertisementType::ViaOnlineService);
 	}
 	else
 	{
@@ -91,6 +101,10 @@ void UNetGameInstance::CreateMySession(FString roomName, bool bIsPrivate)
 void UNetGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
 {
 	PRINTLOG(TEXT("SessionName : %s, bWasSuccessful : %d"), *SessionName.ToString(), bWasSuccessful);
+	if (bWasSuccessful)
+	{
+		GetWorld()->ServerTravel(TEXT("/Game/Player/Map/WaitingRoom?listen"));
+	}
 }
 
 void UNetGameInstance::FindOtherSession()
@@ -113,7 +127,7 @@ void UNetGameInstance::FindOtherSession()
 void UNetGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 {
 	// 찾기 실패시
-	if (!bWasSuccessful)
+	if (!bWasSuccessful || !sessionSearch.IsValid())
 	{
 		onSearchState.Broadcast(false);
 		PRINTLOG(TEXT("Session search failed..."));
@@ -133,7 +147,7 @@ void UNetGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 		if(!sr.IsValid()) continue;
 
 		// 세션정보 구조체 선언
-		FSessionInfo sessionInfo;
+		//FSessionInfo sessionInfo;
 		sessionInfo.index = i;
 		
 		// 세션 설정에서 방 이름과 호스트 이름 추출
@@ -159,4 +173,61 @@ void UNetGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 		onSearchCompleted.Broadcast(sessionInfo);
 	}
 	onSearchState.Broadcast(false);
+}
+
+void UNetGameInstance::JoinSelectedSession(int32& index)
+{	
+	auto sr = sessionSearch->SearchResults;
+
+	sr[index].Session.SessionSettings.bUseLobbiesIfAvailable = true;
+	sr[index].Session.SessionSettings.bUsesPresence = true;
+
+	sessionInterface->JoinSession(0, FName(mySessionName), sr[index]);
+}
+
+void UNetGameInstance::JoinPrivateRoom(FString& Code)
+{
+	//FSessionInfo sessionInfo;
+	// 위젯에서 에디트 입력값 받아서 비교 후 세션 조인
+	auto sr = sessionSearch->SearchResults;
+	for (int32 i = 0; i < sr.Num(); i++)
+	{
+		FString FoundRoomCode;
+		sr[i].Session.SessionSettings.Get(FName("roomCode"), FoundRoomCode);
+
+		if (FoundRoomCode == Code)
+		{
+			sessionInterface->JoinSession(0, FName(mySessionName), sr[i]);
+			PRINTLOG(TEXT("join! %s = %s"), *sessionInfo.roomCode, *Code);
+			return;
+		}
+		else
+		{
+			PRINTLOG(TEXT("join faild roomCode : %s, Code : %s"), *sessionInfo.roomCode, *Code);
+		}
+	}
+
+	
+}
+
+void UNetGameInstance::OnJoinSessionComlete(FName sessionName, EOnJoinSessionCompleteResult::Type result)
+{
+	if (result == EOnJoinSessionCompleteResult::Success)
+	{
+		auto pc = GetWorld()->GetFirstPlayerController();
+		FString url;
+
+		sessionInterface->GetResolvedConnectString(sessionName, url); // 서버가 이미 열어둔 맵에 자동 진입
+
+		PRINTLOG(TEXT("Join URL : %s"), *url);
+
+		if(!url.IsEmpty())
+		{
+			pc->ClientTravel(url, ETravelType::TRAVEL_Absolute);
+		}
+	}
+	else
+	{
+		PRINTLOG(TEXT("Join Session failed : %d"), result);
+	}
 }
