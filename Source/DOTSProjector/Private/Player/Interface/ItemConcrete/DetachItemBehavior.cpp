@@ -30,6 +30,6 @@ void UDetachItemBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue
 		Player->ItemActors[Player->CurrentItemIndex] = nullptr;
 		Player->currentItem->SetOwner(nullptr);
 		Player->currentItem = nullptr;
-		Player->CurrentItemIndex = 0;
+		Player->CurrentItemIndex = Player->CurrentItemIndex+1;
 	}
 }

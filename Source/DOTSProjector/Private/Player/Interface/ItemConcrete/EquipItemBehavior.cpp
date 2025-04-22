@@ -39,21 +39,39 @@ void UEquipItemBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue&
 	}
 
 	// 방금 장착한 아이템만 보이기
-	if (Player->currentItem && Player->currentItem != Player->ownedItem)
-	{
-		Player->currentItem->SetActorHiddenInGame(true);
-	}
+	//if (Player->currentItem && Player->currentItem != Player->ownedItem)
+	//{
+	//	//Player->currentItem->SetActorHiddenInGame(true);
+	//	Player->ownedItem->SetActorHiddenInGame(true);
+
+	//}
 
 	if (!Player->ItemActors.Contains(Player->ownedItem))
 	{
+		bool bInserted = false;
 		// 0은 무시하고 1~3 슬롯 중 비어있는 곳 찾기
 		for (int32 i = 1; i < Player->ItemActors.Num(); ++i)
 		{
 			if (Player->ItemActors[i] == nullptr)
 			{
 				Player->ItemActors[i] = Player->ownedItem;
+				bInserted = true;
 				break;
 			}
+		}
+		if(!bInserted) return;
+	}
+
+	// 장착 후에 아이템 배열 로그 찍기
+	for (int32 i = 0; i < Player->ItemActors.Num(); ++i)
+	{
+		if (Player->ItemActors[i])
+		{
+			UE_LOG(LogTemp, Log, TEXT("Equip after ItemActors[%d]: %s"), i, *Player->ItemActors[i]->GetName());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("Equip after ItemActors[%d]: nullptr"), i);
 		}
 	}
 

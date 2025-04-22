@@ -32,43 +32,43 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			if (Player->currentItem->GetName().Contains(TEXT("Flashlight"), ESearchCase::IgnoreCase))
 			{
 				Player->CurrentItemType = EItemType::Flashlight;
-				UE_LOG(LogTemp, Log, TEXT("Flashlight state"));
+				//UE_LOG(LogTemp, Log, TEXT("Flashlight state"));
 			}
 			else if (Player->currentItem->GetName().Contains(TEXT("Crucifix"), ESearchCase::IgnoreCase))
 			{
 				Player->CurrentItemType = EItemType::Crucifix;
-				UE_LOG(LogTemp, Log, TEXT("Crucifix state"));
+				//UE_LOG(LogTemp, Log, TEXT("Crucifix state"));
 			}
 			else if (Player->currentItem->GetName().Contains(TEXT("DotProjector"), ESearchCase::IgnoreCase))
 			{
 				Player->CurrentItemType = EItemType::DotProjector;
-				UE_LOG(LogTemp, Log, TEXT("DotProjector state"));
+				//UE_LOG(LogTemp, Log, TEXT("DotProjector state"));
 			}
 			else if (Player->currentItem->GetName().Contains(TEXT("EMFReader"), ESearchCase::IgnoreCase))
 			{
 				Player->CurrentItemType = EItemType::EMFReader;
-				UE_LOG(LogTemp, Log, TEXT("EMFReader state"));
+				//UE_LOG(LogTemp, Log, TEXT("EMFReader state"));
 			}
 			else if (Player->currentItem->GetName().Contains(TEXT("UVLight"), ESearchCase::IgnoreCase))
 			{
 				Player->CurrentItemType = EItemType::UVLight;
-				UE_LOG(LogTemp, Log, TEXT("UVLight state"));
+				//UE_LOG(LogTemp, Log, TEXT("UVLight state"));
 			}
 			else if (Player->currentItem->GetName().Contains(TEXT("Thermometer"), ESearchCase::IgnoreCase))
 			{
 				Player->CurrentItemType = EItemType::Thermometer;
-				UE_LOG(LogTemp, Log, TEXT("Thermometer state"));
+				//UE_LOG(LogTemp, Log, TEXT("Thermometer state"));
 			}
 			else if (Player->currentItem->GetName().Contains(TEXT("VideoCamera"), ESearchCase::IgnoreCase))
 			{
 				Player->CurrentItemType = EItemType::VideoCamera;
-				UE_LOG(LogTemp, Log, TEXT("VideoCamera state"));
+				//UE_LOG(LogTemp, Log, TEXT("VideoCamera state"));
 			}
 		}
 		else
 		{
 			Player->CurrentItemType = EItemType::None;
-			UE_LOG(LogTemp, Log, TEXT("None state"));
+			//UE_LOG(LogTemp, Log, TEXT("None state"));
 		}
 		CurrentItemType = Player->CurrentItemType;
 	

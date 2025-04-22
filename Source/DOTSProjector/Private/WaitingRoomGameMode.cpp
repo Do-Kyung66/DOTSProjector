@@ -35,6 +35,6 @@ void AWaitingRoomGameMode::BeginPlay()
 void AWaitingRoomGameMode::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-    DOREPLIFETIME(AWaitingRoomGameMode, WaitingRoomWidget);
+
 }
 
