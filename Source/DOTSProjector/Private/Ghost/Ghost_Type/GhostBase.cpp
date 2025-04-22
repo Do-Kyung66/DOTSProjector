@@ -61,7 +61,7 @@ void AGhostBase::BeginPlay()
 		BehaviorContext.Target = PlayerCharacter;
 	}
 
-	FName RandomRowName = GetRandomGhost();
+	/*FName RandomRowName = GetRandomGhost();
 
 	if (RandomRowName != NAME_None)
 	{
@@ -79,7 +79,7 @@ void AGhostBase::BeginPlay()
 			SetBehaviorStrategy(Strategy);
 			ExecuteBehavior(&BehaviorContext);
 		}
-	}
+	}*/
 
 	if (GetRandomPositionInNavMesh(GetActorLocation(), 800.f, RandomPos))
 	{

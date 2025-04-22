@@ -142,6 +142,8 @@ public:
 	UPROPERTY(Replicated)
 	int32 CurrentItemIndex = -1;
 
+	UPROPERTY(Replicated)
+	bool bIsDead = false;
 	
 	// Player Behavior Func
 	void Move(const FInputActionValue& Value);
@@ -182,8 +184,6 @@ public:
 	TSubclassOf<UUserWidget> CenterWidget;
 
 	class UDefaultCursorWidget* CenterUI;
-
-	float IsDead = false;
 
 	class IItemBehavior* EquipStrategy;
 

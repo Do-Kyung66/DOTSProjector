@@ -79,53 +79,53 @@ void APhasmophobiaPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(APhasmophobiaPlayerController, TargetItem);
 
-	FVector worldLocation;
-	FVector worldDirection;
+	//FVector worldLocation;
+	//FVector worldDirection;
 
-	int32 ViewportSizeX, ViewportSizeY;
-	GetViewportSize(ViewportSizeX, ViewportSizeY);
+	//int32 ViewportSizeX, ViewportSizeY;
+	//GetViewportSize(ViewportSizeX, ViewportSizeY);
 
-	FVector2D screenCenter(ViewportSizeX / 2.0f, ViewportSizeY / 2.0f);
-	DeprojectScreenPositionToWorld(screenCenter.X, screenCenter.Y, worldLocation, worldDirection);
+	//FVector2D screenCenter(ViewportSizeX / 2.0f, ViewportSizeY / 2.0f);
+	//DeprojectScreenPositionToWorld(screenCenter.X, screenCenter.Y, worldLocation, worldDirection);
 
-	FVector Start = worldLocation;
-	FVector End = Start + (worldDirection * 300.0f);
+	//FVector Start = worldLocation;
+	//FVector End = Start + (worldDirection * 300.0f);
 
-	FHitResult Hitinfo;
-	FCollisionQueryParams params;
-	params.AddIgnoredActor(GetPawn());
+	//FHitResult Hitinfo;
+	//FCollisionQueryParams params;
+	//params.AddIgnoredActor(GetPawn());
 
-	if (GetWorld()->LineTraceSingleByChannel(Hitinfo, Start, End, ECC_Visibility, params))
-	{
-		GEngine->AddOnScreenDebugMessage(2, 2.0f, FColor::Green, FString::Printf(TEXT("Hit: %s"), *Hitinfo.GetActor()->GetName()));
+	//if (GetWorld()->LineTraceSingleByChannel(Hitinfo, Start, End, ECC_Visibility, params))
+	//{
+	//	GEngine->AddOnScreenDebugMessage(2, 2.0f, FColor::Green, FString::Printf(TEXT("Hit: %s"), *Hitinfo.GetActor()->GetName()));
 
-		AActor* HitActor = Hitinfo.GetActor();
-		if (HitActor)
-		{
-			FString ActorName = HitActor->GetName();
+	//	AActor* HitActor = Hitinfo.GetActor();
+	//	if (HitActor)
+	//	{
+	//		FString ActorName = HitActor->GetName();
 
-			if (ActorName.Contains(TEXT("item"), ESearchCase::IgnoreCase)) // 대소문자 무시
-			{
-				bCanInteract = true;
-				TargetItem = HitActor;
-				UE_LOG(LogTemp, Warning, TEXT("Hit Item"));
+	//		if (ActorName.Contains(TEXT("item"), ESearchCase::IgnoreCase)) // 대소문자 무시
+	//		{
+	//			bCanInteract = true;
+	//			TargetItem = HitActor;
+	//			UE_LOG(LogTemp, Warning, TEXT("Hit Item"));
 
-			}
-			else
-			{
-				bCanInteract = false;
-				TargetItem = nullptr;
-				UE_LOG(LogTemp, Warning, TEXT("Item X"));
-			}
-		}
-		
-	}
-	else
-	{
-		bCanInteract = false;
-		TargetItem = nullptr;
-		UE_LOG(LogTemp, Warning, TEXT("Nothing Hit"));
-	}
+	//		}
+	//		else
+	//		{
+	//			bCanInteract = false;
+	//			TargetItem = nullptr;
+	//			UE_LOG(LogTemp, Warning, TEXT("Item X"));
+	//		}
+	//	}
+	//	
+	//}
+	//else
+	//{
+	//	bCanInteract = false;
+	//	TargetItem = nullptr;
+	//	UE_LOG(LogTemp, Warning, TEXT("Nothing Hit"));
+	//}
 
 	//DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.05f, 0, 2.0f);
 

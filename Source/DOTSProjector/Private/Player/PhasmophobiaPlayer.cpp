@@ -607,6 +607,7 @@ void APhasmophobiaPlayer::ServerRPC_ItemAction_Implementation()
 		{
 			Item->UseItem();
 		}
+		TargetItem = nullptr;
 	}
 }
 

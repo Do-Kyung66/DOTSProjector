@@ -211,7 +211,7 @@ public:
 					   bool bFromSweep, const FHitResult& SweepResult);
 
 public:
-	float HuntBegin = false;
+	bool HuntBegin = false;
 
 
 // Network Data

@@ -156,7 +156,7 @@ void AGhost_Wraith::KillState()
 		ExecuteBehavior(&BehaviorContext);
 	}
 
-	currentState = GhostState::Idle;
+	// currentState = GhostState::Idle;
 }
 
 void AGhost_Wraith::TriggerObjectState()

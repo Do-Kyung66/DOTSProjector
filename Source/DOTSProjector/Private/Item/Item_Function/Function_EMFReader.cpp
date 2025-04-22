@@ -5,14 +5,18 @@
 #include "Item_EMFReader.h"
 #include "GhostBase.h"
 #include "Components/PointLightComponent.h"
+#include "Net/UnrealNetwork.h"
 
 void UFunction_EMFReader::Use(AItem_Base* Item)
 {
 	if (AItem_EMFReader* EMFReader = Cast<AItem_EMFReader>(Item)) {
 		bOn = !bOn;
 
-		if (!bOn)
+		if (bOn)
 		{
+			EMFReader->PointLight1->SetVisibility(true);
+		}
+		else {
 			EMFReader->PointLight1->SetVisibility(false);
 			EMFReader->PointLight2->SetVisibility(false);
 			EMFReader->PointLight3->SetVisibility(false);
@@ -22,12 +26,18 @@ void UFunction_EMFReader::Use(AItem_Base* Item)
 	}
 }
 
+
 void UFunction_EMFReader::Tick(float DeltaTime, AItem_EMFReader* EMFReader)
 {
-	if (!bOn || !EMFReader) return;
+	if (!bOn || !EMFReader || !EMFReader->HasAuthority()) return;
 
-	FVector Start = EMFReader->GetActorLocation();
+	//GEngine->AddOnScreenDebugMessage(25, 1.0f, FColor::Yellow, TEXT("EMFReader Tick Working"));
+	//FVector Start = EMFReader->GetActorLocation();
+
+	FVector Start = EMFReader->LEDComp->GetComponentLocation();
+
 	FVector End = Start;
+
 
 	FCollisionShape Sphere = FCollisionShape::MakeSphere(EMFReader->DetectionRadius);
 	TArray<FHitResult> HitResults;
@@ -53,18 +63,27 @@ void UFunction_EMFReader::Tick(float DeltaTime, AItem_EMFReader* EMFReader)
 		{
 			if (AGhostBase* Ghost = Cast<AGhostBase>(Hit.GetActor()))
 			{
-				bGhostDetected = true;
-				FVector GhostLocation = Ghost->GetActorLocation();
-				// DrawDebugSphere(EMFReader->GetWorld(), GhostLocation, 25.f, 12, FColor::Red, false, 1.f);
-
+				if (Ghost->GhostData->Weakness.Find("EMFReader") && Ghost->GhostData->Weakness["EMFReader"] == true) {
+					bGhostDetected = true;
+					FVector GhostLocation = Ghost->GetActorLocation();
+					//DrawDebugSphere(EMFReader->GetWorld(), GhostLocation, 25.f, 12, FColor::Red, false, 1.f);
+				}
 			}
 		}
 	}
-	EMFReader->PointLight1->SetVisibility(bGhostDetected);
+
 	EMFReader->PointLight2->SetVisibility(bGhostDetected);
 	EMFReader->PointLight3->SetVisibility(bGhostDetected);
 	EMFReader->PointLight4->SetVisibility(bGhostDetected);
 	EMFReader->PointLight5->SetVisibility(bGhostDetected);
+	
 
-	// DrawDebugSphere(EMFReader->GetWorld(), Start, EMFReader->DetectionRadius, 32, FColor::Green, false, 0.5f);
+
+	//DrawDebugSphere(EMFReader->GetWorld(), Start, EMFReader->DetectionRadius, 32, FColor::Green, false, 0.5f);
+}
+
+void UFunction_EMFReader::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UFunction_EMFReader, bOn);
 }
