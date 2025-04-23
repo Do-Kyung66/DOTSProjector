@@ -128,7 +128,7 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	ItemTrace();
-	DecreaseSanity(DeltaTime * 0.2);
+	DecreaseSanity(DeltaTime * 0.3);
 
 	// 문 상호작용
 	/*FHitResult DoorHit;

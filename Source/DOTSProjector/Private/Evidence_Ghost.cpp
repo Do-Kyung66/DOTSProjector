@@ -4,6 +4,7 @@
 #include "Evidence_Ghost.h"
 #include "Components/StaticMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AEvidence_Ghost::AEvidence_Ghost()
@@ -12,7 +13,7 @@ AEvidence_Ghost::AEvidence_Ghost()
 	PrimaryActorTick.bCanEverTick = true;
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-	MeshComp->SetupAttachment(RootComponent);
+	RootComponent = MeshComp;
 }
 
 // Called when the game starts or when spawned
@@ -48,7 +49,8 @@ void AEvidence_Ghost::RevealWithUV()
 	if (DynamicMat && bIsVisible)
 	{
 		MeshComp->SetVisibility(bIsVisible);
-		DynamicMat->SetScalarParameterValue("GlowIntensity", 1.0f);
+		GlowIntensity = 1.0f;
+		DynamicMat->SetScalarParameterValue("GlowIntensity", GlowIntensity);
 	}
 }
 
@@ -57,6 +59,15 @@ void AEvidence_Ghost::InvisibleMaterial()
 	if (DynamicMat && !bIsVisible)
 	{
 		MeshComp->SetVisibility(bIsVisible);
-		DynamicMat->SetScalarParameterValue("GlowIntensity", 0.0f);
+		GlowIntensity = 0.0f;
+		DynamicMat->SetScalarParameterValue("GlowIntensity", GlowIntensity);
 	}
+}
+
+void AEvidence_Ghost::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AEvidence_Ghost, bIsVisible);
+	DOREPLIFETIME(AEvidence_Ghost, DynamicMat);
+	DOREPLIFETIME(AEvidence_Ghost, GlowIntensity);
 }

@@ -28,21 +28,25 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class UStaticMeshComponent* MeshComp;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadWrite)
 	class UMaterialInstanceDynamic* DynamicMat;
 
 	void RevealWithUV();
 
 	void InvisibleMaterial();
 
+	UPROPERTY(Replicated)
 	bool bIsVisible = false;
 
 	bool IsRevealing = false;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	float GlowIntensity = 0.0f;
 
 	UPROPERTY(EditAnywhere)
 	float GlowInterpSpeed = 3.0f;
+
 };

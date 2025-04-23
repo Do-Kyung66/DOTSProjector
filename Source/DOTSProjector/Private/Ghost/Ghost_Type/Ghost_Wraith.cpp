@@ -16,6 +16,7 @@ void AGhost_Wraith::BeginPlay()
 {
 	Super::BeginPlay();
 	currentState = GhostState::Patrol;
+	SetActorHiddenInGame(true);
 }
 
 void AGhost_Wraith::Tick(float DeltaSeconds)
