@@ -30,13 +30,13 @@ public:
 
 	// 방 리스트
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	class UButton* btn_Refesh;
+	class UButton* btn_Find;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	class UButton* btn_Create;
 
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	class UButton* btn_PrivateEnter;
+	/*UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UButton* btn_PrivateEnter;*/
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	class UScrollBox* Scroll_RoomList;
@@ -51,18 +51,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UEditableText* edit_roomName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UCheckBox* CheckBox_PublicRoom;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UCheckBox* CheckBox_PrivateRoom;
+	class UCheckBox* CheckBox_PrivateRoom;*/
 
 	// private key 입력
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UEditableText* edit_privatekey;
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	class UEditableText* edit_privatekey;*/
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UButton* btn_join;
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	class UButton* btn_join;*/
 
 	
 	// 뒤로가기
@@ -90,7 +90,7 @@ public:
 
 	// 방 리스트
 	UFUNCTION()
-	void OnRefeshClicked();
+	void OnFindClicked();
 
 	UFUNCTION()
 	void OnCreateClicked();

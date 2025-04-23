@@ -7,6 +7,7 @@
 #include "Interfaces/OnlineSessionInterface.h"
 #include "DOTSProjector.h"
 #include "../../../../Plugins/Online/OnlineBase/Source/Public/Online/OnlineSessionNames.h"
+#include "NetGameStateBase.h"
 
 void UNetGameInstance::Init()
 {
@@ -52,24 +53,26 @@ void UNetGameInstance::CreateMySession(FString roomName, bool bIsPrivate)
 	// 2. 랜선(로컬) 매칭을 할지 steam 매칭을 할지 여부 (IOnlineSubsystem이 NULL이면 로컬 LAN 매치)
 	FName subsysName = IOnlineSubsystem::Get()->GetSubsystemName();
 	sessionSettings.bIsLANMatch = (subsysName == "NULL");
+	PRINTLOG(TEXT("Subsystem Name: %s"), *subsysName.ToString());
 	
 	// 3. 매칭이 온라인을 통해 노출될지 여부
 	// false이면 초대를 통해서만 입장 가능
 	// 비공개 방이면 노출 x , 공개방일 경우 노출 o
-	if (bIsPrivate == true)
-	{
-		sessionSettings.bShouldAdvertise = false;
-		// 프라이빗 코드 생성
-		int32 Code = FMath::RandRange(100000, 999999);
-		sessionInfo.roomCode = FString::FromInt(Code);
-		PRINTLOG(TEXT("roomCode : %s"), *sessionInfo.roomCode);
-		sessionSettings.Set(FName("roomCode"), sessionInfo.roomCode, EOnlineDataAdvertisementType::ViaOnlineService);
-	}
-	else
-	{
-		sessionSettings.bShouldAdvertise = true;
-	}
+	//if (bIsPrivate == true)
+	//{
+	//	sessionSettings.bShouldAdvertise = false;
+	//	// 프라이빗 코드 생성
+	//	int32 Code = FMath::RandRange(100000, 999999);
+	//	sessionInfo.roomCode = FString::FromInt(Code);
+	//	PRINTLOG(TEXT("roomCode : %s"), *sessionInfo.roomCode);
+	//	sessionSettings.Set(FName("roomCode"), sessionInfo.roomCode, EOnlineDataAdvertisementType::ViaOnlineService);
+	//}
+	//else
+	//{
+	//	sessionSettings.bShouldAdvertise = true;
+	//}
 
+	sessionSettings.bShouldAdvertise = true;
 	// 4. 온라인 상태(Presence) 정보 활용 여부 (ex. 접속중, 게임중 등등, 친구 세션찾기 가능하게)
 	sessionSettings.bUsesPresence = true;
 	sessionSettings.bUseLobbiesIfAvailable = true;
@@ -79,8 +82,8 @@ void UNetGameInstance::CreateMySession(FString roomName, bool bIsPrivate)
 	sessionSettings.bAllowJoinInProgress = false;
 
 	// 6. 세션에 참여할 수 있는 공개(public) 연결의 최대 허용 수
-	// 호스트는 자동 참여라 3이라 적으면 최대 4명이서 게임 가능
-	sessionSettings.NumPublicConnections = 3;
+	// 호스트는 자동 참여라 3이라 적으면 최대 4명이서 게임 가능 - 4명으로 변경
+	sessionSettings.NumPublicConnections = 4;
 
 	// 7. 커스텀 룸네임 설정
 	sessionSettings.Set(FName("ROOM_NAME"), roomName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
@@ -96,6 +99,12 @@ void UNetGameInstance::CreateMySession(FString roomName, bool bIsPrivate)
 
 	// 세션생성 요청 보내기
 	sessionInterface->CreateSession(*netID, FName(mySessionName), sessionSettings);
+
+	ANetGameStateBase* GS = GetWorld()->GetGameState<ANetGameStateBase>();
+	if (GS)
+	{
+		GS->RoomName = sessionInfo.roomName;
+	}
 }
 
 void UNetGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
@@ -183,6 +192,9 @@ void UNetGameInstance::JoinSelectedSession(int32& index)
 	sr[index].Session.SessionSettings.bUsesPresence = true;
 
 	sessionInterface->JoinSession(0, FName(mySessionName), sr[index]);
+
+	PRINTLOG(TEXT("Join Session %s, index %d"), *mySessionName, index);
+
 }
 
 void UNetGameInstance::JoinPrivateRoom(FString& Code)

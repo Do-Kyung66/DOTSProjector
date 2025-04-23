@@ -24,7 +24,7 @@ void USwitchItemBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue
 	}
 
 	// 슬롯 순환용 인덱스
-	Player->StartIndex = Player->CurrentItemIndex;
+	Player->StartIndex = Player->CurrentItemIndex >= 0 ? Player->CurrentItemIndex : 1;
 	Player->NextIndex = Player->StartIndex;
 
 
@@ -59,6 +59,8 @@ void USwitchItemBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue
 	{
 		UE_LOG(LogTemp, Log, TEXT("Switched to Empty Slot (Index: 0)"));
 	}
+	// 애니메이션 업데이트
+	Player->bHasItem = (Player->currentItem != nullptr);
 
 	/*if (Player->ItemActors.IsValidIndex(Player->CurrentItemIndex))
 	{
