@@ -13,5 +13,12 @@ UCLASS()
 class DOTSPROJECTOR_API ANetPlayerState : public APlayerState
 {
 	GENERATED_BODY()
+
+public:
+	virtual void BeginPlay() override;
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SetUserName(const FString& name);
+
 	
 };
