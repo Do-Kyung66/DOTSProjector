@@ -25,6 +25,7 @@ void UNetGameInstance::Init()
 		// OnCreateSessionComplete 함수가 세션 생성 결과 처리
 		sessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UNetGameInstance::OnCreateSessionComplete);
 		sessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UNetGameInstance::OnFindSessionComplete);
+		sessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UNetGameInstance::OnJoinSessionComlete);
 
 		// 세션 테스트
 		//FTimerHandle handle;
@@ -186,14 +187,27 @@ void UNetGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 
 void UNetGameInstance::JoinSelectedSession(int32& index)
 {	
+	if (sessionInterface->GetNamedSession(NAME_GameSession) != nullptr)
+	{
+		sessionInterface->DestroySession(NAME_GameSession);
+	}
+
 	auto sr = sessionSearch->SearchResults;
+
+	// 세션 정보에서 방 이름을 추출
+	FString roomName;
+	sr[index].Session.SessionSettings.Get(FName("Room_Name"), roomName);
+
+	// 실제로 조인하려는 세션 이름을 로그로 출력
+	PRINTLOG(TEXT("Joining Session: %s, index %d"), *roomName, index);
 
 	sr[index].Session.SessionSettings.bUseLobbiesIfAvailable = true;
 	sr[index].Session.SessionSettings.bUsesPresence = true;
 
 	sessionInterface->JoinSession(0, FName(mySessionName), sr[index]);
 
-	PRINTLOG(TEXT("Join Session %s, index %d"), *mySessionName, index);
+	// 디버그용 로그 출력
+	PRINTLOG(TEXT("Joined Session: %s, index %d"), *roomName, index);
 
 }
 
