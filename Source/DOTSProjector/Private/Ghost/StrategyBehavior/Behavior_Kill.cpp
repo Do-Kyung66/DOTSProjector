@@ -18,10 +18,7 @@ void UBehavior_Kill::ExecuteBehavior(const FGhostBehaviorContext& Context)
 				return;
 			}
 		}
-		PlayerCharacter->ItemActors[PlayerCharacter->CurrentItemIndex] = nullptr;
-		PlayerCharacter->currentItem->SetOwner(nullptr);
-		PlayerCharacter->currentItem = nullptr;
-		PlayerCharacter->CurrentItemIndex = 0;
+		PlayerCharacter->ServerRPC_Detach();
 
 		for (auto& item : PlayerCharacter->ItemActors) {
 			PlayerCharacter->currentItem = item;

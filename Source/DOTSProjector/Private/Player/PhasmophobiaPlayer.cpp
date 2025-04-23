@@ -76,6 +76,8 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 	// 아이템 슬롯 초기화
 	ItemActors.SetNum(4);
 	ItemActors[0] = nullptr;
+
+
 	
 }
 
@@ -126,6 +128,8 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	ItemTrace();
+	DecreaseSanity(DeltaTime * 0.2);
+
 	// 문 상호작용
 	/*FHitResult DoorHit;
 	PC->GetHitResultUnderCursor(ECC_Visibility, false, DoorHit);
