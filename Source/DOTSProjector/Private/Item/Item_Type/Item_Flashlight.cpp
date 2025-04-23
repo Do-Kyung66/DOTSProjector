@@ -11,7 +11,7 @@ AItem_Flashlight::AItem_Flashlight()
 	PrimaryActorTick.bCanEverTick = false;
 
 	SpotLightComp = CreateDefaultSubobject<USpotLightComponent>(TEXT("SpotLightComp"));
-	SpotLightComp->SetupAttachment(RootComponent);
+	SpotLightComp->SetupAttachment(MeshComp);
 	SpotLightComp->SetRelativeLocationAndRotation(FVector(-40.f, 0.f, 0.f), FRotator(0.f, 0.f, 180.f));
 
 	static const FString ContextString(TEXT("ItemDataTable"));

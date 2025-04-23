@@ -14,4 +14,12 @@ class DOTSPROJECTOR_API UFunction_UVLight : public UItemStrategy
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void Use(AItem_Base* Item) override;
+
+	void Tick(float DeltaTime, class AItem_UVLight* UVLight);
+
+	UPROPERTY()
+	bool bOn = false;
+
 };

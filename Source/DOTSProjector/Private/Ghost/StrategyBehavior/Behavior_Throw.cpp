@@ -28,7 +28,7 @@ void UBehavior_Throw::ExecuteBehavior(const FGhostBehaviorContext& Context)
 	Item->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	Item->SetActorLocation(Ghost->GetActorLocation());
 
-	if (UPrimitiveComponent* ItemRoot = Cast<UPrimitiveComponent>(Item->GetRootComponent()))
+	if (UPrimitiveComponent* ItemRoot = Cast<UPrimitiveComponent>(Item->MeshComp))
 	{
 		ItemRoot->SetSimulatePhysics(false);
 	}
@@ -38,7 +38,7 @@ void UBehavior_Throw::ExecuteBehavior(const FGhostBehaviorContext& Context)
 		{
 			FVector ThrowDirection = (Player->GetActorLocation() - Ghost->GetActorLocation()).GetSafeNormal();
 
-			if (UPrimitiveComponent* ItemRoot = Cast<UPrimitiveComponent>(Item->GetRootComponent()))
+			if (UPrimitiveComponent* ItemRoot = Cast<UPrimitiveComponent>(Item->MeshComp))
 			{
 				ItemRoot->SetSimulatePhysics(true);
 				ItemRoot->AddImpulse(ThrowDirection * 1000.f);

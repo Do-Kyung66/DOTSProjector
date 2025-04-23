@@ -6,6 +6,8 @@
 
 AItem_Thermometer::AItem_Thermometer()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	static const FString ContextString(TEXT("ItemDataTable"));
 	FItemData* ItemData = ItemDataTable->FindRow<FItemData>("Thermometer", ContextString);
 	MeshComp->SetStaticMesh(ItemData->ItemMesh);
