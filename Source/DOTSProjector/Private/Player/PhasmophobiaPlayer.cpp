@@ -164,7 +164,7 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 	}
 	if (PC)
 	{
-		if (PC->bCanInteract)
+		if (bIsCursorOverItem)
 		{
 			CenterUI->ShowHandCursor();
 		}
@@ -437,6 +437,9 @@ void APhasmophobiaPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(APhasmophobiaPlayer, ScrollValue);
 	DOREPLIFETIME(APhasmophobiaPlayer, NextIndex);
 	DOREPLIFETIME(APhasmophobiaPlayer, StartIndex);
+	DOREPLIFETIME(APhasmophobiaPlayer, bIsCursorOverItem);
+
+
 
 }
 
@@ -500,11 +503,17 @@ void APhasmophobiaPlayer::ServerRPC_ItemTrace_Implementation()
 			if (ActorName.Contains(TEXT("item"), ESearchCase::IgnoreCase))
 			{
 				TargetItem = HitActor;
+				bIsCursorOverItem = true;
 			}
 			else
 			{
 				TargetItem = nullptr;
+				bIsCursorOverItem = false;
 			}
+		}
+		else
+		{
+			bIsCursorOverItem = false;
 		}
 	}
 }

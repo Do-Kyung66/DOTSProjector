@@ -6,6 +6,7 @@
 #include "DT_Item.h"
 #include "PhasmophobiaPlayerController.h"
 #include "Components/SceneComponent.h"
+#include "DOTSProjector.h"
 
 
 // Sets default values
@@ -60,31 +61,5 @@ void AItem_Base::UseItem()
 	if (ItemStrategy)
 	{
 		ItemStrategy->Use(this);
-	}
-}
-
-void AItem_Base::NotifyActorBeginCursorOver()
-{
-	Super::NotifyActorBeginCursorOver();
-
-	APhasmophobiaPlayerController* PC = Cast<APhasmophobiaPlayerController>(GetWorld()->GetFirstPlayerController());
-
-	if (PC)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Cursor!"));
-		PC->SetCursorForInteraction(true, this);
-
-	}
-
-}
-
-void AItem_Base::NotifyActorEndCursorOver()
-{
-	Super::NotifyActorEndCursorOver();
-
-	APhasmophobiaPlayerController* PC = Cast<APhasmophobiaPlayerController>(GetWorld()->GetFirstPlayerController());
-	if (PC)
-	{
-		PC->SetCursorForInteraction(false, nullptr);
 	}
 }

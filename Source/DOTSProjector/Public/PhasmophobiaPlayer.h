@@ -144,6 +144,9 @@ public:
 
 	UPROPERTY(Replicated)
 	bool bIsDead = false;
+
+	UPROPERTY(Replicated)
+	bool bIsCursorOverItem = false;
 	
 	// Player Behavior Func
 	void Move(const FInputActionValue& Value);

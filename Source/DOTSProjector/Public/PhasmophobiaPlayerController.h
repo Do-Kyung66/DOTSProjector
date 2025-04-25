@@ -21,14 +21,6 @@ public:
 	UPROPERTY(Replicated)
 	AActor* TargetItem = nullptr;
 
-	UFUNCTION(BlueprintCallable)
-	void SetCursorForInteraction(bool bIsInteractable, AActor* tempItem);
-
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
-	bool bCanInteract = false;
-
 	// door
 	AActor* TargetDoor = nullptr;
 	bool bDraggingDoor = false;
