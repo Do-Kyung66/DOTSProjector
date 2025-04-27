@@ -19,6 +19,7 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (Player)
 	{
 		speed = FVector::DotProduct(Player->GetVelocity(), Player->GetActorForwardVector());
+		direction = FVector::DotProduct(Player->GetVelocity(), Player->GetActorRightVector());
 
 		// 회전값 적용
 		pitchAngle = -Player->GetBaseAimRotation().GetNormalized().Pitch;

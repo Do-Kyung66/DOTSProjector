@@ -38,6 +38,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Controller")
 	class APhasmophobiaPlayerController* PC;
 
+	UPROPERTY(EditAnywhere)
+	class USkeletalMeshComponent* HandMesh;
+
 	UPROPERTY(EditAnywhere, Category = Camera)
 	class USpringArmComponent* SpringArmComp;
 

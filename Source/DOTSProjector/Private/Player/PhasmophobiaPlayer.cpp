@@ -20,6 +20,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/SceneComponent.h"
 #include "PlayerAnimInstance.h"
 
 #include "Net/UnrealNetwork.h"
@@ -38,10 +40,20 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	CamComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
+	CamComp->SetupAttachment(GetCapsuleComponent());
+	CamComp->SetRelativeLocation(FVector(0.0f, 0.0f, 64.0f));
+	CamComp->bUsePawnControlRotation = true;
+
+	HandMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HandMesh"));
+	HandMesh->SetupAttachment(CamComp);
+	HandMesh->bOnlyOwnerSee = true; // 플레이어만 볼 수 있음
+
+	GetMesh()->SetupAttachment(GetCapsuleComponent());
+	GetMesh()->bOwnerNoSee = true; // 플레이어는 안 보게 
+
 	// 캐릭터 메시 로드
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/rp_manuel_rigged_001_ue4.rp_manuel_rigged_001_ue4'"));
-
-	//ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/PlayerHandMesh2.PlayerHandMesh2'"));
 
 	if (MeshTemp.Succeeded())
 	{
@@ -49,19 +61,28 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -88.0), FRotator(0.0, -90, 0.0));
 	}
 
-	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-	SpringArmComp->SetupAttachment(GetMesh());
-	SpringArmComp->SetRelativeLocation(FVector(0.0f, 27.0f, 153.0f));
-	SpringArmComp->bUsePawnControlRotation = true;
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> HandMeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/PlayerHandMesh3.PlayerHandMesh3'"));
+
+	if (HandMeshTemp.Succeeded())
+	{
+		HandMesh->SetSkeletalMesh(HandMeshTemp.Object);
+		HandMesh->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -150.0), FRotator(0.0, -90, 0.0));
+	}
+	
+
+	/*SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	SpringArmComp->TargetArmLength = 0.0f;
+	SpringArmComp->bUsePawnControlRotation = true;
+	SpringArmComp->bInheritPitch = true;
+	SpringArmComp->bInheritYaw = true;
+	SpringArmComp->bInheritRoll = false;
+	SpringArmComp->bDoCollisionTest = false;
+	SpringArmComp->SetupAttachment(GetRootComponent());*/
+	//SpringArmComp->SetRelativeLocation(FVector(0.0f, 27.0f, 153.0f));
 
-	CamComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
-	CamComp->SetupAttachment(SpringArmComp);
-	CamComp->bUsePawnControlRotation = false;
-
-	bUseControllerRotationPitch = false;
+	/*bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
-	bUseControllerRotationRoll = false;
+	bUseControllerRotationRoll = false;*/
 
 	// 계단 오르기
 	GetCharacterMovement()->MaxStepHeight = 45.f;
@@ -299,7 +320,7 @@ void APhasmophobiaPlayer::Detach(const FInputActionValue& Value)
 		if (AnimInstance)
 		{
 			AnimInstance->bHasItem = bHasItem;
-		}b
+		}
 	}*/
 }
 

@@ -19,7 +19,11 @@ public:
 	bool bIsCrouching = false; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float speed = 0.f;
+	float speed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float direction;
+
 
 	UPROPERTY()
 	class APhasmophobiaPlayer* Player;
