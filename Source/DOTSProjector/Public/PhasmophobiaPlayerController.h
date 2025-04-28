@@ -21,9 +21,6 @@ public:
 	UPROPERTY(Replicated)
 	AActor* TargetItem = nullptr;
 
-	UFUNCTION(BlueprintCallable)
-	void SetCursorForInteraction(bool bIsInteractable, AActor* tempItem);
-
 
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Cursor")
