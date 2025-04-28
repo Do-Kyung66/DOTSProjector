@@ -74,8 +74,9 @@ void AItem_Base::NotifyActorBeginCursorOver()
 		UE_LOG(LogTemp, Warning, TEXT("Cursor!"));
 		PC->SetCursorForInteraction(true, this);
 
+		// 서버에도 알림
+		ServerSetCursorForInteraction(true, this);
 	}
-
 }
 
 void AItem_Base::NotifyActorEndCursorOver()
@@ -86,5 +87,17 @@ void AItem_Base::NotifyActorEndCursorOver()
 	if (PC)
 	{
 		PC->SetCursorForInteraction(false, nullptr);
+
+		// 서버에도 알림
+		ServerSetCursorForInteraction(false, nullptr);
+	}
+}
+
+void AItem_Base::ServerSetCursorForInteraction_Implementation(bool bEnable, AItem_Base* Item)
+{
+	APhasmophobiaPlayerController* PC = Cast<APhasmophobiaPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC)
+	{
+		PC->SetCursorForInteraction(bEnable, Item);
 	}
 }

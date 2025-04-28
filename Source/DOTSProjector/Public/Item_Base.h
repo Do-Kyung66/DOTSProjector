@@ -70,4 +70,7 @@ public:
 	virtual void NotifyActorBeginCursorOver() override;
 	virtual void NotifyActorEndCursorOver() override;
 
+	UFUNCTION(Server, Reliable)
+	void ServerSetCursorForInteraction(bool bEnable, AItem_Base* Item);
+
 };

@@ -106,7 +106,7 @@ void APhasmophobiaPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeP
 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(APhasmophobiaPlayerController, TargetItem);
-
+	DOREPLIFETIME(APhasmophobiaPlayerController, bCanInteract);
 }
 
 void APhasmophobiaPlayerController::ServerRPC_RequestStartGame_Implementation()

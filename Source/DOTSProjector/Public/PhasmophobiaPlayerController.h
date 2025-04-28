@@ -26,7 +26,7 @@ public:
 
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Cursor")
 	bool bCanInteract = false;
 
 	// door
