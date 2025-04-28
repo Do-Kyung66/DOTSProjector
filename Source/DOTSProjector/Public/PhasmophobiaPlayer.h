@@ -87,6 +87,7 @@ public:
 
 	class UInputAction* ItemAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* CrouchAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
