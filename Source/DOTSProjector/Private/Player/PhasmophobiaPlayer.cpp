@@ -499,22 +499,44 @@ void APhasmophobiaPlayer::MulticastRPC_Equip_Implementation()
 
 void APhasmophobiaPlayer::ItemTrace()
 {
-	ServerRPC_ItemTrace();
+	if (IsLocallyControlled())
+	{
+		ServerRPC_ItemTrace();  
+	}
 }
 
 
 void APhasmophobiaPlayer::ServerRPC_ItemTrace_Implementation()
 {
-	FVector Start = CamComp->GetComponentLocation();
-	FVector End = Start + CamComp->GetForwardVector() * 300.f;
+	GEngine->AddOnScreenDebugMessage(3, 2.0f, FColor::Green, FString::Printf(TEXT("ItemTrace")));
+	/*FVector Start = CamComp->GetComponentLocation();
+	FVector End = Start + CamComp->GetForwardVector() * 300.f;*/
+
+	// 서버에서는 camcomp 위치는 정확하지 않음 플레이어 뷰포인트에서 정확한 위치에서 라인트레이스 쏨
+	FVector Start;
+	FRotator ViewRotation;
+	Controller->GetPlayerViewPoint(Start, ViewRotation);
+
+	FVector End = Start + ViewRotation.Vector() * 300.f;
 
 	FHitResult Hitinfo;
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
 
+	//DrawDebugLine(
+	//	GetWorld(),
+	//	Start,
+	//	End,
+	//	FColor::Red,
+	//	false,
+	//	10.0f,  // 지속 시간 (5초)
+	//	0,
+	//	3.0f   // 두께
+	//);
+
 	if (GetWorld()->LineTraceSingleByChannel(Hitinfo, Start, End, ECC_Visibility, params))
 	{
-		// GEngine->AddOnScreenDebugMessage(2, 2.0f, FColor::Green, FString::Printf(TEXT("Hit: %s"), *Hitinfo.GetActor()->GetName()));
+		GEngine->AddOnScreenDebugMessage(2, 2.0f, FColor::Green, FString::Printf(TEXT("Hit: %s"), *Hitinfo.GetActor()->GetName()));
 
 		AActor* HitActor = Hitinfo.GetActor();
 		if (HitActor)
@@ -534,15 +556,15 @@ void APhasmophobiaPlayer::ServerRPC_ItemTrace_Implementation()
 		}
 		else
 		{
-			TargetItem = nullptr;
+			//TargetItem = nullptr;
 			bIsCursorOverItem = false;
 		}
 	}
-	else
+	/*else
 	{
 		TargetItem = nullptr;
 		bIsCursorOverItem = false;
-	}
+	}*/
 }
 
 void APhasmophobiaPlayer::ServerRPC_UseItem_Implementation()
