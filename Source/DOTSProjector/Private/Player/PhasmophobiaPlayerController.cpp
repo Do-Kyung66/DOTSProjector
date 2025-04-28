@@ -60,46 +60,6 @@ void APhasmophobiaPlayerController::PlayerTick(float DeltaTime)
 
 }
 
-void APhasmophobiaPlayerController::SetCursorForInteraction(bool bIsInteractable, AActor* tempItem)
-{
-	if (bIsInteractable)
-	{
-		bCanInteract = true;
-		TargetItem = tempItem;
-		//CurrentMouseCursor = EMouseCursor::Hand;
-		UE_LOG(LogTemp, Warning, TEXT("Cursor : Hand"));
-	}
-	else
-	{
-		bCanInteract = false;
-		TargetItem = nullptr;
-		//CurrentMouseCursor = EMouseCursor::Default;
-		UE_LOG(LogTemp, Warning, TEXT("Cursor : Default"));
-	}
-
-
-	/*APhasmophobiaHUD* HUD = Cast<APhasmophobiaHUD>(GetHUD());
-	if (HUD && HUD->bIsJournalOpen) return;*/
-
-	//if (bIsInteractable)
-	//{
-	//	bCanInteract = true;
-	//	TargetItem = tempItem;
-	//	CurrentMouseCursor = EMouseCursor::Hand;
-	//	UE_LOG(LogTemp, Warning, TEXT("Cursor : Hand"));
-	//}
-	//else
-	//{
-	//	bCanInteract = false;
-	//	TargetItem = nullptr;
-	//	CurrentMouseCursor = EMouseCursor::Default;
-	//	UE_LOG(LogTemp, Warning, TEXT("Cursor : Default"));
-	//}
-
-	//FInputModeGameAndUI InputMode;
-	
-}
-
 
 void APhasmophobiaPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

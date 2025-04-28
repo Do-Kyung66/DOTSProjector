@@ -6,6 +6,7 @@
 #include "DT_Item.h"
 #include "PhasmophobiaPlayerController.h"
 #include "Components/SceneComponent.h"
+#include "DOTSProjector.h"
 
 
 // Sets default values

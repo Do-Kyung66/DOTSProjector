@@ -38,6 +38,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Controller")
 	class APhasmophobiaPlayerController* PC;
 
+	UPROPERTY(EditAnywhere)
+	class USkeletalMeshComponent* HandMesh;
+
 	UPROPERTY(EditAnywhere, Category = Camera)
 	class USpringArmComponent* SpringArmComp;
 
@@ -144,6 +147,9 @@ public:
 
 	UPROPERTY(Replicated)
 	bool bIsDead = false;
+
+	UPROPERTY(Replicated)
+	bool bIsCursorOverItem = false;
 	
 	// Player Behavior Func
 	void Move(const FInputActionValue& Value);

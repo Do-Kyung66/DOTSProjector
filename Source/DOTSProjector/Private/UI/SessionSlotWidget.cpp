@@ -5,6 +5,7 @@
 #include "NetGameInstance.h"
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
+#include "DOTSProjector.h"
 
 void USessionSlotWidget::NativeConstruct()
 {
@@ -26,9 +27,11 @@ void USessionSlotWidget::Set(const struct FSessionInfo& InSessionInfo)
 
 void USessionSlotWidget::JoinSession()
 {
+	PRINTLOG(TEXT("111111 join!!!!!!!!!!!!!"));
 	auto gi = Cast<UNetGameInstance>(GetWorld()->GetGameInstance());
 	if (gi)
 	{
 		gi->JoinSelectedSession(SessionNumber);
+		PRINTLOG(TEXT("22222 join!!!!!!!!!!!!!"));
 	}
 }
