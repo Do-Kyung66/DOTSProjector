@@ -153,6 +153,8 @@ public:
 	
 	// Player Behavior Func
 	void Move(const FInputActionValue& Value);
+	void OnMoveReleased(const FInputActionValue& Value);
+
 	void LookAround(const FInputActionValue& Value);
 
 	void PlayerCrouch(const FInputActionValue& Value);
@@ -261,6 +263,7 @@ public:
 
 
 	bool bIsMoving = false;
+	float Interval = 0.5f;
 
 
 	void StartFootstepSound();

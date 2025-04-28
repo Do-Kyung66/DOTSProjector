@@ -141,26 +141,28 @@ void UEquipItemBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue&
 		{
 			FName SocketName = TEXT("FlashlightSocket");
 
-			if (Player == Player->currentItem->GetOwner())
-			{
-				Mesh->AttachToComponent(Player->HandMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
-				UE_LOG(LogTemp, Log, TEXT("Attached to HandMesh - SocketName: %s"), *SocketName.ToString());
-			}
-			else
+			//if (Player == Player->currentItem->GetOwner())
+			if(Player->HasAuthority())
 			{
 				Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
 				UE_LOG(LogTemp, Log, TEXT("Attached to 3rd Person Mesh - SocketName: %s"), *SocketName.ToString());
 			}
-		}
-		else if (Player->currentItem->GetName().Contains(TEXT("Crucifix")))
-		{
-			FName SocketName = TEXT("CrucifixSocket");
-			if (Player == Player->currentItem->GetOwner())
+			else if(Player->IsLocallyControlled())
 			{
 				Mesh->AttachToComponent(Player->HandMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
 				UE_LOG(LogTemp, Log, TEXT("Attached to HandMesh - SocketName: %s"), *SocketName.ToString());
 			}
-			else
+			
+		}
+		else if (Player->currentItem->GetName().Contains(TEXT("Crucifix")))
+		{
+			FName SocketName = TEXT("CrucifixSocket");
+			if (Player->IsLocallyControlled())
+			{
+				Mesh->AttachToComponent(Player->HandMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+				UE_LOG(LogTemp, Log, TEXT("Attached to HandMesh - SocketName: %s"), *SocketName.ToString());
+			}
+			else if (Player->HasAuthority())
 			{
 				Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
 				UE_LOG(LogTemp, Log, TEXT("Attached to 3rd Person Mesh - SocketName: %s"), *SocketName.ToString());

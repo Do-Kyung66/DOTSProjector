@@ -205,6 +205,8 @@ void APhasmophobiaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Move);
+		EnhancedInput->BindAction(MoveAction, ETriggerEvent::Completed, this, &APhasmophobiaPlayer::OnMoveReleased);
+
 		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::LookAround);
 
 		EnhancedInput->BindAction(ItemAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::ActivateItem);
@@ -228,14 +230,28 @@ void APhasmophobiaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 void APhasmophobiaPlayer::Move(const FInputActionValue& Value)
 {
+	FVector Velocity = GetVelocity();
+	if (Velocity.Size() > 0.1f)
+	{
+		StartFootstepSound();
+		UE_LOG(LogTemp, Log, TEXT("move Start Sound"));
+	}
+
 	if (CurrentMoveStrategy && CurrentMoveStrategy->GetClass()->ImplementsInterface(UPlayerBehavior::StaticClass()))
 	{
 		IPlayerBehavior* MoveStrategy = Cast<IPlayerBehavior>(CurrentMoveStrategy);
 		if (MoveStrategy)
 		{
 			MoveStrategy->ExecuteBehavior(this, Value);
+			
 		}
 	}
+}
+
+void APhasmophobiaPlayer::OnMoveReleased(const FInputActionValue& Value)
+{	
+	StopFootstepSound();
+	UE_LOG(LogTemp, Log, TEXT("move Stop Sound"));
 }
 
 void APhasmophobiaPlayer::LookAround(const FInputActionValue& Value)
@@ -265,6 +281,18 @@ void APhasmophobiaPlayer::PlayerCrouch(const FInputActionValue& Value)
 
 void APhasmophobiaPlayer::Run(const FInputActionValue& Value)
 {
+	FVector Velocity = GetVelocity();
+	if (CurrentStamina > 0 && Velocity.Size() > 0.1f)
+	{
+		StartFootstepSound();
+		UE_LOG(LogTemp, Log, TEXT("run Start Sound"));
+	}
+	else if (CurrentStamina <= 0 && Velocity.Size() < 0.1f)
+	{
+		StopFootstepSound();
+		UE_LOG(LogTemp, Log, TEXT("run Stop Sound"));
+	}
+
 	if (GetVelocity().Size() <= 0.1f) return;
 	bIsRunning = true;
 	if (CurrentRunStrategy && CurrentRunStrategy->GetClass()->ImplementsInterface(UPlayerBehavior::StaticClass()))
@@ -280,6 +308,11 @@ void APhasmophobiaPlayer::Run(const FInputActionValue& Value)
 void APhasmophobiaPlayer::OnRunReleased(const FInputActionValue& Value)
 {
 	bIsRunning = false;
+	FVector Velocity = GetVelocity();
+	if (Velocity.Size() < 0.1f)
+	{
+		StopFootstepSound();
+	}
 }
 
 void APhasmophobiaPlayer::Equip(const FInputActionValue& Value)
@@ -663,6 +696,61 @@ void APhasmophobiaPlayer::ServerRPC_ItemAction_Implementation()
 			Item->UseItem();
 		}
 		TargetItem = nullptr;
+	}
+}
+
+void APhasmophobiaPlayer::StartFootstepSound()
+{
+
+	GEngine->AddOnScreenDebugMessage(52, 1.0, FColor::Red, TEXT("StartFootstepSound called"));
+	
+	// 현재 인터벌 계산
+	float NewInterval = bIsRunning ? 0.2f : 0.5f;
+	UE_LOG(LogTemp, Log, TEXT("Footstep Interval: %f"), NewInterval);
+
+	// 타이머가 활성화된 경우
+	if (GetWorld()->GetTimerManager().IsTimerActive(FootstepTimerHandle))
+	{
+		// 인터벌이 변경된 경우에만 타이머 갱신
+		if (Interval != NewInterval)
+		{
+			
+			GetWorld()->GetTimerManager().ClearTimer(FootstepTimerHandle);
+			GetWorld()->GetTimerManager().SetTimer(FootstepTimerHandle, this, &APhasmophobiaPlayer::PlayFootstepSound, NewInterval, true);
+			Interval = NewInterval; // 새 인터벌 저장
+			UE_LOG(LogTemp, Log, TEXT("Footstep timer interval updated"));
+		}
+	}
+	else
+	{
+		// 타이머가 비활성화된 경우, 새로운 타이머를 설정
+		GetWorld()->GetTimerManager().SetTimer(FootstepTimerHandle, this, &APhasmophobiaPlayer::PlayFootstepSound, NewInterval, true);
+		Interval = NewInterval; // 새 인터벌 저장
+		UE_LOG(LogTemp, Log, TEXT("Footstep timer started"));
+	}
+}
+
+void APhasmophobiaPlayer::StopFootstepSound()
+{
+	GetWorld()->GetTimerManager().ClearTimer(FootstepTimerHandle);
+}
+
+void APhasmophobiaPlayer::PlayFootstepSound()
+{
+	if (FootstepSounds.Num() > 0)
+	{
+		GEngine->AddOnScreenDebugMessage(50, 1.0, FColor::Cyan, FString::Printf(TEXT("PlayFootstepSound : %d"), CurrentFootstepIndex));
+		UGameplayStatics::PlaySoundAtLocation(this, FootstepSounds[CurrentFootstepIndex], GetActorLocation());
+		CurrentFootstepIndex++;
+
+		if (CurrentFootstepIndex >= FootstepSounds.Num())
+		{
+			CurrentFootstepIndex = 0;
+		}
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(51, 1.0, FColor::Red, TEXT("FootstepSounds is empty!"));
 	}
 }
 
