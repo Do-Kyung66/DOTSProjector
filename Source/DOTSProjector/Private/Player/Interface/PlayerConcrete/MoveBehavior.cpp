@@ -22,10 +22,21 @@ void UMoveBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue& Valu
 
 	FVector MoveDir = (Forward * InputVec.X) + (Right * InputVec.Y);
 
+	// sound
+	/*if (!MoveDir.IsNearlyZero() && !Player->bIsMoving)
+	{
+		Player->bIsMoving = true;
+		Player->StartFootstepSound();
+	}
+	else if(MoveDir.IsNearlyZero() && Player->bIsMoving)
+	{
+		Player->bIsMoving = false;
+		Player->StopFootstepSound();
+	}*/
+	
 	if (!MoveDir.IsNearlyZero())
 	{
 		Player->AddMovementInput(MoveDir.GetSafeNormal(), 0.5f);
-
-
 	}
+	
 }

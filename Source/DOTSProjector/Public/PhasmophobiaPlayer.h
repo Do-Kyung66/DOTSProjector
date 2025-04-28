@@ -250,4 +250,20 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_ItemAction();
+
+	// sound
+	FTimerHandle FootstepTimerHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	TArray<USoundBase*> FootstepSounds;
+
+	int32 CurrentFootstepIndex = 0;
+
+
+	bool bIsMoving = false;
+
+
+	void StartFootstepSound();
+	void StopFootstepSound();
+	void PlayFootstepSound();
 };
