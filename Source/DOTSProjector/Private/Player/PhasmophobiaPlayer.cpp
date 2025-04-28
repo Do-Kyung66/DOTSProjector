@@ -151,6 +151,7 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 	ItemTrace();
 	DecreaseSanity(DeltaTime * 0.3);
 
+
 	// 문 상호작용
 	/*FHitResult DoorHit;
 	PC->GetHitResultUnderCursor(ECC_Visibility, false, DoorHit);
@@ -265,6 +266,17 @@ void APhasmophobiaPlayer::PlayerCrouch(const FInputActionValue& Value)
 
 void APhasmophobiaPlayer::Run(const FInputActionValue& Value)
 {
+	if (CurrentStamina > 0)
+	{
+		StartFootstepSound();
+		UE_LOG(LogTemp, Log, TEXT("Start Sound"));
+	}
+	else if (CurrentStamina <= 0)
+	{
+		//StopFootstepSound();
+		UE_LOG(LogTemp, Log, TEXT("Stop Sound"));
+	}
+
 	if (GetVelocity().Size() <= 0.1f) return;
 	bIsRunning = true;
 	if (CurrentRunStrategy && CurrentRunStrategy->GetClass()->ImplementsInterface(UPlayerBehavior::StaticClass()))
@@ -280,6 +292,7 @@ void APhasmophobiaPlayer::Run(const FInputActionValue& Value)
 void APhasmophobiaPlayer::OnRunReleased(const FInputActionValue& Value)
 {
 	bIsRunning = false;
+	StopFootstepSound();
 }
 
 void APhasmophobiaPlayer::Equip(const FInputActionValue& Value)
@@ -635,6 +648,52 @@ void APhasmophobiaPlayer::ServerRPC_ItemAction_Implementation()
 			Item->UseItem();
 		}
 		TargetItem = nullptr;
+	}
+}
+
+void APhasmophobiaPlayer::StartFootstepSound()
+{
+	CurrentFootstepIndex = 0; // 인덱스 리셋
+	GEngine->AddOnScreenDebugMessage(50, 1.0, FColor::Red, TEXT("StartFootstepSound called"));
+
+	float Interval = bIsRunning ? 0.3f : 0.5f;
+
+	
+	// 타이머가 활성화되었는지 확인
+	if (GetWorld()->GetTimerManager().IsTimerActive(FootstepTimerHandle))
+	{
+		GEngine->AddOnScreenDebugMessage(51, 1.0, FColor::Green, TEXT("Footstep timer is active"));
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().SetTimer(FootstepTimerHandle, this, &APhasmophobiaPlayer::PlayFootstepSound, Interval, true);
+		GEngine->AddOnScreenDebugMessage(51, 1.0, FColor::Red, TEXT("Footstep timer is not active"));
+	}
+}
+
+
+void APhasmophobiaPlayer::StopFootstepSound()
+{
+	// bIsMoving = false;
+	GetWorld()->GetTimerManager().ClearTimer(FootstepTimerHandle);
+}
+
+void APhasmophobiaPlayer::PlayFootstepSound()
+{
+	if (FootstepSounds.Num() > 0)
+	{
+		GEngine->AddOnScreenDebugMessage(50, 1.0, FColor::Cyan, FString::Printf(TEXT("PlayFootstepSound : %d"), CurrentFootstepIndex));
+		UGameplayStatics::PlaySoundAtLocation(this, FootstepSounds[CurrentFootstepIndex], GetActorLocation());
+		CurrentFootstepIndex++;
+
+		if (CurrentFootstepIndex >= FootstepSounds.Num())
+		{
+			CurrentFootstepIndex = 0;
+		}
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(51, 1.0, FColor::Red, TEXT("FootstepSounds is empty!"));
 	}
 }
 
