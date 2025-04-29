@@ -8,6 +8,7 @@ AGhost_Wraith::AGhost_Wraith()
 	GhostData = GhostDataTable->FindRow<FGhostData>("Wraith", TEXT("GhostDataTable"));
 	GetMesh()->SetSkeletalMesh(GhostData->GhostMesh);
 	GetMesh()->SetCanEverAffectNavigation(true);
+	GetMesh()->SetAnimInstanceClass(GhostData->Animation);
 	GetCharacterMovement()->MaxWalkSpeed = GetMovementSpeed();
 
 }

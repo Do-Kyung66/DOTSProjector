@@ -24,3 +24,9 @@ void APhasmophobiaGameMode::PostLogin(APlayerController* NewPlayer)
         NewPlayer->PlayerState->SetPlayerName(Name);
     }
 }
+
+void APhasmophobiaGameMode::SanityBoard()
+{
+
+}
+

@@ -19,4 +19,6 @@ public:
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	
+	void SanityBoard();
+
 };

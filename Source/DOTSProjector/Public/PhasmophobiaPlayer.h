@@ -184,8 +184,11 @@ public:
 
 	TArray<IObserver*> Observers;
 
-	UPROPERTY(Replicated)
-	float Sanity = 100.0f;
+	UPROPERTY(ReplicatedUsing = OnRep_Sanity)
+	float Sanity = 100.f;
+
+	UFUNCTION()
+	void OnRep_Sanity();
 
 	void CheckGhostOnScreen(float DeltaTime);
 

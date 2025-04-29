@@ -276,8 +276,7 @@ void AGhostBase::SelectTargetPlayer()
 {
 	if (HasAuthority())
 	{
-		UWorld* World = GetWorld();
-		AGameStateBase* GS = World->GetGameState();
+		AGameStateBase* GS = GetWorld()->GetGameState();
 
 		int32 RandomTargetBehavior = FMath::RandRange(0, 2);
 

@@ -28,6 +28,7 @@
 
 #include "DefaultCursorWidget.h"
 #include "Components/Image.h"
+#include "PlayerSanityUI.h"
 
 
 
@@ -430,6 +431,14 @@ void APhasmophobiaPlayer::ActivateItem()
 	ServerRPC_ItemAction();
 }
 
+void APhasmophobiaPlayer::OnRep_Sanity()
+{
+	if (IsLocallyControlled())
+	{
+		
+	}
+}
+
 void APhasmophobiaPlayer::CheckGhostOnScreen(float DeltaTime)
 {
 	if (!PC) return;
@@ -486,6 +495,7 @@ void APhasmophobiaPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(APhasmophobiaPlayer, bHasItem);
 	DOREPLIFETIME(APhasmophobiaPlayer, ItemActors);
 	DOREPLIFETIME(APhasmophobiaPlayer, CurrentSwitchStrategy);
+	DOREPLIFETIME(APhasmophobiaPlayer, Sanity);
 	DOREPLIFETIME(APhasmophobiaPlayer, SwitchStrategy);
 	DOREPLIFETIME(APhasmophobiaPlayer, CurrentItemIndex);
 	DOREPLIFETIME(APhasmophobiaPlayer, ScrollValue);
@@ -541,9 +551,9 @@ void APhasmophobiaPlayer::ItemTrace()
 
 void APhasmophobiaPlayer::ServerRPC_ItemTrace_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(3, 2.0f, FColor::Green, FString::Printf(TEXT("ItemTrace")));
-	/*FVector Start = CamComp->GetComponentLocation();
-	FVector End = Start + CamComp->GetForwardVector() * 300.f;*/
+	//GEngine->AddOnScreenDebugMessage(3, 2.0f, FColor::Green, FString::Printf(TEXT("ItemTrace")));
+	//FVector Start = CamComp->GetComponentLocation();
+	//FVector End = Start + CamComp->GetForwardVector() * 300.f;
 
 	// 서버에서는 camcomp 위치는 정확하지 않음 플레이어 뷰포인트에서 정확한 위치에서 라인트레이스 쏨
 	FVector Start;
@@ -562,9 +572,9 @@ void APhasmophobiaPlayer::ServerRPC_ItemTrace_Implementation()
 	//	End,
 	//	FColor::Red,
 	//	false,
-	//	10.0f,  // 지속 시간 (5초)
+	//	1.0f,  // 지속 시간 (5초)
 	//	0,
-	//	3.0f   // 두께
+	//	1.0f   // 두께
 	//);
 
 	if (GetWorld()->LineTraceSingleByChannel(Hitinfo, Start, End, ECC_Visibility, params))
@@ -589,15 +599,15 @@ void APhasmophobiaPlayer::ServerRPC_ItemTrace_Implementation()
 		}
 		else
 		{
-			//TargetItem = nullptr;
+			TargetItem = nullptr;
 			bIsCursorOverItem = false;
 		}
 	}
-	/*else
+	else
 	{
 		TargetItem = nullptr;
 		bIsCursorOverItem = false;
-	}*/
+	}
 }
 
 void APhasmophobiaPlayer::ServerRPC_UseItem_Implementation()
