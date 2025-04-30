@@ -14,4 +14,25 @@ class DOTSPROJECTOR_API UPlayerMissionUI : public UUserWidget
 {
 	GENERATED_BODY()
 	
+
+public:
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
+	virtual void NativeConstruct() override;
+
+	UPROPERTY()
+
+	TArray<class APhasmophobiaPlayer*> NumberOfPlayers;
+
+	UPROPERTY(meta = (BindWidget))
+	class  UImage* Image_CheckSanity;
+
+	UPROPERTY(meta = (BindWidget))
+	class  UImage* Image_CheckEscape;
+
+	UPROPERTY(meta = (BindWidget))
+	class  UImage* Image_CheckCamera;
+
+	UPROPERTY()
+	TArray<APlayerState*> playerArr;
 };

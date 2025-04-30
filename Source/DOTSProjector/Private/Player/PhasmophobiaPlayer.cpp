@@ -29,6 +29,7 @@
 #include "DefaultCursorWidget.h"
 #include "Components/Image.h"
 #include "PlayerSanityUI.h"
+#include "GameFramework/PlayerState.h"
 
 
 
@@ -142,6 +143,7 @@ void APhasmophobiaPlayer::BeginPlay()
 	CurrentEquipStrategy = NewObject<UEquipItemBehavior>(this);
 	CurrentSwitchStrategy = NewObject<USwitchItemBehavior>(this);
 	CurrentDetachStrategy = NewObject<UDetachItemBehavior>(this);
+
 }
 
 // Called every frame
@@ -473,12 +475,19 @@ void APhasmophobiaPlayer::CheckGhostOnScreen(float DeltaTime)
 				ECollisionChannel::ECC_Visibility,
 				TraceParams
 			);
-
+			
 			if (!bHit || Hit.GetActor() == Ghost)
 			{	
+				SawGhost = true;
 				DecreaseSanity(DeltaTime * Ghost->GetSanityDestoryRate());
 				break;
 			}
+			else {
+				SawGhost = false;
+			}
+		}
+		else {
+			SawGhost = false;
 		}
 	}
 }
@@ -582,13 +591,15 @@ void APhasmophobiaPlayer::ServerRPC_ItemTrace_Implementation()
 		GEngine->AddOnScreenDebugMessage(2, 2.0f, FColor::Green, FString::Printf(TEXT("Hit: %s"), *Hitinfo.GetActor()->GetName()));
 
 		AActor* HitActor = Hitinfo.GetActor();
-		if (HitActor)
+		AItem_Base* ItemActor = Cast<AItem_Base>(HitActor);
+
+		if (ItemActor)
 		{
-			FString ActorName = HitActor->GetName();
+			FString ActorName = ItemActor->GetName();
 
 			if (ActorName.Contains(TEXT("item"), ESearchCase::IgnoreCase))
 			{
-				TargetItem = HitActor;
+				TargetItem = ItemActor;
 				bIsCursorOverItem = true;
 			}
 			else
@@ -618,14 +629,14 @@ void APhasmophobiaPlayer::ServerRPC_UseItem_Implementation()
 		{
 			HoldingItem->SetItemStrategy(HoldingItem->ItemStrategy);
 			HoldingItem->UseItem();
-			// MulticastRPC_UseItem(HoldingItem);
+			
 		}
 	}
 }
 
 void APhasmophobiaPlayer::MulticastRPC_UseItem_Implementation(AItem_Base* Item)
 {
-	// Item->UseItem();
+
 }
 
 void APhasmophobiaPlayer::ServerRPC_Detach_Implementation()

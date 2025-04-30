@@ -7,6 +7,7 @@
 #include "HAL/PlatformApplicationMisc.h"
 #include "Net/UnrealNetwork.h"
 #include "WaitingRoomWidget.h"
+#include "GameFramework/PlayerState.h"
 
 
 APhasmophobiaPlayerController::APhasmophobiaPlayerController()
@@ -76,13 +77,13 @@ void APhasmophobiaPlayerController::ServerRPC_RequestStartGame_Implementation()
 		APlayerController* PC = It->Get();
 		if (PC && !PC->IsLocalController()) // 클라이언트한테만
 		{
-			PC->ClientTravel("/Game/FirstPerson/Maps/FirstPersonMap", TRAVEL_Absolute);
+			PC->ClientTravel("/Game/OldBrickHouse/Maps/HouseMap?listen", TRAVEL_Absolute);
 		}
 	}
 	
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		World->ServerTravel(TEXT("/Game/FirstPerson/Maps/FirstPersonMap?listen"));
+		World->ServerTravel(TEXT("/Game/OldBrickHouse/Maps/HouseMap?listen"));
 	}
 }

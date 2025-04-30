@@ -1,30 +1,28 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "DisplayMission.h"
+#include "DisplaySanity.h"
 #include "Components/WidgetComponent.h"
 
 // Sets default values
-ADisplayMission::ADisplayMission()
+ADisplaySanity::ADisplaySanity()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
-    WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
-    RootComponent = WidgetComponent;
-
-
+	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
+	RootComponent = WidgetComponent;
 }
 
 // Called when the game starts or when spawned
-void ADisplayMission::BeginPlay()   
+void ADisplaySanity::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
 // Called every frame
-void ADisplayMission::Tick(float DeltaTime)
+void ADisplaySanity::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 

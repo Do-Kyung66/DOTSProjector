@@ -25,7 +25,7 @@ void UNetGameInstance::Init()
 		// OnCreateSessionComplete 함수가 세션 생성 결과 처리
 		sessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UNetGameInstance::OnCreateSessionComplete);
 		sessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UNetGameInstance::OnFindSessionComplete);
-		sessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UNetGameInstance::OnJoinSessionComlete);
+		sessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UNetGameInstance::OnJoinSessionComplete);
 
 		// 세션 테스트
 		//FTimerHandle handle;
@@ -43,8 +43,8 @@ void UNetGameInstance::CreateMySession(FString roomName, bool bIsPrivate)
 {
 	// FSessionInfo sessionInfo;
 	// 웨이팅룸에 넘겨줄 정보 저장
-	sessionInfo.roomName = roomName;
-	sessionInfo.bIsPrivate = bIsPrivate;
+	//sessionInfo.roomName = roomName;
+	//sessionInfo.bIsPrivate = bIsPrivate;
 	// 세션 설정 변수
 	FOnlineSessionSettings sessionSettings;
 	
@@ -104,7 +104,7 @@ void UNetGameInstance::CreateMySession(FString roomName, bool bIsPrivate)
 	ANetGameStateBase* GS = GetWorld()->GetGameState<ANetGameStateBase>();
 	if (GS)
 	{
-		GS->RoomName = sessionInfo.roomName;
+		//GS->RoomName = sessionInfo.roomName;
 	}
 }
 
@@ -154,10 +154,10 @@ void UNetGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 		auto sr = results[i];
 
 		// 정보가 유효한지 체크
-		if(!sr.IsValid()) continue;
+		if(sr.IsValid() == false) continue;
 
 		// 세션정보 구조체 선언
-		//FSessionInfo sessionInfo;
+		FSessionInfo sessionInfo;
 		sessionInfo.index = i;
 		
 		// 세션 설정에서 방 이름과 호스트 이름 추출
@@ -189,7 +189,7 @@ void UNetGameInstance::JoinSelectedSession(int32& index)
 {	
 	if (sessionInterface->GetNamedSession(NAME_GameSession) != nullptr)
 	{
-		sessionInterface->DestroySession(NAME_GameSession);
+		//sessionInterface->DestroySession(NAME_GameSession);
 	}
 
 	auto sr = sessionSearch->SearchResults;
@@ -224,19 +224,19 @@ void UNetGameInstance::JoinPrivateRoom(FString& Code)
 		if (FoundRoomCode == Code)
 		{
 			sessionInterface->JoinSession(0, FName(mySessionName), sr[i]);
-			PRINTLOG(TEXT("join! %s = %s"), *sessionInfo.roomCode, *Code);
+			//PRINTLOG(TEXT("join! %s = %s"), *sessionInfo.roomCode, *Code);
 			return;
 		}
 		else
 		{
-			PRINTLOG(TEXT("join faild roomCode : %s, Code : %s"), *sessionInfo.roomCode, *Code);
+			//PRINTLOG(TEXT("join faild roomCode : %s, Code : %s"), *sessionInfo.roomCode, *Code);
 		}
 	}
 
 	
 }
 
-void UNetGameInstance::OnJoinSessionComlete(FName sessionName, EOnJoinSessionCompleteResult::Type result)
+void UNetGameInstance::OnJoinSessionComplete(FName sessionName, EOnJoinSessionCompleteResult::Type result)
 {
 	if (result == EOnJoinSessionCompleteResult::Success)
 	{

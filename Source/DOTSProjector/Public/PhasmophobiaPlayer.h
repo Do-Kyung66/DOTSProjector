@@ -132,13 +132,13 @@ public:
 	class USceneComponent* ItemComp;
 
 	UPROPERTY(Replicated)
-	AActor* ownedItem = nullptr;
+	AItem_Base* ownedItem = nullptr;
 
 	UPROPERTY(Replicated)
-	AActor* currentItem = nullptr;
+	AItem_Base* currentItem = nullptr;
 
 	UPROPERTY(Replicated)
-	TArray<AActor*> ItemActors;
+	TArray<AItem_Base*> ItemActors;
 
 	UPROPERTY(Replicated)
 	bool bHasItem = false;
@@ -205,7 +205,7 @@ public:
 	TScriptInterface<IItemBehavior> SwitchStrategy;
 
 	UPROPERTY(Replicated)
-	AActor* TargetItem = nullptr;
+	AItem_Base* TargetItem = nullptr;
 
 	void ItemTrace();
 
@@ -269,6 +269,7 @@ public:
 	bool bIsMoving = false;
 	float Interval = 0.5f;
 
+	bool SawGhost = false;
 
 	void StartFootstepSound();
 	void StopFootstepSound();

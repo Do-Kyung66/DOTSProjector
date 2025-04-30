@@ -22,6 +22,7 @@ void ANetPlayerState::BeginPlay()
 			UE_LOG(LogTemp, Warning, TEXT("mySessionName: %s"), *gi->mySessionName);
 			ServerRPC_SetUserName(gi->mySessionName);
 
+			SetPlayerName(TEXT("Player 1"));
 		}
 	}
 }

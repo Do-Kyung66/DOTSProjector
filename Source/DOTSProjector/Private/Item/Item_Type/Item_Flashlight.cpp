@@ -3,6 +3,7 @@
 
 #include "Item_Flashlight.h"
 #include "Function_Flashlight.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AItem_Flashlight::AItem_Flashlight()
@@ -26,5 +27,20 @@ void AItem_Flashlight::BeginPlay()
 
 	SpotLightComp->SetVisibility(false);
 	ItemStrategy = NewObject<UFunction_Flashlight>(this);
+}
+
+void AItem_Flashlight::OnRep_LightState()
+{
+	if (SpotLightComp)
+	{
+		SpotLightComp->SetVisibility(bIsOn);
+	}
+}
+
+void AItem_Flashlight::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AItem_Flashlight, bIsOn);
 }
 

@@ -53,8 +53,8 @@ public:
 	virtual void Init() override;
 
 public:
-	UPROPERTY(BlueprintReadWrite)
-	FSessionInfo sessionInfo;
+	//UPROPERTY(BlueprintReadWrite)
+	//FSessionInfo sessionInfo;
 
 	// 세션 인터페이스 포인터 (온라인 서브시스템을 통해 세션 기능에 접근할 수 있음)
 	IOnlineSessionPtr sessionInterface;
@@ -85,5 +85,5 @@ public:
 	//세션방 입장
 	void JoinSelectedSession(int32& index);
 	void JoinPrivateRoom(FString& Code);
-	void OnJoinSessionComlete(FName sessionName, EOnJoinSessionCompleteResult::Type result);
+	void OnJoinSessionComplete(FName sessionName, EOnJoinSessionCompleteResult::Type result);
 };
