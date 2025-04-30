@@ -5,6 +5,7 @@
 #include "PhasmophobiaPlayer.h"
 #include "Net/UnrealNetwork.h"
 
+
 void UPlayerAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
@@ -72,6 +73,25 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			//UE_LOG(LogTemp, Log, TEXT("None state"));
 		}
 		CurrentItemType = Player->CurrentItemType;
-	
+		bIsDead = Player->bIsDead;
+		if (bIsDead)
+		{
+			UE_LOG(LogTemp, Log, TEXT("bIsDead true"));
+		}
+	}
+}
+
+void UPlayerAnimInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UPlayerAnimInstance, bIsDead);
+}
+
+void UPlayerAnimInstance::AnimNotify_DieEnd()
+{
+	if (Player && Player->IsLocallyControlled())
+	{
+		Player->DieProcess();
+		UE_LOG(LogTemp, Log, TEXT("Die Notify"));
 	}
 }

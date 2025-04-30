@@ -185,14 +185,18 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 	}
 	if (PC)
 	{
-		if (bIsCursorOverItem)
+		if (IsValid(CenterUI))
 		{
-			CenterUI->ShowHandCursor();
+			if (bIsCursorOverItem)
+			{
+				CenterUI->ShowHandCursor();
+			}
+			else
+			{
+				CenterUI->ShowDefaultCursor();
+			}
 		}
-		else
-		{
-			CenterUI->ShowDefaultCursor();
-		}
+		
 	}
 	
 }
@@ -225,6 +229,14 @@ void APhasmophobiaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 		//EnhancedInput->BindAction(JournalAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::Journal);
 
+	}
+}
+
+void APhasmophobiaPlayer::OnRep_IsDead()
+{
+	if (bIsDead)
+	{
+		DisableInput(Cast<APhasmophobiaPlayerController>(GetController()));
 	}
 }
 
@@ -492,6 +504,7 @@ void APhasmophobiaPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(APhasmophobiaPlayer, NextIndex);
 	DOREPLIFETIME(APhasmophobiaPlayer, StartIndex);
 	DOREPLIFETIME(APhasmophobiaPlayer, bIsCursorOverItem);
+	DOREPLIFETIME(APhasmophobiaPlayer, bIsDead);
 
 
 
@@ -752,5 +765,35 @@ void APhasmophobiaPlayer::PlayFootstepSound()
 	{
 		GEngine->AddOnScreenDebugMessage(51, 1.0, FColor::Red, TEXT("FootstepSounds is empty!"));
 	}
+}
+
+void APhasmophobiaPlayer::DieProcess()
+{
+	if (PC)
+	{
+		GetFollowCamera()->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 1);
+		PC->SetShowMouseCursor(true);
+		PC->SetIgnoreLookInput(true);
+		PC->SetIgnoreMoveInput(true);
+
+	}
+
+	if (CenterUI)
+	{
+		CenterUI->RemoveFromParent();
+		CenterUI = nullptr;
+	}
+
+	if (HandMesh)
+	{
+		HandMesh->SetVisibility(false);
+	}
+
+	GetMesh()->SetOwnerNoSee(false);
+	GetMesh()->SetVisibility(true);
+
+	CamComp->SetRelativeLocationAndRotation(FVector(0.f, 0.f, 300.f), FRotator(-90.f, 0.f, 0.f));
+	
+
 }
 
