@@ -23,6 +23,8 @@ public:
 	// Sets default values for this character's properties
 	APhasmophobiaPlayer();
 
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return CamComp; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -146,8 +148,11 @@ public:
 	UPROPERTY(Replicated)
 	int32 CurrentItemIndex = -1;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_IsDead)
 	bool bIsDead = false;
+
+	UFUNCTION()
+	void OnRep_IsDead();
 
 	UPROPERTY(Replicated)
 	bool bIsCursorOverItem = false;
@@ -274,4 +279,6 @@ public:
 	void StartFootstepSound();
 	void StopFootstepSound();
 	void PlayFootstepSound();
+
+	void DieProcess();
 };

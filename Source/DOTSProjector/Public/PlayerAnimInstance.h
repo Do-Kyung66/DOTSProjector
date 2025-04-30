@@ -23,7 +23,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float direction;
+	
+	UPROPERTY(Replicated, BlueprintReadWrite)
+	bool bIsDead = false;
 
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 	UPROPERTY()
 	class APhasmophobiaPlayer* Player;
@@ -38,6 +43,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EItemType CurrentItemType = EItemType::None;
+
+	UFUNCTION()
+	void AnimNotify_DieEnd();
 
 public:
 	// 초기화, 업데이트 함수
