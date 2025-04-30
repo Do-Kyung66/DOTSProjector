@@ -66,7 +66,7 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 	if (HandMeshTemp.Succeeded())
 	{
 		HandMesh->SetSkeletalMesh(HandMeshTemp.Object);
-		HandMesh->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -150.0), FRotator(0.0, -90, 0.0));
+		HandMesh->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -152.0), FRotator(0.0, -90, 0.0));
 	}
 	
 
