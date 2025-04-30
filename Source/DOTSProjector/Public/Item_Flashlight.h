@@ -19,7 +19,10 @@ public:
 	AItem_Flashlight();
 
 	virtual void BeginPlay() override;
+
 public:	
 	UPROPERTY(VisibleAnywhere, Category = "Flashlight")
     USpotLightComponent* SpotLightComp;
+
+
 };

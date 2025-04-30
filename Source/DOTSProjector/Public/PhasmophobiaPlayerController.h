@@ -17,13 +17,19 @@ class DOTSPROJECTOR_API APhasmophobiaPlayerController : public APlayerController
 public:
 	APhasmophobiaPlayerController();
 
+	UPROPERTY()
+	class APhasmophobiaGameMode* gm;
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_RespawnPlayer();
+
+
+	UPROPERTY(Replicated)
 	AActor* TargetItem = nullptr;
 
-	UFUNCTION(BlueprintCallable)
-	void SetCursorForInteraction(bool bIsInteractable, AActor* tempItem);
-	void ItemTrace();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
+
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Cursor")
 	bool bCanInteract = false;
 
 	// door
@@ -31,7 +37,25 @@ public:
 	bool bDraggingDoor = false;
 	float LastMousX = 0.f;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_RequestStartGame();
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<class ULoginWidget> LoginWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<class UWaitingRoomWidget> WaitingRoomWidgetClass;
+
+	// °üÀüÀÚ
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ChangeToSpectator();
+
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void PlayerTick(float DeltaTime) override;
+
+
+
 };

@@ -12,7 +12,6 @@
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
 #include "PhasmophobiaPlayerController.h"
-#include "IItemBehavior.h"
 #include "ItemStrategy.h"
 #include "GhostBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -21,7 +20,15 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/SceneComponent.h"
 #include "PlayerAnimInstance.h"
+
+#include "Net/UnrealNetwork.h"
+
+#include "DefaultCursorWidget.h"
+#include "Components/Image.h"
+
 
 
 
@@ -33,10 +40,20 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	CamComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
+	CamComp->SetupAttachment(GetCapsuleComponent());
+	CamComp->SetRelativeLocation(FVector(0.0f, 0.0f, 64.0f));
+	CamComp->bUsePawnControlRotation = true;
+
+	HandMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HandMesh"));
+	HandMesh->SetupAttachment(CamComp);
+	HandMesh->bOnlyOwnerSee = true; // 플레이어만 볼 수 있음
+
+	GetMesh()->SetupAttachment(GetCapsuleComponent());
+	GetMesh()->bOwnerNoSee = true; // 플레이어는 안 보게 
+
 	// 캐릭터 메시 로드
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/rp_manuel_rigged_001_ue4.rp_manuel_rigged_001_ue4'"));
-
-	//ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/PlayerHandMesh2.PlayerHandMesh2'"));
 
 	if (MeshTemp.Succeeded())
 	{
@@ -44,19 +61,28 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -88.0), FRotator(0.0, -90, 0.0));
 	}
 
-	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-	SpringArmComp->SetupAttachment(GetMesh());
-	SpringArmComp->SetRelativeLocation(FVector(0.0f, 27.0f, 153.0f));
-	SpringArmComp->bUsePawnControlRotation = true;
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> HandMeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/PlayerHandMesh3.PlayerHandMesh3'"));
+
+	if (HandMeshTemp.Succeeded())
+	{
+		HandMesh->SetSkeletalMesh(HandMeshTemp.Object);
+		HandMesh->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -152.0), FRotator(0.0, -90, 0.0));
+	}
+	
+
+	/*SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	SpringArmComp->TargetArmLength = 0.0f;
+	SpringArmComp->bUsePawnControlRotation = true;
+	SpringArmComp->bInheritPitch = true;
+	SpringArmComp->bInheritYaw = true;
+	SpringArmComp->bInheritRoll = false;
+	SpringArmComp->bDoCollisionTest = false;
+	SpringArmComp->SetupAttachment(GetRootComponent());*/
+	//SpringArmComp->SetRelativeLocation(FVector(0.0f, 27.0f, 153.0f));
 
-	CamComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
-	CamComp->SetupAttachment(SpringArmComp);
-	CamComp->bUsePawnControlRotation = false;
-
-	bUseControllerRotationPitch = false;
+	/*bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
-	bUseControllerRotationRoll = false;
+	bUseControllerRotationRoll = false;*/
 
 	// 계단 오르기
 	GetCharacterMovement()->MaxStepHeight = 45.f;
@@ -71,6 +97,8 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 	// 아이템 슬롯 초기화
 	ItemActors.SetNum(4);
 	ItemActors[0] = nullptr;
+
+
 	
 }
 
@@ -78,6 +106,15 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 void APhasmophobiaPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+
+	/*GetWorld()->GetTimerManager().SetTimer(
+		DeadFlagTimerHandle,
+		this,
+		&APhasmophobiaPlayer::SetShouldDieTrue,
+		3.0f,
+		false
+	);*/
+
 	PC = Cast<APhasmophobiaPlayerController>(GetController());
 	// input mapping
 	if (PC)
@@ -86,19 +123,22 @@ void APhasmophobiaPlayer::BeginPlay()
 		{
 			Subsystem->AddMappingContext(PlayerMappingContext, 0); // 우선순위 0
 			Subsystem->AddMappingContext(ItemMappingContext, 1);
-
-
 		}
 	}
+	
 
-	if (CenterWidget)
+	if (CenterWidget && PC)
 	{
-		CenterUI = CreateWidget<UUserWidget>(GetWorld(), CenterWidget);
-		if (CenterUI)
-		{
-			CenterUI->AddToViewport();
-		}
+		CenterUI = CreateWidget<UDefaultCursorWidget>(GetWorld(), CenterWidget);
+		CenterUI->AddToViewport();
+		
+		CenterUI->ShowDefaultCursor();
+
+		FInputModeGameOnly InputMode;
+		PC->SetInputMode(InputMode);
 	}
+
+	
 
 	// 런타임에서만 사용
 	// 기본 이동 전략 설정
@@ -116,6 +156,9 @@ void APhasmophobiaPlayer::BeginPlay()
 void APhasmophobiaPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	ItemTrace();
+	DecreaseSanity(DeltaTime * 0.3);
 
 	// 문 상호작용
 	/*FHitResult DoorHit;
@@ -149,6 +192,23 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 
 		GEngine->AddOnScreenDebugMessage(4, 1.5f, FColor::Green, FString::Printf(TEXT("Current Stamina: %f"), CurrentStamina));
 	}
+	if (PC && IsValid(CenterUI) && CenterUI->IsInViewport())
+	{
+		if (bIsCursorOverItem)
+		{
+			CenterUI->ShowHandCursor();
+		}
+		else
+		{
+			CenterUI->ShowDefaultCursor();
+		}
+	}
+
+	if (bIsDead == true)
+	{
+		DieProcess();
+	}
+	
 }
 
 // Called to bind functionality to input
@@ -159,9 +219,11 @@ void APhasmophobiaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::Move);
+		EnhancedInput->BindAction(MoveAction, ETriggerEvent::Completed, this, &APhasmophobiaPlayer::OnMoveReleased);
+
 		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &APhasmophobiaPlayer::LookAround);
 
-
+		EnhancedInput->BindAction(ItemAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::ActivateItem);
 		EnhancedInput->BindAction(UseAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::UseItem);
 
 		EnhancedInput->BindAction(CrouchAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::PlayerCrouch);
@@ -180,16 +242,35 @@ void APhasmophobiaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	}
 }
 
+void APhasmophobiaPlayer::SetShouldDieTrue()
+{
+	bIsDead = true;
+}
+
 void APhasmophobiaPlayer::Move(const FInputActionValue& Value)
 {
+	FVector Velocity = GetVelocity();
+	if (Velocity.Size() > 0.1f)
+	{
+		StartFootstepSound();
+		UE_LOG(LogTemp, Log, TEXT("move Start Sound"));
+	}
+
 	if (CurrentMoveStrategy && CurrentMoveStrategy->GetClass()->ImplementsInterface(UPlayerBehavior::StaticClass()))
 	{
 		IPlayerBehavior* MoveStrategy = Cast<IPlayerBehavior>(CurrentMoveStrategy);
 		if (MoveStrategy)
 		{
 			MoveStrategy->ExecuteBehavior(this, Value);
+			
 		}
 	}
+}
+
+void APhasmophobiaPlayer::OnMoveReleased(const FInputActionValue& Value)
+{	
+	StopFootstepSound();
+	UE_LOG(LogTemp, Log, TEXT("move Stop Sound"));
 }
 
 void APhasmophobiaPlayer::LookAround(const FInputActionValue& Value)
@@ -219,6 +300,18 @@ void APhasmophobiaPlayer::PlayerCrouch(const FInputActionValue& Value)
 
 void APhasmophobiaPlayer::Run(const FInputActionValue& Value)
 {
+	FVector Velocity = GetVelocity();
+	if (CurrentStamina > 0 && Velocity.Size() > 0.1f)
+	{
+		StartFootstepSound();
+		UE_LOG(LogTemp, Log, TEXT("run Start Sound"));
+	}
+	else if (CurrentStamina <= 0 && Velocity.Size() < 0.1f)
+	{
+		StopFootstepSound();
+		UE_LOG(LogTemp, Log, TEXT("run Stop Sound"));
+	}
+
 	if (GetVelocity().Size() <= 0.1f) return;
 	bIsRunning = true;
 	if (CurrentRunStrategy && CurrentRunStrategy->GetClass()->ImplementsInterface(UPlayerBehavior::StaticClass()))
@@ -229,42 +322,28 @@ void APhasmophobiaPlayer::Run(const FInputActionValue& Value)
 			RunStrategy->ExecuteBehavior(this, Value);
 		}
 	}
-	
 }
 
 void APhasmophobiaPlayer::OnRunReleased(const FInputActionValue& Value)
 {
 	bIsRunning = false;
+	FVector Velocity = GetVelocity();
+	if (Velocity.Size() < 0.1f)
+	{
+		StopFootstepSound();
+	}
 }
 
 void APhasmophobiaPlayer::Equip(const FInputActionValue& Value)
 {
+	if (PC && TargetItem)
+	{
+		ServerRPC_Equip();
+	}
 	// if (ItemActors.Num() >= 4) return;
 	/*APhasmophobiaPlayerController* PC = Cast<APhasmophobiaPlayerController>(GetController());*/
 	
-	if (PC && PC->TargetItem && !ItemActors.Contains(PC->TargetItem))
-	{
-		ownedItem = PC->TargetItem;
-		ownedItem->SetOwner(this);
-
-		if (CurrentEquipStrategy && CurrentEquipStrategy->GetClass()->ImplementsInterface(UItemBehavior::StaticClass()))
-		{
-			IItemBehavior* EquipStrategy = Cast<IItemBehavior>(CurrentEquipStrategy);
-			if (EquipStrategy)
-			{
-				EquipStrategy->ExecuteBehavior(this, Value);
-			}
-		}
-	}
-
-	for (AActor* Item : ItemActors)
-	{
-		if (Item != nullptr)
-		{
-			bHasItem = true;
-			break;
-		}
-	}
+	
 
 	/*if (bHasItem)
 	{	
@@ -279,37 +358,15 @@ void APhasmophobiaPlayer::Equip(const FInputActionValue& Value)
 
 void APhasmophobiaPlayer::Switch(const FInputActionValue& Value)
 {
-	if (CurrentSwitchStrategy && CurrentSwitchStrategy->GetClass()->ImplementsInterface(UItemBehavior::StaticClass()))
-	{
-		IItemBehavior* SwitchStrategy = Cast<IItemBehavior>(CurrentSwitchStrategy);
-		if (SwitchStrategy)
-		{
-			SwitchStrategy->ExecuteBehavior(this, Value);
-		}
-	}
+	ServerRPC_Switch(Value.Get<float>());
 }
 
 void APhasmophobiaPlayer::Detach(const FInputActionValue& Value)
 {
-	if (CurrentDetachStrategy && CurrentDetachStrategy->GetClass()->ImplementsInterface(UItemBehavior::StaticClass()))
-	{
-		IItemBehavior* DetachStrategy = Cast<IItemBehavior>(CurrentDetachStrategy);
-		if (DetachStrategy)
-		{
-			DetachStrategy->ExecuteBehavior(this, Value);
-		}
-	}
+	ServerRPC_Detach();
 
-	for (AActor* Item : ItemActors)
-	{
-		if (Item == nullptr)
-		{
-			bHasItem = false;
-			break;
-		}
-	}
-
-	/*if (!bHasItem)
+	/*
+	if (!bHasItem)
 	{
 		UPlayerAnimInstance* AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 		if (AnimInstance)
@@ -375,27 +432,59 @@ void APhasmophobiaPlayer::NotifySanityChanged()
 void APhasmophobiaPlayer::DecreaseSanity(float Amount)
 {
 	Sanity -= Amount;
-	NotifySanityChanged();
-
+	if (Sanity <= 60) {
+		NotifySanityChanged();
+	}
+	
 	GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Blue, FString::Printf(TEXT("%.2f"), Sanity));
 }
 
 void APhasmophobiaPlayer::UseItem()
 {
-	if (currentItem != nullptr) {
-		AItem_Base* HoldingItem = Cast<AItem_Base>(currentItem);
-		if (HoldingItem)
+	ServerRPC_UseItem();
+}
+
+void APhasmophobiaPlayer::ActivateItem()
+{
+	ServerRPC_ItemAction();
+}
+
+void APhasmophobiaPlayer::DieProcess()
+{
+	if(PC)
+	{
+		PC->SetShowMouseCursor(true);
+		GetFollowCamera()->PostProcessSettings.ColorSaturation = FVector4(0.0f, 0.0f, 0.0f, 1.0f);
+
+		// mesh
+		GetMesh()->bOwnerNoSee = false;
+		HandMesh->bOnlyOwnerSee = false;
+		HandMesh->SetVisibility(false);
+
+		if (HasAuthority())
 		{
-			HoldingItem->SetItemStrategy(HoldingItem->ItemStrategy);
-			HoldingItem->UseItem();
+			PC->ServerRPC_ChangeToSpectator();
+			GEngine->AddOnScreenDebugMessage(10, 2.0f, FColor::Blue, FString::Printf(TEXT("Spectator in")));
 		}
+
+		// input값 없애기
+		//DisableInput(PC);
 	}
+	if (CenterUI && CenterUI->IsInViewport())
+	{
+		// 메인 ui 없애기
+		CenterUI->RemoveFromParent();
+	}
+
+	
+
+	
+	// Die ui 표시
 }
 
 void APhasmophobiaPlayer::CheckGhostOnScreen(float DeltaTime)
 {
 	if (!PC) return;
-
 	FVector CameraLoc;
 	FRotator CameraRot;
 	PC->GetPlayerViewPoint(CameraLoc, CameraRot);
@@ -436,3 +525,284 @@ void APhasmophobiaPlayer::CheckGhostOnScreen(float DeltaTime)
 		}
 	}
 }
+
+
+void APhasmophobiaPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APhasmophobiaPlayer, CurrentEquipStrategy);
+	DOREPLIFETIME(APhasmophobiaPlayer, ownedItem);
+	DOREPLIFETIME(APhasmophobiaPlayer, TargetItem);
+	DOREPLIFETIME(APhasmophobiaPlayer, currentItem);
+	DOREPLIFETIME(APhasmophobiaPlayer, CurrentItemType);
+	DOREPLIFETIME(APhasmophobiaPlayer, bHasItem);
+	DOREPLIFETIME(APhasmophobiaPlayer, ItemActors);
+	DOREPLIFETIME(APhasmophobiaPlayer, CurrentSwitchStrategy);
+	DOREPLIFETIME(APhasmophobiaPlayer, SwitchStrategy);
+	DOREPLIFETIME(APhasmophobiaPlayer, CurrentItemIndex);
+	DOREPLIFETIME(APhasmophobiaPlayer, ScrollValue);
+	DOREPLIFETIME(APhasmophobiaPlayer, NextIndex);
+	DOREPLIFETIME(APhasmophobiaPlayer, StartIndex);
+	DOREPLIFETIME(APhasmophobiaPlayer, bIsCursorOverItem);
+
+
+
+}
+
+void APhasmophobiaPlayer::ServerRPC_Equip_Implementation()
+{
+	if (!ItemActors.Contains(TargetItem))
+	{
+		ownedItem = TargetItem;
+		ownedItem->SetOwner(this);
+
+		if (CurrentEquipStrategy && CurrentEquipStrategy->GetClass()->ImplementsInterface(UItemBehavior::StaticClass()))
+		{
+			EquipStrategy = Cast<IItemBehavior>(CurrentEquipStrategy);
+			MulticastRPC_Equip();
+		}
+	}
+
+	for (AActor* Item : ItemActors)
+	{
+		if (Item != nullptr)
+		{
+			bHasItem = true;
+			break;
+		}
+	}
+
+}
+
+void APhasmophobiaPlayer::MulticastRPC_Equip_Implementation()
+{
+	if (EquipStrategy)
+	{
+		EquipStrategy->ExecuteBehavior(this, 0);
+	}
+}
+
+void APhasmophobiaPlayer::ItemTrace()
+{
+	if (IsLocallyControlled())
+	{
+		ServerRPC_ItemTrace();  
+	}
+}
+
+
+void APhasmophobiaPlayer::ServerRPC_ItemTrace_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(3, 2.0f, FColor::Green, FString::Printf(TEXT("ItemTrace")));
+	/*FVector Start = CamComp->GetComponentLocation();
+	FVector End = Start + CamComp->GetForwardVector() * 300.f;*/
+
+	// 서버에서는 camcomp 위치는 정확하지 않음 플레이어 뷰포인트에서 정확한 위치에서 라인트레이스 쏨
+	FVector Start;
+	FRotator ViewRotation;
+	Controller->GetPlayerViewPoint(Start, ViewRotation);
+
+	FVector End = Start + ViewRotation.Vector() * 300.f;
+
+	FHitResult Hitinfo;
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(this);
+
+	//DrawDebugLine(
+	//	GetWorld(),
+	//	Start,
+	//	End,
+	//	FColor::Red,
+	//	false,
+	//	10.0f,  // 지속 시간 (5초)
+	//	0,
+	//	3.0f   // 두께
+	//);
+
+	if (GetWorld()->LineTraceSingleByChannel(Hitinfo, Start, End, ECC_Visibility, params))
+	{
+		GEngine->AddOnScreenDebugMessage(2, 2.0f, FColor::Green, FString::Printf(TEXT("Hit: %s"), *Hitinfo.GetActor()->GetName()));
+
+		AActor* HitActor = Hitinfo.GetActor();
+		if (HitActor)
+		{
+			FString ActorName = HitActor->GetName();
+
+			if (ActorName.Contains(TEXT("item"), ESearchCase::IgnoreCase))
+			{
+				TargetItem = HitActor;
+				bIsCursorOverItem = true;
+			}
+			else
+			{
+				TargetItem = nullptr;
+				bIsCursorOverItem = false;
+			}
+		}
+		else
+		{
+			//TargetItem = nullptr;
+			bIsCursorOverItem = false;
+		}
+	}
+	/*else
+	{
+		TargetItem = nullptr;
+		bIsCursorOverItem = false;
+	}*/
+}
+
+void APhasmophobiaPlayer::ServerRPC_UseItem_Implementation()
+{
+	if (currentItem != nullptr) {
+		AItem_Base* HoldingItem = Cast<AItem_Base>(currentItem);
+		if (HoldingItem)
+		{
+			HoldingItem->SetItemStrategy(HoldingItem->ItemStrategy);
+			HoldingItem->UseItem();
+			// MulticastRPC_UseItem(HoldingItem);
+		}
+	}
+}
+
+void APhasmophobiaPlayer::MulticastRPC_UseItem_Implementation(AItem_Base* Item)
+{
+	// Item->UseItem();
+}
+
+void APhasmophobiaPlayer::ServerRPC_Detach_Implementation()
+{
+	if (CurrentDetachStrategy && CurrentDetachStrategy->GetClass()->ImplementsInterface(UItemBehavior::StaticClass()))
+	{
+		DetachStrategy = Cast<IItemBehavior>(CurrentDetachStrategy);
+		
+		MulticastRPC_Detach();
+	}
+
+	for (AActor* Item : ItemActors)
+	{
+		if (Item == nullptr)
+		{
+			bHasItem = false;
+			break;
+		}
+	}
+}
+
+void APhasmophobiaPlayer::MulticastRPC_Detach_Implementation()
+{
+	if (DetachStrategy)
+	{
+		DetachStrategy->ExecuteBehavior(this, 0);
+	}
+}
+
+void APhasmophobiaPlayer::ServerRPC_Switch_Implementation(float ScrollData)
+{
+	if (CurrentSwitchStrategy && CurrentSwitchStrategy->GetClass()->ImplementsInterface(UItemBehavior::StaticClass()))
+	{
+		//GEngine->AddOnScreenDebugMessage(22, 1.5f, FColor::Green, TEXT("On Switch Function"));
+
+		SwitchStrategy.SetObject(CurrentSwitchStrategy);
+		SwitchStrategy.SetInterface(Cast<IItemBehavior>(CurrentSwitchStrategy));
+
+		if (SwitchStrategy)
+		{
+			SwitchStrategy->ExecuteBehavior(this, ScrollData);
+			// GEngine->AddOnScreenDebugMessage(23, 1.5f, FColor::Green, TEXT("Switch Working?"));
+			MulticastRPC_Switch(CurrentItemIndex);
+		}
+	}
+}
+
+void APhasmophobiaPlayer::MulticastRPC_Switch_Implementation(int32 NextItemIndex)
+{
+
+	if (ItemActors.IsValidIndex(NextItemIndex))
+	{
+		if (currentItem)
+		{
+			currentItem->SetActorHiddenInGame(true);
+		}
+
+		currentItem = ItemActors[NextItemIndex];
+		CurrentItemIndex = NextItemIndex;
+
+		if (currentItem)
+		{
+			currentItem->SetActorHiddenInGame(false);
+			currentItem->AttachToComponent(ItemComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		}
+	}
+	
+
+}
+
+void APhasmophobiaPlayer::ServerRPC_ItemAction_Implementation()
+{
+	if (TargetItem)
+	{
+		AItem_Base* Item = Cast<AItem_Base>(TargetItem);
+		if (Item)
+		{
+			Item->UseItem();
+		}
+		TargetItem = nullptr;
+	}
+}
+
+void APhasmophobiaPlayer::StartFootstepSound()
+{
+
+	GEngine->AddOnScreenDebugMessage(52, 1.0, FColor::Red, TEXT("StartFootstepSound called"));
+	
+	// 현재 인터벌 계산
+	float NewInterval = bIsRunning ? 0.2f : 0.5f;
+	UE_LOG(LogTemp, Log, TEXT("Footstep Interval: %f"), NewInterval);
+
+	// 타이머가 활성화된 경우
+	if (GetWorld()->GetTimerManager().IsTimerActive(FootstepTimerHandle))
+	{
+		// 인터벌이 변경된 경우에만 타이머 갱신
+		if (Interval != NewInterval)
+		{
+			
+			GetWorld()->GetTimerManager().ClearTimer(FootstepTimerHandle);
+			GetWorld()->GetTimerManager().SetTimer(FootstepTimerHandle, this, &APhasmophobiaPlayer::PlayFootstepSound, NewInterval, true);
+			Interval = NewInterval; // 새 인터벌 저장
+			UE_LOG(LogTemp, Log, TEXT("Footstep timer interval updated"));
+		}
+	}
+	else
+	{
+		// 타이머가 비활성화된 경우, 새로운 타이머를 설정
+		GetWorld()->GetTimerManager().SetTimer(FootstepTimerHandle, this, &APhasmophobiaPlayer::PlayFootstepSound, NewInterval, true);
+		Interval = NewInterval; // 새 인터벌 저장
+		UE_LOG(LogTemp, Log, TEXT("Footstep timer started"));
+	}
+}
+
+void APhasmophobiaPlayer::StopFootstepSound()
+{
+	GetWorld()->GetTimerManager().ClearTimer(FootstepTimerHandle);
+}
+
+void APhasmophobiaPlayer::PlayFootstepSound()
+{
+	if (FootstepSounds.Num() > 0)
+	{
+		GEngine->AddOnScreenDebugMessage(50, 1.0, FColor::Cyan, FString::Printf(TEXT("PlayFootstepSound : %d"), CurrentFootstepIndex));
+		UGameplayStatics::PlaySoundAtLocation(this, FootstepSounds[CurrentFootstepIndex], GetActorLocation());
+		CurrentFootstepIndex++;
+
+		if (CurrentFootstepIndex >= FootstepSounds.Num())
+		{
+			CurrentFootstepIndex = 0;
+		}
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(51, 1.0, FColor::Red, TEXT("FootstepSounds is empty!"));
+	}
+}
+
