@@ -49,7 +49,7 @@ struct StructBehaviorTimer
 	float WalkTimerEnd = 3.f;
 
 	float ChaseTimerStart = 0.f;
-	float ChaseTimerEnd = 2.f;
+	float ChaseTimerEnd = 3.f;
 
 	float TeleportTimerStart = 0.f;
 	float TeleportTimerEnd = 5.f;
@@ -58,7 +58,7 @@ struct StructBehaviorTimer
 	float KillTimerEnd = 20.f;
 
 	float PatrolTimerStart = 0.f;
-	float PatrolTimerEnd = 7.f;
+	float PatrolTimerEnd = 3.f;
 
 	float TriggerObjectTimerStart = 0.f;
 	float TriggerObjectTimerEnd = 10.f;

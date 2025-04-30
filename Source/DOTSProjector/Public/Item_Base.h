@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "ItemStrategy.h"
 #include "DT_Item.h"
+#include "Sound/SoundBase.h"
 #include "Item_Base.generated.h"
 
 UENUM(BlueprintType)
@@ -67,5 +68,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
 	bool bCanGhostTrigger = false;
 
-
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	USoundBase* UseSound;
 };

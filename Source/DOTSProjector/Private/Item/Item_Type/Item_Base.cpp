@@ -7,6 +7,7 @@
 #include "PhasmophobiaPlayerController.h"
 #include "Components/SceneComponent.h"
 #include "DOTSProjector.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -30,8 +31,12 @@ AItem_Base::AItem_Base()
 		RowNames = ItemDataTable->GetRowNames();
 	}
 
-
 	MeshComp->SetSimulatePhysics(false);
+
+	ConstructorHelpers::FObjectFinder<USoundBase> SoundAsset(TEXT("/Script/Engine.SoundWave'/Game/UP/Item/Items/Sound/keyboard-click-327728.keyboard-click-327728'"));
+	if (SoundAsset.Succeeded()) {
+		UseSound = SoundAsset.Object;
+	}
 
 }
 
@@ -61,6 +66,10 @@ void AItem_Base::UseItem()
 	if (ItemStrategy)
 	{
 		ItemStrategy->Use(this);
+	}
+	if (UseSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, UseSound, GetActorLocation());
 	}
 }
 

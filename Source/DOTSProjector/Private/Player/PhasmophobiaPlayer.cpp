@@ -30,6 +30,7 @@
 #include "Components/Image.h"
 #include "PlayerSanityUI.h"
 #include "GameFramework/PlayerState.h"
+#include "EscapeButton.h"
 
 
 
@@ -524,9 +525,6 @@ void APhasmophobiaPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(APhasmophobiaPlayer, StartIndex);
 	DOREPLIFETIME(APhasmophobiaPlayer, bIsCursorOverItem);
 	DOREPLIFETIME(APhasmophobiaPlayer, bIsDead);
-
-
-
 }
 
 void APhasmophobiaPlayer::ServerRPC_Equip_Implementation()
@@ -606,6 +604,12 @@ void APhasmophobiaPlayer::ServerRPC_ItemTrace_Implementation()
 		AActor* HitActor = Hitinfo.GetActor();
 		AItem_Base* ItemActor = Cast<AItem_Base>(HitActor);
 
+		/*AEscapeButton* EB = Cast<AEscapeButton>(HitActor);
+
+		if (EB) {
+			Escape = true;
+		}*/
+
 		if (ItemActor)
 		{
 			FString ActorName = ItemActor->GetName();
@@ -649,7 +653,7 @@ void APhasmophobiaPlayer::ServerRPC_UseItem_Implementation()
 
 void APhasmophobiaPlayer::MulticastRPC_UseItem_Implementation(AItem_Base* Item)
 {
-
+	
 }
 
 void APhasmophobiaPlayer::ServerRPC_Detach_Implementation()

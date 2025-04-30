@@ -4,6 +4,7 @@
 #include "Behavior_Kill.h"
 #include "PhasmophobiaPlayer.h"
 #include "Item_Crucifix.h"
+#include "GhostBase.h"
 
 void UBehavior_Kill::ExecuteBehavior(const FGhostBehaviorContext& Context)
 {
@@ -25,5 +26,8 @@ void UBehavior_Kill::ExecuteBehavior(const FGhostBehaviorContext& Context)
 			PlayerCharacter->ServerRPC_Detach();
 		}
 		PlayerCharacter->bIsDead = true;
+
+		AGhostBase* Ghost = Context.Ghost;
+		Ghost->currentState = GhostState::Idle;
 	}
 }

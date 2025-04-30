@@ -281,4 +281,6 @@ public:
 	void PlayFootstepSound();
 
 	void DieProcess();
+
+	bool Escaped = false;
 };
