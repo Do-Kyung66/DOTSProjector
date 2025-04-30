@@ -39,6 +39,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EItemType CurrentItemType = EItemType::None;
 
+	UFUNCTION()
+	void AnimNotify_DieEnd();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MyAnimSettings)
+	bool isDead = false;
+
 public:
 	// 초기화, 업데이트 함수
 	virtual void NativeInitializeAnimation() override;

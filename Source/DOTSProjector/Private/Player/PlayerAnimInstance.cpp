@@ -5,6 +5,7 @@
 #include "PhasmophobiaPlayer.h"
 #include "Net/UnrealNetwork.h"
 
+
 void UPlayerAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
@@ -24,6 +25,9 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		// 회전값 적용
 		pitchAngle = -Player->GetBaseAimRotation().GetNormalized().Pitch;
 		pitchAngle = FMath::Clamp(pitchAngle, -60.0f, 60.0f);
+
+		// 사망 여부 
+		isDead = Player->bIsDead;
 
 		// 아이템 소유 여부
 		bHasItem = Player->bHasItem;
@@ -73,5 +77,14 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		}
 		CurrentItemType = Player->CurrentItemType;
 	
+	}
+}
+
+void UPlayerAnimInstance::AnimNotify_DieEnd()
+{
+	// 조종을 하는 유저 화면에서만 DieProcess 실행
+	if (Player && Player->IsLocallyControlled())
+	{
+		Player->DieProcess();
 	}
 }

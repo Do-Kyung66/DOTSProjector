@@ -109,10 +109,10 @@ public:
 	bool bIsPrivate;
 	int32 SessionNumber;
 
-	UFUNCTION()
-	void OnPublicheckBoxChanged(bool Check);
-	UFUNCTION()
-	void OnPrivateCheckBoxChanged(bool Check);
+	//UFUNCTION()
+	//void OnPublicheckBoxChanged(bool Check);
+	//UFUNCTION()
+	//void OnPrivateCheckBoxChanged(bool Check);
 
 	// private room enter Å¬¸¯
 	UFUNCTION()

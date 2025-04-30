@@ -17,6 +17,12 @@ class DOTSPROJECTOR_API APhasmophobiaPlayerController : public APlayerController
 public:
 	APhasmophobiaPlayerController();
 
+	UPROPERTY()
+	class APhasmophobiaGameMode* gm;
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_RespawnPlayer();
+
 
 	UPROPERTY(Replicated)
 	AActor* TargetItem = nullptr;
@@ -36,7 +42,14 @@ public:
 	void ServerRPC_RequestStartGame();
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<class ULoginWidget> LoginWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<class UWaitingRoomWidget> WaitingRoomWidgetClass;
+
+	// °üÀüÀÚ
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ChangeToSpectator();
 
 
 protected:

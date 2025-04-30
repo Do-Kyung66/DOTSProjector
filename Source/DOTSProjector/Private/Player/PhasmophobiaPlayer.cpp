@@ -66,7 +66,7 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 	if (HandMeshTemp.Succeeded())
 	{
 		HandMesh->SetSkeletalMesh(HandMeshTemp.Object);
-		HandMesh->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -150.0), FRotator(0.0, -90, 0.0));
+		HandMesh->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -152.0), FRotator(0.0, -90, 0.0));
 	}
 	
 
@@ -106,6 +106,15 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 void APhasmophobiaPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+
+	/*GetWorld()->GetTimerManager().SetTimer(
+		DeadFlagTimerHandle,
+		this,
+		&APhasmophobiaPlayer::SetShouldDieTrue,
+		3.0f,
+		false
+	);*/
+
 	PC = Cast<APhasmophobiaPlayerController>(GetController());
 	// input mapping
 	if (PC)
@@ -183,7 +192,7 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 
 		GEngine->AddOnScreenDebugMessage(4, 1.5f, FColor::Green, FString::Printf(TEXT("Current Stamina: %f"), CurrentStamina));
 	}
-	if (PC)
+	if (PC && IsValid(CenterUI) && CenterUI->IsInViewport())
 	{
 		if (bIsCursorOverItem)
 		{
@@ -193,6 +202,11 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 		{
 			CenterUI->ShowDefaultCursor();
 		}
+	}
+
+	if (bIsDead == true)
+	{
+		DieProcess();
 	}
 	
 }
@@ -226,6 +240,11 @@ void APhasmophobiaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		//EnhancedInput->BindAction(JournalAction, ETriggerEvent::Started, this, &APhasmophobiaPlayer::Journal);
 
 	}
+}
+
+void APhasmophobiaPlayer::SetShouldDieTrue()
+{
+	bIsDead = true;
 }
 
 void APhasmophobiaPlayer::Move(const FInputActionValue& Value)
@@ -428,6 +447,39 @@ void APhasmophobiaPlayer::UseItem()
 void APhasmophobiaPlayer::ActivateItem()
 {
 	ServerRPC_ItemAction();
+}
+
+void APhasmophobiaPlayer::DieProcess()
+{
+	if(PC)
+	{
+		PC->SetShowMouseCursor(true);
+		GetFollowCamera()->PostProcessSettings.ColorSaturation = FVector4(0.0f, 0.0f, 0.0f, 1.0f);
+
+		// mesh
+		GetMesh()->bOwnerNoSee = false;
+		HandMesh->bOnlyOwnerSee = false;
+		HandMesh->SetVisibility(false);
+
+		if (HasAuthority())
+		{
+			PC->ServerRPC_ChangeToSpectator();
+			GEngine->AddOnScreenDebugMessage(10, 2.0f, FColor::Blue, FString::Printf(TEXT("Spectator in")));
+		}
+
+		// input값 없애기
+		//DisableInput(PC);
+	}
+	if (CenterUI && CenterUI->IsInViewport())
+	{
+		// 메인 ui 없애기
+		CenterUI->RemoveFromParent();
+	}
+
+	
+
+	
+	// Die ui 표시
 }
 
 void APhasmophobiaPlayer::CheckGhostOnScreen(float DeltaTime)

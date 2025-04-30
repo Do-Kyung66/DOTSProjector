@@ -22,14 +22,16 @@ struct FSessionInfo
 	int32 pingSpeed;
 	UPROPERTY(BlueprintReadOnly)
 	int32 index; // 검색된 섹션의 인덱스
-	UPROPERTY(BlueprintReadOnly)
-	bool bIsPrivate = false;
-	UPROPERTY(BlueprintReadOnly)
-	FString roomCode = "";  //랜덤한 6자리 숫자로 만들어지고 퍼블릭으로 방이 만들어질때는 값이 X roomcode = IsEmpty()로 체크
+	//UPROPERTY(BlueprintReadOnly)
+	//bool bIsPrivate = false;
+	//UPROPERTY(BlueprintReadOnly)
+	//FString roomCode = "";  //랜덤한 6자리 숫자로 만들어지고 퍼블릭으로 방이 만들어질때는 값이 X roomcode = IsEmpty()로 체크
 	
 	inline FString ToString()
 	{
-		return FString::Printf(TEXT("[%d] %s : %s - %s, %dms, %s"), index, *roomName, *hostName, *playerCount, pingSpeed, *roomCode);
+		//return FString::Printf(TEXT("[%d] %s : %s - %s, %dms, %s"), index, *roomName, *hostName, *playerCount, pingSpeed, *roomCode);
+
+		return FString::Printf(TEXT("[%d] %s : %s - %s, %dms"), index, *roomName, *hostName, *playerCount, pingSpeed);
 	}
 };
 
@@ -60,7 +62,7 @@ public:
 	IOnlineSessionPtr sessionInterface;
 
 	// 세션 생성 함수(방 이름과 최대 인원수는 4명으로 고정이라 공개 비공개 여부로 방 생성)
-	void CreateMySession(FString roomName, bool bIsPrivate);
+	void CreateMySession(FString roomName);
 
 	// 세션 호스트 이름
 	FString mySessionName = "test";

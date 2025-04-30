@@ -30,8 +30,8 @@ void UWaitingRoomWidget::NativeConstruct()
 	txt_RoomName->SetText(FText::FromString(sessionInfo.roomName));
 	
 	PRINTLOG(TEXT("roomname : %s"), *txt_RoomName->GetText().ToString());
-	PRINTLOG(TEXT("bIsPrivate : %d"), sessionInfo.bIsPrivate);
-	PRINTLOG(TEXT("roomcode : %s"), *sessionInfo.roomCode);
+	//PRINTLOG(TEXT("bIsPrivate : %d"), sessionInfo.bIsPrivate);
+	//PRINTLOG(TEXT("roomcode : %s"), *sessionInfo.roomCode);
 
 	/*if (sessionInfo.bIsPrivate == true)
 	{

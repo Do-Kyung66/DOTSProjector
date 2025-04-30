@@ -142,15 +142,36 @@ void UEquipItemBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue&
 			FName SocketName = TEXT("FlashlightSocket");
 
 			//if (Player == Player->currentItem->GetOwner())
-			if(Player->HasAuthority())
+			////if(Player->HasAuthority())
+			//{
+			//	Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+			//	UE_LOG(LogTemp, Log, TEXT("Attached to 3rd Person Mesh - SocketName: %s"), *SocketName.ToString());
+			//}
+			//// else if(Player->IsLocallyControlled())
+			//else
+			//{
+			//	Mesh->AttachToComponent(Player->HandMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+			//	UE_LOG(LogTemp, Log, TEXT("Attached to HandMesh - SocketName: %s"), *SocketName.ToString());
+			//}
+
+			if (GetWorld()->GetNetMode() == NM_Client) // 클라이언트에서 실행
 			{
-				Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
-				UE_LOG(LogTemp, Log, TEXT("Attached to 3rd Person Mesh - SocketName: %s"), *SocketName.ToString());
+				if (Player->IsLocallyControlled() && Player == Player->currentItem->GetOwner())
+				{
+					Mesh->AttachToComponent(Player->HandMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+					UE_LOG(LogTemp, Log, TEXT("Client: Attached to HandMesh - SocketName: %s"), *SocketName.ToString());
+				}
+				else
+				{
+					Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+					UE_LOG(LogTemp, Log, TEXT("Client: Attached to 3rd Person Mesh - SocketName: %s"), *SocketName.ToString());
+				}
 			}
-			else if(Player->IsLocallyControlled())
+			else if (GetWorld()->GetNetMode() == NM_DedicatedServer || GetWorld()->GetNetMode() == NM_ListenServer) // 서버에서 실행
 			{
-				Mesh->AttachToComponent(Player->HandMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
-				UE_LOG(LogTemp, Log, TEXT("Attached to HandMesh - SocketName: %s"), *SocketName.ToString());
+				// 서버는 일반적으로 3인칭 메시에 부착하거나, 게임 상태에 따라 다르게 처리
+				Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+				UE_LOG(LogTemp, Log, TEXT("Server: Attached to 3rd Person Mesh - SocketName: %s"), *SocketName.ToString());
 			}
 			
 		}
@@ -162,7 +183,7 @@ void UEquipItemBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue&
 				Mesh->AttachToComponent(Player->HandMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
 				UE_LOG(LogTemp, Log, TEXT("Attached to HandMesh - SocketName: %s"), *SocketName.ToString());
 			}
-			else if (Player->HasAuthority())
+			else
 			{
 				Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
 				UE_LOG(LogTemp, Log, TEXT("Attached to 3rd Person Mesh - SocketName: %s"), *SocketName.ToString());

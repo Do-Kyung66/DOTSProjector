@@ -149,6 +149,9 @@ public:
 	UPROPERTY(Replicated)
 	bool bIsDead = false;
 
+	FTimerHandle DeadFlagTimerHandle;
+	void SetShouldDieTrue();
+
 	UPROPERTY(Replicated)
 	bool bIsCursorOverItem = false;
 	
@@ -186,6 +189,9 @@ public:
 
 	UPROPERTY(Replicated)
 	float Sanity = 100.0f;
+
+	void DieProcess();
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return CamComp; }
 
 	void CheckGhostOnScreen(float DeltaTime);
 

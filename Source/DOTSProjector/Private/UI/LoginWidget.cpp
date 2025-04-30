@@ -17,10 +17,8 @@ void ULoginWidget::NativeConstruct()
 
 	gi = Cast<UNetGameInstance>(GetWorld()->GetGameInstance());
 
-	if (gi)
-	{
-		gi->mySessionName.Empty();
-	}
+	if(!gi || edit_roomName->GetText().IsEmpty()) return;
+	gi->CreateMySession(edit_roomName->GetText().ToString());
 	// 메인
 	btn_start->OnClicked.AddDynamic(this, &ULoginWidget::OnStartClicked);
 	btn_exit->OnClicked.AddDynamic(this, &ULoginWidget::OnExitClicked);
@@ -119,27 +117,27 @@ void ULoginWidget::CreateRoom()
 	if(!gi || edit_roomName->GetText().IsEmpty()) return;
 	//if(CheckBox_PublicRoom->GetCheckedState() == ECheckBoxState::Unchecked && CheckBox_PrivateRoom->GetCheckedState() == ECheckBoxState::Unchecked) return; // 두개 선택은 막아둠
 	
-	gi->CreateMySession(edit_roomName->GetText().ToString(), bIsPrivate);
+	gi->CreateMySession(edit_roomName->GetText().ToString());
 	// WidgetSwitcher->SetActiveWidgetIndex(4); // 웨이팅룸 입장
 }
 
-void ULoginWidget::OnPublicheckBoxChanged(bool Check)
-{
-	// 만약에 privateroom에 체크가 되어 있는데 publicroom을 체크하게 되면 privateroom은 체크가 해제되어야 한다.
-	/*if (CheckBox_PublicRoom->GetCheckedState() == ECheckBoxState::Checked)
-	{
-		bIsPrivate = false;
-		CheckBox_PrivateRoom->SetCheckedState(ECheckBoxState::Unchecked);
-	}*/
-}
-void ULoginWidget::OnPrivateCheckBoxChanged(bool Check)
-{
-	/*if (CheckBox_PrivateRoom->GetCheckedState() == ECheckBoxState::Checked)
-	{
-		bIsPrivate = true;
-		CheckBox_PublicRoom->SetCheckedState(ECheckBoxState::Unchecked);
-	}*/
-}
+//void ULoginWidget::OnPublicheckBoxChanged(bool Check)
+//{
+//	// 만약에 privateroom에 체크가 되어 있는데 publicroom을 체크하게 되면 privateroom은 체크가 해제되어야 한다.
+//	/*if (CheckBox_PublicRoom->GetCheckedState() == ECheckBoxState::Checked)
+//	{
+//		bIsPrivate = false;
+//		CheckBox_PrivateRoom->SetCheckedState(ECheckBoxState::Unchecked);
+//	}*/
+//}
+//void ULoginWidget::OnPrivateCheckBoxChanged(bool Check)
+//{
+//	/*if (CheckBox_PrivateRoom->GetCheckedState() == ECheckBoxState::Checked)
+//	{
+//		bIsPrivate = true;
+//		CheckBox_PublicRoom->SetCheckedState(ECheckBoxState::Unchecked);
+//	}*/
+//}
 
 void ULoginWidget::JoinSession()
 {

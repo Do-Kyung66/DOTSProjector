@@ -39,12 +39,12 @@ void UNetGameInstance::Init()
 	}
 }
 
-void UNetGameInstance::CreateMySession(FString roomName, bool bIsPrivate)
+void UNetGameInstance::CreateMySession(FString roomName)
 {
 	// FSessionInfo sessionInfo;
 	// 웨이팅룸에 넘겨줄 정보 저장
 	sessionInfo.roomName = roomName;
-	sessionInfo.bIsPrivate = bIsPrivate;
+	//sessionInfo.bIsPrivate = bIsPrivate;
 	// 세션 설정 변수
 	FOnlineSessionSettings sessionSettings;
 	
@@ -107,6 +107,7 @@ void UNetGameInstance::CreateMySession(FString roomName, bool bIsPrivate)
 		GS->RoomName = sessionInfo.roomName;
 	}
 }
+
 
 void UNetGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
 {
@@ -211,30 +212,30 @@ void UNetGameInstance::JoinSelectedSession(int32& index)
 
 }
 
-void UNetGameInstance::JoinPrivateRoom(FString& Code)
-{
-	//FSessionInfo sessionInfo;
-	// 위젯에서 에디트 입력값 받아서 비교 후 세션 조인
-	auto sr = sessionSearch->SearchResults;
-	for (int32 i = 0; i < sr.Num(); i++)
-	{
-		FString FoundRoomCode;
-		sr[i].Session.SessionSettings.Get(FName("roomCode"), FoundRoomCode);
-
-		if (FoundRoomCode == Code)
-		{
-			sessionInterface->JoinSession(0, FName(mySessionName), sr[i]);
-			PRINTLOG(TEXT("join! %s = %s"), *sessionInfo.roomCode, *Code);
-			return;
-		}
-		else
-		{
-			PRINTLOG(TEXT("join faild roomCode : %s, Code : %s"), *sessionInfo.roomCode, *Code);
-		}
-	}
-
-	
-}
+//void UNetGameInstance::JoinPrivateRoom(FString& Code)
+//{
+//	//FSessionInfo sessionInfo;
+//	// 위젯에서 에디트 입력값 받아서 비교 후 세션 조인
+//	auto sr = sessionSearch->SearchResults;
+//	for (int32 i = 0; i < sr.Num(); i++)
+//	{
+//		FString FoundRoomCode;
+//		sr[i].Session.SessionSettings.Get(FName("roomCode"), FoundRoomCode);
+//
+//		if (FoundRoomCode == Code)
+//		{
+//			sessionInterface->JoinSession(0, FName(mySessionName), sr[i]);
+//			PRINTLOG(TEXT("join! %s = %s"), *sessionInfo.roomCode, *Code);
+//			return;
+//		}
+//		else
+//		{
+//			PRINTLOG(TEXT("join faild roomCode : %s, Code : %s"), *sessionInfo.roomCode, *Code);
+//		}
+//	}
+//
+//	
+//}
 
 void UNetGameInstance::OnJoinSessionComlete(FName sessionName, EOnJoinSessionCompleteResult::Type result)
 {
