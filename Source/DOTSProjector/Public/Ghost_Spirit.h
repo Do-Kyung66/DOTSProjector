@@ -18,4 +18,9 @@ public:
 	AGhost_Spirit();
 
 	virtual void Tick(float DeltaTime) override;
+
+public:
+	void UpdateFSM();
+
+	virtual void PatrolState() override;
 };

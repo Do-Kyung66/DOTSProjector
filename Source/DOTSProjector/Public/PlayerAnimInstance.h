@@ -4,21 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "Item_Base.h"
 #include "PlayerAnimInstance.generated.h"
-
-UENUM(BlueprintType)
-enum class EItemType : uint8
-{
-	None,
-	Flashlight,
-	Crucifix,
-	DotProjector,
-	EMFReader,
-	UVLight,
-	Thermometer,
-	VideoCamera
-};
-
 /**
  * 
  */
@@ -32,13 +19,20 @@ public:
 	bool bIsCrouching = false; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float speed = 0.f;
+	float speed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float direction;
+	
+	UPROPERTY(Replicated, BlueprintReadWrite)
+	bool bIsDead = false;
+
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 	UPROPERTY()
 	class APhasmophobiaPlayer* Player;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	EItemType CurrentItemType = EItemType::None;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimSettings")
 	bool bHasItem = false;
@@ -46,6 +40,12 @@ public:
 	// 회전값 기억변수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimSettings")
 	float pitchAngle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EItemType CurrentItemType = EItemType::None;
+
+	UFUNCTION()
+	void AnimNotify_DieEnd();
 
 public:
 	// 초기화, 업데이트 함수

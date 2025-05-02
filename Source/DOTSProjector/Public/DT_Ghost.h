@@ -44,5 +44,10 @@ struct FGhostData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost Data")
 	float SanityDestroyRate;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost Data")
+	TMap<FName, bool> Weakness;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost Data")
+    TSubclassOf<class UAnimInstance> Animation;
 
 };

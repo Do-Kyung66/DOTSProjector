@@ -16,8 +16,8 @@ UEquipItemBehavior::UEquipItemBehavior()
 void UEquipItemBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue& Value)
 {
 	
-	auto pc = Cast<APhasmophobiaPlayerController>(GetWorld()->GetFirstPlayerController());
-	if (!pc || !pc->bCanInteract) return;
+	/*auto pc = Cast<APhasmophobiaPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (!pc || !pc->bCanInteract) return;*/
 	
 	/*GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("EquipItem"));*/
 	UE_LOG(LogTemp, Warning, TEXT("EquipItem"));
@@ -39,21 +39,39 @@ void UEquipItemBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue&
 	}
 
 	// 방금 장착한 아이템만 보이기
-	if (Player->currentItem && Player->currentItem != Player->ownedItem)
-	{
-		Player->currentItem->SetActorHiddenInGame(true);
-	}
+	//if (Player->currentItem && Player->currentItem != Player->ownedItem)
+	//{
+	//	//Player->currentItem->SetActorHiddenInGame(true);
+	//	Player->ownedItem->SetActorHiddenInGame(true);
+
+	//}
 
 	if (!Player->ItemActors.Contains(Player->ownedItem))
 	{
+		bool bInserted = false;
 		// 0은 무시하고 1~3 슬롯 중 비어있는 곳 찾기
 		for (int32 i = 1; i < Player->ItemActors.Num(); ++i)
 		{
 			if (Player->ItemActors[i] == nullptr)
 			{
 				Player->ItemActors[i] = Player->ownedItem;
+				bInserted = true;
 				break;
 			}
+		}
+		if(!bInserted) return;
+	}
+
+	// 장착 후에 아이템 배열 로그 찍기
+	for (int32 i = 0; i < Player->ItemActors.Num(); ++i)
+	{
+		if (Player->ItemActors[i])
+		{
+			UE_LOG(LogTemp, Log, TEXT("Equip after ItemActors[%d]: %s"), i, *Player->ItemActors[i]->GetName());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("Equip after ItemActors[%d]: nullptr"), i);
 		}
 	}
 
@@ -122,44 +140,102 @@ void UEquipItemBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue&
 		if (Player->currentItem->GetName().Contains(TEXT("Flashlight")))
 		{
 			FName SocketName = TEXT("FlashlightSocket");
-			Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
-			UE_LOG(LogTemp, Log, TEXT("SoketName : %s"),*SocketName.ToString());
+
+			if (Player == Player->currentItem->GetOwner())
+			{
+				Mesh->AttachToComponent(Player->HandMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+				UE_LOG(LogTemp, Log, TEXT("Attached to HandMesh - SocketName: %s"), *SocketName.ToString());
+			}
+			else
+			{
+				Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+				UE_LOG(LogTemp, Log, TEXT("Attached to 3rd Person Mesh - SocketName: %s"), *SocketName.ToString());
+			}
+			
 		}
 		else if (Player->currentItem->GetName().Contains(TEXT("Crucifix")))
 		{
 			FName SocketName = TEXT("CrucifixSocket");
-			Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
-			UE_LOG(LogTemp, Log, TEXT("SoketName : %s"), *SocketName.ToString());
+			if (Player == Player->currentItem->GetOwner())
+			{
+				Mesh->AttachToComponent(Player->HandMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+				UE_LOG(LogTemp, Log, TEXT("Attached to HandMesh - SocketName: %s"), *SocketName.ToString());
+			}
+			else
+			{
+				Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+				UE_LOG(LogTemp, Log, TEXT("Attached to 3rd Person Mesh - SocketName: %s"), *SocketName.ToString());
+			}
 		}
 		else if (Player->currentItem->GetName().Contains(TEXT("DotProjector")))
 		{
 			FName SocketName = TEXT("DotProjectorSocket");
-			Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
-			UE_LOG(LogTemp, Log, TEXT("SoketName : %s"), *SocketName.ToString());
+			if (Player == Player->currentItem->GetOwner())
+			{
+				Mesh->AttachToComponent(Player->HandMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+				UE_LOG(LogTemp, Log, TEXT("Attached to HandMesh - SocketName: %s"), *SocketName.ToString());
+			}
+			else
+			{
+				Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+				UE_LOG(LogTemp, Log, TEXT("Attached to 3rd Person Mesh - SocketName: %s"), *SocketName.ToString());
+			}
 		}
 		else if (Player->currentItem->GetName().Contains(TEXT("EMFReader")))
 		{
 			FName SocketName = TEXT("EMFReaderSocket");
-			Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
-			UE_LOG(LogTemp, Log, TEXT("SoketName : %s"), *SocketName.ToString());
+			if (Player == Player->currentItem->GetOwner())
+			{
+				Mesh->AttachToComponent(Player->HandMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+				UE_LOG(LogTemp, Log, TEXT("Attached to HandMesh - SocketName: %s"), *SocketName.ToString());
+			}
+			else
+			{
+				Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+				UE_LOG(LogTemp, Log, TEXT("Attached to 3rd Person Mesh - SocketName: %s"), *SocketName.ToString());
+			}
 		}
 		else if (Player->currentItem->GetName().Contains(TEXT("UVLight")))
 		{
 			FName SocketName = TEXT("UVLightSocket");
-			Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
-			UE_LOG(LogTemp, Log, TEXT("SoketName : %s"), *SocketName.ToString());
+			if (Player == Player->currentItem->GetOwner())
+			{
+				Mesh->AttachToComponent(Player->HandMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+				UE_LOG(LogTemp, Log, TEXT("Attached to HandMesh - SocketName: %s"), *SocketName.ToString());
+			}
+			else
+			{
+				Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+				UE_LOG(LogTemp, Log, TEXT("Attached to 3rd Person Mesh - SocketName: %s"), *SocketName.ToString());
+			}
 		}
 		else if (Player->currentItem->GetName().Contains(TEXT("Thermometer")))
 		{
 			FName SocketName = TEXT("ThermometerSocket");
-			Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
-			UE_LOG(LogTemp, Log, TEXT("SoketName : %s"), *SocketName.ToString());
+			if (Player == Player->currentItem->GetOwner())
+			{
+				Mesh->AttachToComponent(Player->HandMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+				UE_LOG(LogTemp, Log, TEXT("Attached to HandMesh - SocketName: %s"), *SocketName.ToString());
+			}
+			else
+			{
+				Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+				UE_LOG(LogTemp, Log, TEXT("Attached to 3rd Person Mesh - SocketName: %s"), *SocketName.ToString());
+			}
 		}
 		else if (Player->currentItem->GetName().Contains(TEXT("VideoCamera")))
 		{
 			FName SocketName = TEXT("VideoCameraSocket");
-			Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
-			UE_LOG(LogTemp, Log, TEXT("SoketName : %s"), *SocketName.ToString());
+			if (Player == Player->currentItem->GetOwner())
+			{
+				Mesh->AttachToComponent(Player->HandMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+				UE_LOG(LogTemp, Log, TEXT("Attached to HandMesh - SocketName: %s"), *SocketName.ToString());
+			}
+			else
+			{
+				Mesh->AttachToComponent(Player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+				UE_LOG(LogTemp, Log, TEXT("Attached to 3rd Person Mesh - SocketName: %s"), *SocketName.ToString());
+			}
 		}
 	}
 }

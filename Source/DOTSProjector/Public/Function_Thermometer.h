@@ -14,4 +14,13 @@ class DOTSPROJECTOR_API UFunction_Thermometer : public UItemStrategy
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void Use(AItem_Base* Item) override;
+
+	void Tick(float DeltaTime, class AItem_Thermometer* Thermometer);
+
+	UPROPERTY(Replicated)
+	float Temperature = 20.f;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 };

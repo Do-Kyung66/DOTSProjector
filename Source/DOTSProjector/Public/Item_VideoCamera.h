@@ -26,4 +26,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTextureRenderTarget2D* RenderTarget;
+
+	UPROPERTY(ReplicatedUsing = OnRep_VideoState)
+    bool bIsOn = false;
+
+    UFUNCTION()
+    void OnRep_VideoState();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
+	UPROPERTY()
+	bool CaptureGhost = false;
 };

@@ -3,6 +3,8 @@
 
 #include "Item_VideoCamera.h"
 #include "Function_VideoCamera.h"
+#include "Net/UnrealNetwork.h"
+#include "Kismet/KismetRenderingLibrary.h"
 
 AItem_VideoCamera::AItem_VideoCamera()
 {
@@ -19,10 +21,31 @@ AItem_VideoCamera::AItem_VideoCamera()
 		RenderTarget = RT.Object;
 		CaptureComponent->TextureTarget = RenderTarget;
 	}
+
 }
 
 void AItem_VideoCamera::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CaptureComponent->SetVisibility(bIsOn);
+	CaptureComponent->bCaptureEveryFrame = bIsOn;
 	ItemStrategy = NewObject<UFunction_VideoCamera>(this);
 }
+
+void AItem_VideoCamera::OnRep_VideoState()
+{
+	if (!CaptureComponent) return;
+
+	CaptureComponent->SetVisibility(bIsOn);
+	CaptureComponent->bCaptureEveryFrame = bIsOn;
+
+}
+
+void AItem_VideoCamera::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AItem_VideoCamera, bIsOn);
+}
+

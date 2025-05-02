@@ -7,10 +7,11 @@
 
 void UBehavior_Throw::ExecuteBehavior(const FGhostBehaviorContext& Context)
 {
-	if (!Context.Item || !Context.Ghost) return;
+	if (!Context.Item || !Context.Ghost || !Context.Target) return;
 
 	AGhostBase* Ghost = Context.Ghost;
 	AItem_Base* Item = Context.Item;
+	AActor* Player = Context.Target;
 
 	FVector GhostLocation = Ghost->GetActorLocation();
 	FVector ItemLocation = Item->GetActorLocation();
@@ -19,32 +20,31 @@ void UBehavior_Throw::ExecuteBehavior(const FGhostBehaviorContext& Context)
 
 	if (Distance > 100.f)
 	{
-
 		FVector Direction = (ItemLocation - GhostLocation).GetSafeNormal();
 		Ghost->SetActorLocation(GhostLocation + Direction * 300.f * GetWorld()->DeltaTimeSeconds);
 		return;
 	}
 
-	Item->SetActorHiddenInGame(true);
-	Item->SetActorEnableCollision(false);
-	Item->AttachToActor(Ghost, FAttachmentTransformRules::KeepWorldTransform);
+	Item->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	Item->SetActorLocation(Ghost->GetActorLocation());
+
+	if (UPrimitiveComponent* ItemRoot = Cast<UPrimitiveComponent>(Item->MeshComp))
+	{
+		ItemRoot->SetSimulatePhysics(false);
+	}
 
 	FTimerHandle TimerHandle;
-	Ghost->GetWorldTimerManager().SetTimer(TimerHandle, [Ghost, Item]() {
-
-		FVector ThrowDirection = Ghost->GetActorForwardVector();
-		Item->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		Item->SetActorHiddenInGame(false);
-		Item->SetActorEnableCollision(true);
-
-
-		if (UPrimitiveComponent* ItemRoot = Cast<UPrimitiveComponent>(Item->GetRootComponent()))
+	Ghost->GetWorldTimerManager().SetTimer(TimerHandle, [Ghost, Item, Player]()
 		{
-			ItemRoot->SetSimulatePhysics(true);
-			ItemRoot->AddImpulse(ThrowDirection * 1000.f);
-		}
+			FVector ThrowDirection = (Player->GetActorLocation() - Ghost->GetActorLocation()).GetSafeNormal();
 
+			if (UPrimitiveComponent* ItemRoot = Cast<UPrimitiveComponent>(Item->MeshComp))
+			{
+				ItemRoot->SetSimulatePhysics(true);
+				ItemRoot->AddImpulse(ThrowDirection * 1000.f);
+			}
 		}, 1.0f, false);
-	
+
 	Ghost->currentState = GhostState::Idle;
+	Ghost->CanThrow = false;
 }
