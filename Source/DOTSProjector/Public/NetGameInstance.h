@@ -27,6 +27,10 @@ struct FSessionInfo
 	UPROPERTY(BlueprintReadOnly)
 	FString roomCode = "";  //랜덤한 6자리 숫자로 만들어지고 퍼블릭으로 방이 만들어질때는 값이 X roomcode = IsEmpty()로 체크
 	
+	FSessionInfo():roomName(""),hostName(""), playerCount(""), pingSpeed(0), index(0), bIsPrivate(false), roomCode("")
+	{
+	}
+
 	inline FString ToString()
 	{
 		return FString::Printf(TEXT("[%d] %s : %s - %s, %dms, %s"), index, *roomName, *hostName, *playerCount, pingSpeed, *roomCode);
