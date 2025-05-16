@@ -17,8 +17,4 @@ class DOTSPROJECTOR_API UFunction_Flashlight : public UItemStrategy
 public:
 
 	virtual void Use(AItem_Base* Item) override;
-
-	UPROPERTY()
-	bool bOn = false;
-	
 };

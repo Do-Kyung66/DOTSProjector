@@ -9,7 +9,10 @@
 #include "Observer.h"
 #include "Item_Base.h"
 #include "Blueprint/UserWidget.h"
+#include "IItemBehavior.h"
 #include "PhasmophobiaPlayer.generated.h"
+
+
 
 UCLASS()
 class DOTSPROJECTOR_API APhasmophobiaPlayer : public ACharacter
@@ -19,6 +22,8 @@ class DOTSPROJECTOR_API APhasmophobiaPlayer : public ACharacter
 public:
 	// Sets default values for this character's properties
 	APhasmophobiaPlayer();
+
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return CamComp; }
 
 protected:
 	// Called when the game starts or when spawned
@@ -34,6 +39,9 @@ public:
 public:
 	UPROPERTY(VisibleAnywhere, Category = "Controller")
 	class APhasmophobiaPlayerController* PC;
+
+	UPROPERTY(EditAnywhere)
+	class USkeletalMeshComponent* HandMesh;
 
 	UPROPERTY(EditAnywhere, Category = Camera)
 	class USpringArmComponent* SpringArmComp;
@@ -54,10 +62,10 @@ public:
 	UPROPERTY()
 	TObjectPtr<UObject> CurrentRunStrategy;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TObjectPtr<UObject> CurrentEquipStrategy;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TObjectPtr<UObject> CurrentSwitchStrategy;
 
 	UPROPERTY()
@@ -77,6 +85,11 @@ public:
 
 	class UInputAction* UseAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+
+	class UInputAction* ItemAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* CrouchAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
@@ -120,19 +133,34 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	class USceneComponent* ItemComp;
 
-	UPROPERTY(VisibleAnywhere)
-	AActor* ownedItem = nullptr;
-	AActor* currentItem = nullptr;
+	UPROPERTY(Replicated)
+	AItem_Base* ownedItem = nullptr;
 
-	UPROPERTY()
-	TArray<AActor*> ItemActors;
+	UPROPERTY(Replicated)
+	AItem_Base* currentItem = nullptr;
 
+	UPROPERTY(Replicated)
+	TArray<AItem_Base*> ItemActors;
+
+	UPROPERTY(Replicated)
 	bool bHasItem = false;
+
+	UPROPERTY(Replicated)
 	int32 CurrentItemIndex = -1;
 
+	UPROPERTY(ReplicatedUsing = OnRep_IsDead)
+	bool bIsDead = false;
+
+	UFUNCTION()
+	void OnRep_IsDead();
+
+	UPROPERTY(Replicated)
+	bool bIsCursorOverItem = false;
 	
 	// Player Behavior Func
 	void Move(const FInputActionValue& Value);
+	void OnMoveReleased(const FInputActionValue& Value);
+
 	void LookAround(const FInputActionValue& Value);
 
 	void PlayerCrouch(const FInputActionValue& Value);
@@ -157,16 +185,102 @@ public:
 	void DecreaseSanity(float Amount);
 
 	void UseItem();
+	void ActivateItem();
 
 	TArray<IObserver*> Observers;
 
-	float Sanity = 100.0f;
+	UPROPERTY(ReplicatedUsing = OnRep_Sanity)
+	float Sanity = 100.f;
+
+	UFUNCTION()
+	void OnRep_Sanity();
 
 	void CheckGhostOnScreen(float DeltaTime);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
 	TSubclassOf<UUserWidget> CenterWidget;
 
-	UUserWidget* CenterUI;
+	class UDefaultCursorWidget* CenterUI;
 
+	class IItemBehavior* EquipStrategy;
+
+	class IItemBehavior* DetachStrategy;
+
+	UPROPERTY(Replicated)
+	TScriptInterface<IItemBehavior> SwitchStrategy;
+
+	UPROPERTY(Replicated)
+	AItem_Base* TargetItem = nullptr;
+
+	void ItemTrace();
+
+
+// Network
+public:
+
+	UPROPERTY(Replicated, BlueprintReadWrite)
+	EItemType CurrentItemType = EItemType::None;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Equip();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_Equip();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ItemTrace();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_UseItem();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_UseItem(AItem_Base* Item);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Detach();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_Detach();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Switch(float ScrollData);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_Switch(int32 NextItemIndex);
+
+	UPROPERTY(Replicated)
+	float ScrollValue = 0.f;
+
+	UPROPERTY(Replicated)
+	int32 NextIndex = 0.f;
+
+	UPROPERTY(Replicated)
+	int32 StartIndex = 0.f;
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ItemAction();
+
+	// sound
+	FTimerHandle FootstepTimerHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	TArray<USoundBase*> FootstepSounds;
+
+	int32 CurrentFootstepIndex = 0;
+
+
+	bool bIsMoving = false;
+	float Interval = 0.5f;
+
+	bool SawGhost = false;
+
+	void StartFootstepSound();
+	void StopFootstepSound();
+	void PlayFootstepSound();
+
+	void DieProcess();
+
+	bool Escaped = false;
 };

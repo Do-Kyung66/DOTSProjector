@@ -16,5 +16,4 @@ class DOTSPROJECTOR_API UItemStrategy : public UObject
 
 public:
 	virtual void Use(class AItem_Base* Item) {};
-
 };

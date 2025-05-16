@@ -11,6 +11,18 @@
 #include "Engine/SkeletalMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Observer.h"
+#include "Behavior_Walking.h"
+#include "Behavior_Chase.h"
+#include "Behavior_Teleport.h"
+#include "Behavior_Kill.h"
+#include "Behavior_TriggerObject.h"
+#include "Behavior_Throw.h"
+#include "Behavior_Idle.h"
+#include "AIController.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "NavigationInvokerComponent.h"
+#include "NavigationSystem.h"
+#include "Behavior_Patrol.h"
 #include "GhostBase.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGhostVisibleEvent);
@@ -23,7 +35,36 @@ enum class GhostState : uint8 {
 	Teleport UMETA(DisplayName = "텔레포트"),
 	Kill UMETA(DisplayName = "죽이기"),
 	TriggerObject UMETA(DisplayName = "키기"),
-	Throw UMETA(DisplayName = "던지기")
+	Throw UMETA(DisplayName = "던지기"),
+	Patrol UMETA(DisplayName = "패트롤")
+};
+
+
+struct StructBehaviorTimer
+{
+	float IdleTimerStart = 0.f;
+	float IdleTimerEnd = 2.f;
+
+	float WalkTimerStart = 0.f;
+	float WalkTimerEnd = 3.f;
+
+	float ChaseTimerStart = 0.f;
+	float ChaseTimerEnd = 3.f;
+
+	float TeleportTimerStart = 0.f;
+	float TeleportTimerEnd = 5.f;
+
+	float KillTimerStart = 0.f;
+	float KillTimerEnd = 20.f;
+
+	float PatrolTimerStart = 0.f;
+	float PatrolTimerEnd = 3.f;
+
+	float TriggerObjectTimerStart = 0.f;
+	float TriggerObjectTimerEnd = 10.f;
+
+	float ThrowTimerStart = 0.f;
+	float ThrowTimerEnd = 10.f;
 };
 
 UCLASS()
@@ -103,11 +144,15 @@ public:
 	UPROPERTY()
 	class UBehavior_Idle* IdleStrategy;
 
+	UPROPERTY()
+	class UBehavior_Patrol* PatrolStrategy;
+
 // Ghost Basic Ability
 public:
 	void StartGhostVisibleEvent();
 	void ToggleVisible();
 	void EndGhostVisibleEvent();
+	void VisibleRateEvent();
 
 	FTimerHandle VisibleTimerHandle;
 	FTimerHandle EndVisibleTimerHandle;
@@ -120,6 +165,8 @@ public:
 	
 // Behavior FSM Function
 public:
+	StructBehaviorTimer BehaviorTimer;
+
 	virtual void UpdateFSM() {};
 	virtual void IdleState();
 	virtual void WalkState();
@@ -128,6 +175,7 @@ public:
 	virtual void KillState();
 	virtual void TriggerObjectState();
 	virtual void ThrowState();
+	virtual void PatrolState();
 
 // Observer
 public:
@@ -141,9 +189,19 @@ public:
 
 	UPROPERTY(VisibleAnywhere) 
 	GhostState currentState = GhostState::Idle;
+
 	float GetAttackRange();
 	float GetMovementSpeed();
 	float GetSanityDestoryRate();
+
+	bool CanThrow = true;
+	bool CanTrigger = true;
+	float ThrowDelay = 0.f;
+
+	FVector RandomPos;
+	bool bPatrol = false;
+
+	bool GetRandomPositionInNavMesh(FVector CenterLocation, float Radius, FVector& Destination);
 
 // Ghost Collision
 public:
@@ -151,4 +209,15 @@ public:
 	void ItemInRange(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 					   UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 					   bool bFromSweep, const FHitResult& SweepResult);
+
+public:
+	bool HuntBegin = false;
+
+
+// Network Data
+public:
+	void SelectTargetPlayer();
+
+	float NearestDist = 1000.f;
+	float MinSanity = 1000.f;
 };

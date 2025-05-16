@@ -5,6 +5,9 @@
 #include "Components/StaticMeshComponent.h"
 #include "DT_Item.h"
 #include "PhasmophobiaPlayerController.h"
+#include "Components/SceneComponent.h"
+#include "DOTSProjector.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -14,8 +17,11 @@ AItem_Base::AItem_Base()
 	PrimaryActorTick.bCanEverTick = false;
 	ItemStrategy = nullptr;
 
+	RootScene = CreateDefaultSubobject<USceneComponent>(TEXT("RootScene"));
+	RootComponent = RootScene;
+
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-	RootComponent = MeshComp;
+	MeshComp->SetupAttachment(RootComponent);
 
 	ConstructorHelpers::FObjectFinder<UDataTable> TempDT(
 		TEXT("/Script/Engine.DataTable'/Game/UP/Item/DT_ItemData.DT_ItemData'"));
@@ -25,8 +31,12 @@ AItem_Base::AItem_Base()
 		RowNames = ItemDataTable->GetRowNames();
 	}
 
-
 	MeshComp->SetSimulatePhysics(false);
+
+	ConstructorHelpers::FObjectFinder<USoundBase> SoundAsset(TEXT("/Script/Engine.SoundWave'/Game/UP/Item/Items/Sound/keyboard-click-327728.keyboard-click-327728'"));
+	if (SoundAsset.Succeeded()) {
+		UseSound = SoundAsset.Object;
+	}
 
 }
 
@@ -57,30 +67,9 @@ void AItem_Base::UseItem()
 	{
 		ItemStrategy->Use(this);
 	}
-}
-
-void AItem_Base::NotifyActorBeginCursorOver()
-{
-	Super::NotifyActorBeginCursorOver();
-
-	APhasmophobiaPlayerController* PC = Cast<APhasmophobiaPlayerController>(GetWorld()->GetFirstPlayerController());
-
-	if (PC)
+	if (UseSound)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Cursor!"));
-		PC->SetCursorForInteraction(true, this);
-
-	}
-
-}
-
-void AItem_Base::NotifyActorEndCursorOver()
-{
-	Super::NotifyActorEndCursorOver();
-
-	APhasmophobiaPlayerController* PC = Cast<APhasmophobiaPlayerController>(GetWorld()->GetFirstPlayerController());
-	if (PC)
-	{
-		PC->SetCursorForInteraction(false, nullptr);
+		UGameplayStatics::PlaySoundAtLocation(this, UseSound, GetActorLocation());
 	}
 }
+
