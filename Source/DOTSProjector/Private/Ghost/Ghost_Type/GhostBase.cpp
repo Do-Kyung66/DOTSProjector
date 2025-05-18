@@ -180,6 +180,8 @@ void AGhostBase::VisibleRateEvent()
 	float PlayerSanity = PlayerCharacter->Sanity;
 	float SanityNormalized = FMath::Clamp(PlayerSanity / 100.0f, 0.0f, 1.0f);
 
+	if (PlayerSanity >= 70.0f) return;
+
 	float Probability = 1.0f - SanityNormalized;
 
 	float RandomChance = FMath::FRand();
@@ -193,25 +195,25 @@ void AGhostBase::VisibleRateEvent()
 void AGhostBase::IdleState()
 {
 	SetBehaviorStrategy(IdleStrategy);
-	ExecuteBehavior(&BehaviorContext);;
+	ExecuteBehavior(&BehaviorContext);
 }
 
 void AGhostBase::WalkState()
 {
 	SetBehaviorStrategy(WalkingStrategy);
-	ExecuteBehavior(&BehaviorContext);;
+	ExecuteBehavior(&BehaviorContext);
 }
 
 void AGhostBase::ChaseState()
 {
 	SetBehaviorStrategy(ChaseStrategy);
-	ExecuteBehavior(&BehaviorContext);;
+	ExecuteBehavior(&BehaviorContext);
 }
 
 void AGhostBase::TeleportState()
 {
 	SetBehaviorStrategy(TeleportStrategy);
-	ExecuteBehavior(&BehaviorContext);;
+	ExecuteBehavior(&BehaviorContext);
 }
 
 void AGhostBase::KillState()
@@ -223,7 +225,7 @@ void AGhostBase::KillState()
 void AGhostBase::TriggerObjectState()
 {
 	SetBehaviorStrategy(TriggerObjectStrategy);
-	ExecuteBehavior(&BehaviorContext);;
+	ExecuteBehavior(&BehaviorContext);
 }
 
 void AGhostBase::ThrowState()	
@@ -235,7 +237,7 @@ void AGhostBase::ThrowState()
 void AGhostBase::PatrolState()
 {
 	SetBehaviorStrategy(PatrolStrategy);
-	ExecuteBehavior(&BehaviorContext);;
+	ExecuteBehavior(&BehaviorContext);
 }
 
 void AGhostBase::PlayerSanityChanged(float NewSanity)
@@ -261,13 +263,16 @@ float AGhostBase::GetSanityDestoryRate()
 void AGhostBase::ItemInRange(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (AItem_Base* Item = Cast<AItem_Base>(OtherActor)) {
-		if (Item != PlayerCharacter->currentItem && !Item->bCanGhostTrigger) {
+		if (Item != PlayerCharacter->currentItem && !Item->bCanGhostTrigger && CanThrow) {
 			BehaviorContext.Item = Item;
 			currentState = GhostState::Throw;
 		}
-		else if (Item != PlayerCharacter->currentItem && Item->bCanGhostTrigger) {
+		else if (Item != PlayerCharacter->currentItem && Item->bCanGhostTrigger && CanTrigger) {
 			BehaviorContext.Item = Item;
 			currentState = GhostState::TriggerObject;
+		}
+		else {
+			currentState = GhostState::Idle;
 		}
 	}
 }
