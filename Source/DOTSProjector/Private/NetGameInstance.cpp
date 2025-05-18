@@ -196,7 +196,7 @@ void UNetGameInstance::JoinSelectedSession(int32& index)
 
 	// 세션 정보에서 방 이름을 추출
 	FString roomName;
-	sr[index].Session.SessionSettings.Get(FName("Room_Name"), roomName);
+	sr[index].Session.SessionSettings.Get(FName("ROOM_NAME"), roomName);
 
 	// 실제로 조인하려는 세션 이름을 로그로 출력
 	PRINTLOG(TEXT("Joining Session: %s, index %d"), *roomName, index);
