@@ -8,6 +8,7 @@
 #include "Net/UnrealNetwork.h"
 #include "WaitingRoomWidget.h"
 #include "GameFramework/PlayerState.h"
+#include "GameFramework/GameModeBase.h"
 
 
 APhasmophobiaPlayerController::APhasmophobiaPlayerController()
@@ -72,18 +73,26 @@ void APhasmophobiaPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeP
 
 void APhasmophobiaPlayerController::ServerRPC_RequestStartGame_Implementation()
 {
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	{
-		APlayerController* PC = It->Get();
-		if (PC && !PC->IsLocalController()) // 클라이언트한테만
-		{
-			PC->ClientTravel("/Game/OldBrickHouse/Maps/HouseMap?listen", TRAVEL_Absolute);
-		}
-	}
+	//for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	//{
+	//	APlayerController* PC = It->Get();
+	//	if (PC && !PC->IsLocalController()) // 클라이언트한테만
+	//	{
+	//		PC->ClientTravel("/Game/OldBrickHouse/Maps/HouseMap?listen", TRAVEL_Absolute);
+	//	}
+	//}
+
+	
 	
 	UWorld* World = GetWorld();
 	if (World)
 	{
+		// 클라이언트도 같은 맵으로 진입 시키는 코드
+		World->GetAuthGameMode()->bUseSeamlessTravel = true;
+
 		World->ServerTravel(TEXT("/Game/OldBrickHouse/Maps/HouseMap?listen"));
+
+		UE_LOG(LogTemp, Warning, TEXT("Current Map: %s"), *GetWorld()->GetMapName());
 	}
+
 }

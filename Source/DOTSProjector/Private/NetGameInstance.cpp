@@ -204,7 +204,7 @@ void UNetGameInstance::JoinSelectedSession(int32& index)
 	sr[index].Session.SessionSettings.bUseLobbiesIfAvailable = true;
 	sr[index].Session.SessionSettings.bUsesPresence = true;
 
-	sessionInterface->JoinSession(0, FName(mySessionName), sr[index]);
+	sessionInterface->JoinSession(0, NAME_GameSession, sr[index]);
 
 	// 디버그용 로그 출력
 	PRINTLOG(TEXT("Joined Session: %s, index %d"), *roomName, index);
@@ -243,7 +243,7 @@ void UNetGameInstance::OnJoinSessionComplete(FName sessionName, EOnJoinSessionCo
 		auto pc = GetWorld()->GetFirstPlayerController();
 		FString url;
 
-		sessionInterface->GetResolvedConnectString(sessionName, url); // 서버가 이미 열어둔 맵에 자동 진입
+		sessionInterface->GetResolvedConnectString(NAME_GameSession, url); // 서버가 이미 열어둔 맵에 자동 진입
 
 		PRINTLOG(TEXT("Join URL : %s"), *url);
 
