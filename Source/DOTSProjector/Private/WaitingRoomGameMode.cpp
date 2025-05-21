@@ -74,3 +74,18 @@ void AWaitingRoomGameMode::DestroySession()
 	}
 }
 
+void AWaitingRoomGameMode::StartGame()
+{
+	bUseSeamlessTravel = true;
+
+	FTimerHandle TravelTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(
+		TravelTimerHandle,
+		[this]()
+		{
+			GetWorld()->ServerTravel(TEXT("/Game/OldBrickHouse/Maps/HouseMap?listen"));
+		},
+		1.0f, 
+		false
+	);
+}

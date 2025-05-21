@@ -9,6 +9,7 @@
 #include "WaitingRoomWidget.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/GameModeBase.h"
+#include "WaitingRoomGameMode.h"
 
 
 APhasmophobiaPlayerController::APhasmophobiaPlayerController()
@@ -85,14 +86,20 @@ void APhasmophobiaPlayerController::ServerRPC_RequestStartGame_Implementation()
 	
 	
 	UWorld* World = GetWorld();
-	if (World)
+	//if (World)
+	//{
+	//	// 클라이언트도 같은 맵으로 진입 시키는 코드
+	//	World->GetAuthGameMode()->bUseSeamlessTravel = true;
+
+	//	World->ServerTravel(TEXT("/Game/OldBrickHouse/Maps/HouseMap?listen"));
+
+	//	UE_LOG(LogTemp, Warning, TEXT("Current Map: %s"), *GetWorld()->GetMapName());
+	//}
+
+	AWaitingRoomGameMode* GM = Cast<AWaitingRoomGameMode>(World->GetAuthGameMode());
+	if (GM)
 	{
-		// 클라이언트도 같은 맵으로 진입 시키는 코드
-		World->GetAuthGameMode()->bUseSeamlessTravel = true;
-
-		World->ServerTravel(TEXT("/Game/OldBrickHouse/Maps/HouseMap?listen"));
-
-		UE_LOG(LogTemp, Warning, TEXT("Current Map: %s"), *GetWorld()->GetMapName());
+		GM->StartGame(); // 이 안에서 ServerTravel
 	}
 
 }

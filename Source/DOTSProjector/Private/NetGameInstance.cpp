@@ -79,8 +79,8 @@ void UNetGameInstance::CreateMySession(FString roomName, bool bIsPrivate)
 	sessionSettings.bUseLobbiesIfAvailable = true;
 
 	// 5. 게임 진행중에 참여 허가할지 여부
-	sessionSettings.bAllowJoinViaPresence = false;
-	sessionSettings.bAllowJoinInProgress = false;
+	sessionSettings.bAllowJoinViaPresence = true;
+	sessionSettings.bAllowJoinInProgress = true;
 
 	// 6. 세션에 참여할 수 있는 공개(public) 연결의 최대 허용 수
 	// 호스트는 자동 참여라 3이라 적으면 최대 4명이서 게임 가능 - 4명으로 변경

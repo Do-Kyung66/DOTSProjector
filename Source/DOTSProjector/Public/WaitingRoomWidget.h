@@ -53,4 +53,5 @@ public:
 	TSubclassOf<UUserWidget> LoginWidget;
 
 	class ULoginWidget* Widget;
+
 };

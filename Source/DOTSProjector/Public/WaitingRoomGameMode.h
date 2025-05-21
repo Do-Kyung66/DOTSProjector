@@ -29,4 +29,5 @@ public:
 
 	void CheckRoomEmpty();
 	void DestroySession();
+	void StartGame();
 };
