@@ -31,6 +31,7 @@
 #include "PlayerSanityUI.h"
 #include "GameFramework/PlayerState.h"
 #include "EscapeButton.h"
+#include "ClearWidget.h"
 
 
 
@@ -144,7 +145,6 @@ void APhasmophobiaPlayer::BeginPlay()
 	CurrentEquipStrategy = NewObject<UEquipItemBehavior>(this);
 	CurrentSwitchStrategy = NewObject<USwitchItemBehavior>(this);
 	CurrentDetachStrategy = NewObject<UDetachItemBehavior>(this);
-
 }
 
 // Called every frame
@@ -154,6 +154,24 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 
 	ItemTrace();
 	DecreaseSanity(DeltaTime * 0.3);
+
+	if (CanEscape && ClearWidget && !ClearUI) {
+		
+		ClearUI = CreateWidget<UClearWidget>(GetWorld(), ClearWidget);
+		ClearUI->AddToViewport();
+
+		if (PC)
+		{
+			CenterUI->RemoveFromParent();
+			FInputModeUIOnly InputMode;
+			InputMode.SetWidgetToFocus(ClearUI->TakeWidget());
+			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+			PC->SetInputMode(InputMode);
+			PC->bShowMouseCursor = true;
+			GetCharacterMovement()->MaxWalkSpeed = 0.f;
+		}
+	}
 
 	// 문 상호작용
 	/*FHitResult DoorHit;
@@ -185,7 +203,7 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 	if (GEngine)
 	{
 
-		GEngine->AddOnScreenDebugMessage(4, 1.5f, FColor::Green, FString::Printf(TEXT("Current Stamina: %f"), CurrentStamina));
+		//GEngine->AddOnScreenDebugMessage(4, 1.5f, FColor::Green, FString::Printf(TEXT("Current Stamina: %f"), CurrentStamina));
 	}
 	if (PC)
 	{
@@ -249,7 +267,7 @@ void APhasmophobiaPlayer::Move(const FInputActionValue& Value)
 	FVector Velocity = GetVelocity();
 	if (Velocity.Size() > 0.1f)
 	{
-		StartFootstepSound();
+		//StartFootstepSound();
 		UE_LOG(LogTemp, Log, TEXT("move Start Sound"));
 	}
 
@@ -266,7 +284,7 @@ void APhasmophobiaPlayer::Move(const FInputActionValue& Value)
 
 void APhasmophobiaPlayer::OnMoveReleased(const FInputActionValue& Value)
 {	
-	StopFootstepSound();
+	//StopFootstepSound();
 	UE_LOG(LogTemp, Log, TEXT("move Stop Sound"));
 }
 
@@ -300,12 +318,12 @@ void APhasmophobiaPlayer::Run(const FInputActionValue& Value)
 	FVector Velocity = GetVelocity();
 	if (CurrentStamina > 0 && Velocity.Size() > 0.1f)
 	{
-		StartFootstepSound();
+		//StartFootstepSound();
 		UE_LOG(LogTemp, Log, TEXT("run Start Sound"));
 	}
 	else if (CurrentStamina <= 0 && Velocity.Size() < 0.1f)
 	{
-		StopFootstepSound();
+		//StopFootstepSound();
 		UE_LOG(LogTemp, Log, TEXT("run Stop Sound"));
 	}
 
@@ -327,7 +345,7 @@ void APhasmophobiaPlayer::OnRunReleased(const FInputActionValue& Value)
 	FVector Velocity = GetVelocity();
 	if (Velocity.Size() < 0.1f)
 	{
-		StopFootstepSound();
+		//StopFootstepSound();
 	}
 }
 
@@ -433,7 +451,7 @@ void APhasmophobiaPlayer::DecreaseSanity(float Amount)
 		NotifySanityChanged();
 	}
 	
-	GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Blue, FString::Printf(TEXT("%.2f"), Sanity));
+	//GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Blue, FString::Printf(TEXT("%.2f"), Sanity));
 }
 
 void APhasmophobiaPlayer::UseItem()
@@ -599,9 +617,18 @@ void APhasmophobiaPlayer::ServerRPC_ItemTrace_Implementation()
 
 	if (GetWorld()->LineTraceSingleByChannel(Hitinfo, Start, End, ECC_Visibility, params))
 	{
-		GEngine->AddOnScreenDebugMessage(2, 2.0f, FColor::Green, FString::Printf(TEXT("Hit: %s"), *Hitinfo.GetActor()->GetName()));
+		//GEngine->AddOnScreenDebugMessage(2, 2.0f, FColor::Green, FString::Printf(TEXT("Hit: %s"), *Hitinfo.GetActor()->GetName()));
 
 		AActor* HitActor = Hitinfo.GetActor();
+
+		AEscapeButton* EscapeButton = Cast<AEscapeButton>(HitActor);
+
+		if (EscapeButton && MissionCount == 2) {
+		
+			CanEscape = true;
+			EscapeButton->Pressed = true;
+		}
+		
 		AItem_Base* ItemActor = Cast<AItem_Base>(HitActor);
 
 		/*AEscapeButton* EB = Cast<AEscapeButton>(HitActor);
@@ -740,7 +767,7 @@ void APhasmophobiaPlayer::ServerRPC_ItemAction_Implementation()
 void APhasmophobiaPlayer::StartFootstepSound()
 {
 
-	GEngine->AddOnScreenDebugMessage(52, 1.0, FColor::Red, TEXT("StartFootstepSound called"));
+	//GEngine->AddOnScreenDebugMessage(52, 1.0, FColor::Red, TEXT("StartFootstepSound called"));
 	
 	// 현재 인터벌 계산
 	float NewInterval = bIsRunning ? 0.2f : 0.5f;
@@ -777,7 +804,7 @@ void APhasmophobiaPlayer::PlayFootstepSound()
 {
 	if (FootstepSounds.Num() > 0)
 	{
-		GEngine->AddOnScreenDebugMessage(50, 1.0, FColor::Cyan, FString::Printf(TEXT("PlayFootstepSound : %d"), CurrentFootstepIndex));
+		//GEngine->AddOnScreenDebugMessage(50, 1.0, FColor::Cyan, FString::Printf(TEXT("PlayFootstepSound : %d"), CurrentFootstepIndex));
 		UGameplayStatics::PlaySoundAtLocation(this, FootstepSounds[CurrentFootstepIndex], GetActorLocation());
 		CurrentFootstepIndex++;
 
@@ -788,7 +815,7 @@ void APhasmophobiaPlayer::PlayFootstepSound()
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(51, 1.0, FColor::Red, TEXT("FootstepSounds is empty!"));
+		//GEngine->AddOnScreenDebugMessage(51, 1.0, FColor::Red, TEXT("FootstepSounds is empty!"));
 	}
 }
 

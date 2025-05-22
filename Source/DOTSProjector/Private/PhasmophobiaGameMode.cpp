@@ -16,7 +16,7 @@ void APhasmophobiaGameMode::PostLogin(APlayerController* NewPlayer)
 {
     Super::PostLogin(NewPlayer);
 
-    static int32 PlayerIndex = 1;
+    static int32 PlayerIndex = 2;
 
     if (NewPlayer && NewPlayer->PlayerState)
     {

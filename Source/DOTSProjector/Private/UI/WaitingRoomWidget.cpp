@@ -55,7 +55,6 @@ void UWaitingRoomWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTi
 	{
 		txt_RoomName->SetText(FText::FromString(GS->RoomName));
 	}
-	
 }
 
 void UWaitingRoomWidget::OnLeaveClicked()

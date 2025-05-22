@@ -28,11 +28,15 @@ void UPlayerMissionUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
     {
         if (APhasmophobiaPlayer* PlayerPawn = Cast<APhasmophobiaPlayer>(pState->GetPawn()))
         {
-            if (PlayerPawn->Sanity < 25) {
-               Image_CheckSanity->SetVisibility(ESlateVisibility::Visible);
+            if (PlayerPawn->Sanity <= 25 && !SanityMission) {
+                SanityMission = true;
+                Image_CheckSanity->SetVisibility(ESlateVisibility::Visible);
+                PlayerPawn->MissionCount++;
             }
 			AItem_VideoCamera* VC = Cast<AItem_VideoCamera>(PlayerPawn->currentItem);
-			if (VC && VC->CaptureGhost) {
+			if (VC && VC->CaptureGhost && !PictureMission) {
+                PictureMission = true;
+                PlayerPawn->MissionCount++;
 				Image_CheckCamera->SetVisibility(ESlateVisibility::Visible);
 			}
         }

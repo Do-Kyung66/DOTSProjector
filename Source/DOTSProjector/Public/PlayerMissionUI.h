@@ -35,4 +35,7 @@ public:
 
 	UPROPERTY()
 	TArray<APlayerState*> playerArr;
+
+	bool SanityMission = false;
+	bool PictureMission = false;
 };

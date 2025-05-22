@@ -17,7 +17,7 @@ void AGhost_Wraith::BeginPlay()
 {
 	Super::BeginPlay();
 	currentState = GhostState::Patrol;
-	SetActorHiddenInGame(false);
+	SetActorHiddenInGame(true);
 }
 
 void AGhost_Wraith::Tick(float DeltaSeconds)
@@ -45,7 +45,7 @@ void AGhost_Wraith::Tick(float DeltaSeconds)
 void AGhost_Wraith::UpdateFSM()
 {
 	FString logMsg = UEnum::GetValueAsString(currentState);
-	GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Green, logMsg);
+	// GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Green, logMsg);
 
 	switch (currentState) {
 		case GhostState::Idle:
@@ -80,6 +80,20 @@ void AGhost_Wraith::IdleState()
 	Super::IdleState();
 
 	BehaviorTimer.IdleTimerStart += GetWorld()->GetDeltaSeconds();
+
+	if (HuntBegin) {
+		int32 RandomBehavior = FMath::RandRange(0, 2);
+
+		if (RandomBehavior <= 1) {
+			currentState = GhostState::Walking;
+		}
+		else {
+			currentState = GhostState::Chase;
+		}
+	
+		return;
+	}
+
 	if (BehaviorTimer.IdleTimerStart > BehaviorTimer.IdleTimerEnd) {
 		BehaviorTimer.IdleTimerStart = 0.f;
 		SelectTargetPlayer();
@@ -100,6 +114,8 @@ void AGhost_Wraith::IdleState()
 void AGhost_Wraith::WalkState()
 {
 	Super::WalkState();
+
+	VisibleRateEvent();
 
 	if (PlayerCharacter) {
 		if ((PlayerCharacter->GetActorLocation() - this->GetActorLocation()).Size() <= GetAttackRange())
@@ -145,6 +161,11 @@ void AGhost_Wraith::ChaseState()
 void AGhost_Wraith::TeleportState()
 {
 	Super::TeleportState();
+
+	if (HuntBegin) {
+		currentState = GhostState::Walking;
+		return;
+	}
 
 	VisibleRateEvent();
 	SetActorLocation(GetActorLocation() + FVector(300.f, 0.0f, 0.0f));
