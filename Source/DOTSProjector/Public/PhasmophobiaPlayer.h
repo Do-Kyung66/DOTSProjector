@@ -206,6 +206,11 @@ public:
 
 	class IItemBehavior* DetachStrategy;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
+	TSubclassOf<UUserWidget> ClearWidget;
+
+	class UClearWidget* ClearUI;
+
 	UPROPERTY(Replicated)
 	TScriptInterface<IItemBehavior> SwitchStrategy;
 
@@ -214,6 +219,7 @@ public:
 
 	void ItemTrace();
 
+	int MissionCount = 2;
 
 // Network
 public:
@@ -275,6 +281,8 @@ public:
 	float Interval = 0.5f;
 
 	bool SawGhost = false;
+
+	bool CanEscape = false;
 
 	void StartFootstepSound();
 	void StopFootstepSound();

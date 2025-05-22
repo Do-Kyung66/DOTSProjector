@@ -9,7 +9,7 @@
 void UFunction_Thermometer::Use(AItem_Base* Item)
 {
 	if (AItem_Thermometer* Thermometer = Cast<AItem_Thermometer>(Item)) {
-		GEngine->AddOnScreenDebugMessage(30, 1.f, FColor::Orange, FString::Printf(TEXT("Temperature %.2f"), Temperature));
+		//GEngine->AddOnScreenDebugMessage(30, 1.f, FColor::Orange, FString::Printf(TEXT("Temperature %.2f"), Temperature));
 	}
 }
 

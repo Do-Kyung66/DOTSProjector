@@ -25,4 +25,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class UStaticMeshComponent* MeshComp;
+	
+	bool Pressed = false;
+
 };

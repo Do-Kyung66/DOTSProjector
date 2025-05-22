@@ -21,7 +21,7 @@ void AGhost_Spirit::Tick(float DeltaTime)
 void AGhost_Spirit::UpdateFSM()
 {
 	FString logMsg = UEnum::GetValueAsString(currentState);
-	GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Green, logMsg);
+	//GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Green, logMsg);
 
 	switch (currentState) {
 	case GhostState::Idle:

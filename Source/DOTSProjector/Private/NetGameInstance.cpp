@@ -41,9 +41,9 @@ void UNetGameInstance::Init()
 
 void UNetGameInstance::CreateMySession(FString roomName, bool bIsPrivate)
 {
-	// FSessionInfo sessionInfo;
+	FSessionInfo sessionInfo;
 	// 웨이팅룸에 넘겨줄 정보 저장
-	//sessionInfo.roomName = roomName;
+	sessionInfo.roomName = roomName;
 	//sessionInfo.bIsPrivate = bIsPrivate;
 	// 세션 설정 변수
 	FOnlineSessionSettings sessionSettings;
@@ -104,7 +104,7 @@ void UNetGameInstance::CreateMySession(FString roomName, bool bIsPrivate)
 	ANetGameStateBase* GS = GetWorld()->GetGameState<ANetGameStateBase>();
 	if (GS)
 	{
-		//GS->RoomName = sessionInfo.roomName;
+		GS->RoomName = sessionInfo.roomName;
 	}
 }
 

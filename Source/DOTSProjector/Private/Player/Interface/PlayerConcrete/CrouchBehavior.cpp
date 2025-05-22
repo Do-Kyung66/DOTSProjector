@@ -18,7 +18,7 @@ void UCrouchBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue& Va
 	if (!bCrouched)
 	{
 		bCrouched = true;
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Player Crouch"));
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Player Crouch"));
 		if (Player->IsLocallyControlled())
 		{
 			Player->CamComp->SetRelativeLocation(FVector(0.0f, 0.0f, 24.0f));
@@ -27,7 +27,7 @@ void UCrouchBehavior::ExecuteBehavior(AActor* Owner, const FInputActionValue& Va
 	else
 	{
 		bCrouched = false;
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Player UnCrouch"));
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Player UnCrouch"));
 		if (Player->IsLocallyControlled())
 		{
 			Player->CamComp->SetRelativeLocation(FVector(0.0f, 0.0f, 64.0f));
