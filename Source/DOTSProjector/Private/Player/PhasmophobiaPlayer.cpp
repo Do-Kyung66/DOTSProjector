@@ -543,6 +543,7 @@ void APhasmophobiaPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(APhasmophobiaPlayer, StartIndex);
 	DOREPLIFETIME(APhasmophobiaPlayer, bIsCursorOverItem);
 	DOREPLIFETIME(APhasmophobiaPlayer, bIsDead);
+	DOREPLIFETIME(APhasmophobiaPlayer, CanEscape);
 }
 
 void APhasmophobiaPlayer::ServerRPC_Equip_Implementation()
@@ -585,7 +586,6 @@ void APhasmophobiaPlayer::ItemTrace()
 		ServerRPC_ItemTrace();  
 	}
 }
-
 
 void APhasmophobiaPlayer::ServerRPC_ItemTrace_Implementation()
 {

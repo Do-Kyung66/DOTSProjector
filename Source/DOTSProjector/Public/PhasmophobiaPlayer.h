@@ -282,6 +282,7 @@ public:
 
 	bool SawGhost = false;
 
+	UPROPERTY(Replicated)
 	bool CanEscape = false;
 
 	void StartFootstepSound();
