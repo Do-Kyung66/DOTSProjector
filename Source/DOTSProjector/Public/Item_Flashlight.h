@@ -19,7 +19,16 @@ public:
 	AItem_Flashlight();
 
 	virtual void BeginPlay() override;
+
 public:	
 	UPROPERTY(VisibleAnywhere, Category = "Flashlight")
     USpotLightComponent* SpotLightComp;
+
+	UPROPERTY(ReplicatedUsing = OnRep_LightState)
+    bool bIsOn;
+
+    UFUNCTION()
+    void OnRep_LightState();
+
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

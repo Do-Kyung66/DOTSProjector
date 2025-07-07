@@ -69,6 +69,7 @@ void AItem_EMFReader::BeginPlay()
 {
 	Super::BeginPlay();
 	ItemStrategy = NewObject<UFunction_EMFReader>(this);
+
 	//DetectGhostSphere->OnComponentBeginOverlap.AddDynamic(this, &AItem_EMFReader::GhostInRange);
 }
 

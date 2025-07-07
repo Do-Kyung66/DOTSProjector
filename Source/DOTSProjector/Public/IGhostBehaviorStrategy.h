@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "PhasmophobiaPlayer.h"
 #include "IGhostBehaviorStrategy.generated.h"
 
 
@@ -18,7 +19,6 @@ struct FGhostBehaviorContext
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost Behavior")
 	AActor* Target;
 
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost Behavior")
 	class AItem_Base* Item;
 };
@@ -30,4 +30,5 @@ class DOTSPROJECTOR_API UGhostBehaviorStrategy : public UObject
 
 public:
 	virtual void ExecuteBehavior(const FGhostBehaviorContext& Context);
+
 };

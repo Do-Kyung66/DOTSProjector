@@ -16,4 +16,6 @@ class DOTSPROJECTOR_API UFunction_VideoCamera : public UItemStrategy
 	
 public:
 	virtual void Use(AItem_Base* Item) override;
+
+
 };

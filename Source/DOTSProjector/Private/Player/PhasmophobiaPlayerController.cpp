@@ -5,6 +5,11 @@
 #include "Engine/UserInterfaceSettings.h"
 #include "Framework/Application/SlateApplication.h"
 #include "HAL/PlatformApplicationMisc.h"
+#include "Net/UnrealNetwork.h"
+#include "WaitingRoomWidget.h"
+#include "GameFramework/PlayerState.h"
+#include "GameFramework/GameModeBase.h"
+#include "WaitingRoomGameMode.h"
 
 
 APhasmophobiaPlayerController::APhasmophobiaPlayerController()
@@ -20,9 +25,36 @@ APhasmophobiaPlayerController::APhasmophobiaPlayerController()
 
 void APhasmophobiaPlayerController::BeginPlay()
 {
-	// 커서 표시 및 입력 모드 설정
+	if (IsLocalController() && WaitingRoomWidgetClass)
+	{
+		UWaitingRoomWidget* UI = CreateWidget<UWaitingRoomWidget>(this, WaitingRoomWidgetClass);
+		if (UI)
+		{
+			UI->bIsFocusable = true;
+			UI->AddToViewport();
+			UE_LOG(LogTemp, Warning, TEXT("waiting room!!!!!"));
+
+		}
+	}
 
 
+	/*APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (PC)
+	{
+		if (WaitingRoomWidget)
+		{
+			Widget = CreateWidget<UWaitingRoomWidget>(PC, WaitingRoomWidget);
+			Widget->bIsFocusable = true;
+			Widget->AddToViewport();
+
+			FInputModeUIOnly InputMode;
+			InputMode.SetWidgetToFocus(Widget->TakeWidget());
+			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+			PC->SetInputMode(InputMode);
+			PC->bShowMouseCursor = true;
+		}
+	}*/
 
 }
 
@@ -30,96 +62,45 @@ void APhasmophobiaPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 
-	ItemTrace();
-
-
 }
 
-void APhasmophobiaPlayerController::SetCursorForInteraction(bool bIsInteractable, AActor* tempItem)
+
+void APhasmophobiaPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 
-	if (bIsInteractable)
-	{
-		bCanInteract = true;
-		TargetItem = tempItem;
-		//CurrentMouseCursor = EMouseCursor::Hand;
-		UE_LOG(LogTemp, Warning, TEXT("Cursor : Hand"));
-	}
-	else
-	{
-		bCanInteract = false;
-		TargetItem = nullptr;
-		//CurrentMouseCursor = EMouseCursor::Default;
-		UE_LOG(LogTemp, Warning, TEXT("Cursor : Default"));
-	}
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APhasmophobiaPlayerController, TargetItem);
+	DOREPLIFETIME(APhasmophobiaPlayerController, bCanInteract);
+}
 
-
-	/*APhasmophobiaHUD* HUD = Cast<APhasmophobiaHUD>(GetHUD());
-	if (HUD && HUD->bIsJournalOpen) return;*/
-
-	//if (bIsInteractable)
+void APhasmophobiaPlayerController::ServerRPC_RequestStartGame_Implementation()
+{
+	//for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	//{
-	//	bCanInteract = true;
-	//	TargetItem = tempItem;
-	//	CurrentMouseCursor = EMouseCursor::Hand;
-	//	UE_LOG(LogTemp, Warning, TEXT("Cursor : Hand"));
-	//}
-	//else
-	//{
-	//	bCanInteract = false;
-	//	TargetItem = nullptr;
-	//	CurrentMouseCursor = EMouseCursor::Default;
-	//	UE_LOG(LogTemp, Warning, TEXT("Cursor : Default"));
+	//	APlayerController* PC = It->Get();
+	//	if (PC && !PC->IsLocalController()) // 클라이언트한테만
+	//	{
+	//		PC->ClientTravel("/Game/OldBrickHouse/Maps/HouseMap?listen", TRAVEL_Absolute);
+	//	}
 	//}
 
-	//FInputModeGameAndUI InputMode;
 	
-}
+	
+	UWorld* World = GetWorld();
+	//if (World)
+	//{
+	//	// 클라이언트도 같은 맵으로 진입 시키는 코드
+	//	World->GetAuthGameMode()->bUseSeamlessTravel = true;
 
-void APhasmophobiaPlayerController::ItemTrace()
-{
-	FVector worldLocation;
-	FVector worldDirection;
+	//	World->ServerTravel(TEXT("/Game/OldBrickHouse/Maps/HouseMap?listen"));
 
-	int32 ViewportSizeX, ViewportSizeY;
-	GetViewportSize(ViewportSizeX, ViewportSizeY);
+	//	UE_LOG(LogTemp, Warning, TEXT("Current Map: %s"), *GetWorld()->GetMapName());
+	//}
 
-	FVector2D screenCenter(ViewportSizeX / 2.0f, ViewportSizeY / 2.0f);
-	DeprojectScreenPositionToWorld(screenCenter.X, screenCenter.Y, worldLocation, worldDirection);
-
-	FVector Start = worldLocation;
-	FVector End = Start + (worldDirection * 300.0f);
-
-	FHitResult Hitinfo;
-	FCollisionQueryParams params;
-	params.AddIgnoredActor(GetPawn());
-
-	if (GetWorld()->LineTraceSingleByChannel(Hitinfo, Start, End, ECC_Visibility, params))
+	AWaitingRoomGameMode* GM = Cast<AWaitingRoomGameMode>(World->GetAuthGameMode());
+	if (GM)
 	{
-		GEngine->AddOnScreenDebugMessage(2, 2.0f, FColor::Green, FString::Printf(TEXT("Hit: %s"), *Hitinfo.GetActor()->GetName()));
-
-		AActor* HitActor = Hitinfo.GetActor();
-		if (HitActor)
-		{
-			FString ActorName = HitActor->GetName();
-
-			if (ActorName.Contains(TEXT("item"), ESearchCase::IgnoreCase)) // 대소문자 무시
-			{
-				bCanInteract = true;
-				TargetItem = HitActor;
-				UE_LOG(LogTemp, Warning, TEXT("Hit Item"));
-
-			}
-			else
-			{
-				TargetItem = nullptr;
-				UE_LOG(LogTemp, Warning, TEXT("Item X"));
-			}
-		}
-		
+		GM->StartGame(); // 이 안에서 ServerTravel
 	}
 
-	//DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.05f, 0, 2.0f);
-
 }
-

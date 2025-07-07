@@ -6,19 +6,11 @@
 
 void UFunction_Flashlight::Use(AItem_Base* Item)
 {
-
     if (AItem_Flashlight* Flash = Cast<AItem_Flashlight>(Item))
     {
-        if (Flash->SpotLightComp)
-        {
-            bOn = !Flash->SpotLightComp->IsVisible();
-
-            if (bOn) {
-                Flash->SpotLightComp->SetVisibility(bOn);
-            }
-            else {
-                Flash->SpotLightComp->SetVisibility(bOn);
-            }
-        }
+        Flash->bIsOn = !Flash->bIsOn;
+        Flash->OnRep_LightState();
     }
 }
+
+

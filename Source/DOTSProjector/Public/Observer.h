@@ -19,4 +19,5 @@ class DOTSPROJECTOR_API IObserver
 
 public:
 	virtual void PlayerSanityChanged(float NewSanity) = 0;
+
 };

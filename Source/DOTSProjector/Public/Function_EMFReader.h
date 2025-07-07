@@ -17,5 +17,9 @@ class DOTSPROJECTOR_API UFunction_EMFReader : public UItemStrategy
 public:
 	virtual void Use(AItem_Base* Item) override;
 	void Tick(float DeltaTime, class AItem_EMFReader* EMFReader);
+
+	UPROPERTY(Replicated)
 	bool bOn = false;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 };

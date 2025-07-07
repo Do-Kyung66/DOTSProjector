@@ -16,4 +16,6 @@ struct FItemData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
 	UStaticMesh* ItemMesh;
+
+
 };

@@ -13,5 +13,16 @@ UCLASS()
 class DOTSPROJECTOR_API AItem_Thermometer : public AItem_Base
 {
 	GENERATED_BODY()
-	
+
+public:
+	AItem_Thermometer();
+
+	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere, Category="Detection")
+	float DetectionRadius = 500.f;
+
+
 };
