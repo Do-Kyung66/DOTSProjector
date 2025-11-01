@@ -33,6 +33,8 @@
 #include "EscapeButton.h"
 #include "ClearWidget.h"
 
+#include "QuestAcceptWidget.h"
+#include "QuestTrackerWidget.h"
 
 
 
@@ -145,6 +147,9 @@ void APhasmophobiaPlayer::BeginPlay()
 	CurrentEquipStrategy = NewObject<UEquipItemBehavior>(this);
 	CurrentSwitchStrategy = NewObject<USwitchItemBehavior>(this);
 	CurrentDetachStrategy = NewObject<UDetachItemBehavior>(this);
+
+	// 퀘스트 게시판 세팅
+	CreateQuestTrackerWidget();
 }
 
 // Called every frame
@@ -847,5 +852,32 @@ void APhasmophobiaPlayer::DieProcess()
 	CamComp->SetRelativeLocationAndRotation(FVector(0.f, 0.f, 300.f), FRotator(-90.f, 0.f, 0.f));
 	
 
+}
+
+void APhasmophobiaPlayer::CreateQuestAcceptWidget()
+{
+	QuestAcceptWidget = CreateWidget<UQuestAcceptWidget>(GetWorld(), QuestAcceptWidgetClass);
+	if(QuestAcceptWidget)
+	{
+		QuestAcceptWidget->AddToViewport();
+	}
+}
+
+void APhasmophobiaPlayer::DestroyQuestAcceptWidget()
+{
+	if (QuestAcceptWidget)
+	{
+		QuestAcceptWidget->RemoveFromParent();
+		QuestAcceptWidget = nullptr;
+	}
+}
+
+void APhasmophobiaPlayer::CreateQuestTrackerWidget()
+{
+	QuestTrackerWidget = CreateWidget<UQuestTrackerWidget>(GetWorld(), QuestTrackerWidgetClass);
+	if (QuestTrackerWidget)
+	{
+		QuestTrackerWidget->AddToViewport();
+	}
 }
 

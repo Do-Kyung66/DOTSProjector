@@ -292,4 +292,24 @@ public:
 	void DieProcess();
 
 	bool Escaped = false;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QuestWidget")
+	TSubclassOf<class UQuestAcceptWidget> QuestAcceptWidgetClass;
+	UPROPERTY()
+	TObjectPtr<class UQuestAcceptWidget> QuestAcceptWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QuestWidget")
+	TSubclassOf<class UQuestTrackerWidget> QuestTrackerWidgetClass;
+	UPROPERTY()
+	TObjectPtr<class UQuestTrackerWidget> QuestTrackerWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QuestWidget")
+	TSubclassOf<class UQuestSlotWidget> QuestSlotWidgetClass;
+
+public:
+	void CreateQuestAcceptWidget();
+	void DestroyQuestAcceptWidget();
+	void CreateQuestTrackerWidget();
+
+	//void AddQuestToTracker(const FQuestData& QuestData); // 새로운 퀘스트 슬롯 추가
+	//void CompleteQuestInTracker(int QuestID); // 퀘스트 완료 상태 처리
 };
