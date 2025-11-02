@@ -14,7 +14,7 @@ struct FQuestData : public FTableRowBase
 public:
     FQuestData()
         : QuestID(-1)
-        , QuestDescription(TEXT(""))
+        , QuestDescription(FText::FromString(TEXT("")))
         , QuestAccepted(false)
 		, bCanUseLineTrace(false)
 		, QuestCompleted(false)
@@ -24,7 +24,7 @@ public:
     int32 QuestID;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest Data")
-    FString QuestDescription;
+    FText QuestDescription;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest Data")
     bool QuestAccepted;

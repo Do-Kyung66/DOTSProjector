@@ -293,23 +293,10 @@ public:
 
 	bool Escaped = false;
 
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QuestWidget")
-	TSubclassOf<class UQuestAcceptWidget> QuestAcceptWidgetClass;
+// Quest
 	UPROPERTY()
-	TObjectPtr<class UQuestAcceptWidget> QuestAcceptWidget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QuestWidget")
-	TSubclassOf<class UQuestTrackerWidget> QuestTrackerWidgetClass;
-	UPROPERTY()
-	TObjectPtr<class UQuestTrackerWidget> QuestTrackerWidget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QuestWidget")
-	TSubclassOf<class UQuestSlotWidget> QuestSlotWidgetClass;
+	bool bQuestTriggeredOnce = false;
 
-public:
-	void CreateQuestAcceptWidget();
-	void DestroyQuestAcceptWidget();
-	void CreateQuestTrackerWidget();
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
-	//void AddQuestToTracker(const FQuestData& QuestData); // 새로운 퀘스트 슬롯 추가
-	//void CompleteQuestInTracker(int QuestID); // 퀘스트 완료 상태 처리
 };

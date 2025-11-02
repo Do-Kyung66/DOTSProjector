@@ -33,10 +33,7 @@
 #include "EscapeButton.h"
 #include "ClearWidget.h"
 
-#include "QuestAcceptWidget.h"
-#include "QuestTrackerWidget.h"
-
-
+#include "QuestManager.h"
 
 
 
@@ -148,8 +145,11 @@ void APhasmophobiaPlayer::BeginPlay()
 	CurrentSwitchStrategy = NewObject<USwitchItemBehavior>(this);
 	CurrentDetachStrategy = NewObject<UDetachItemBehavior>(this);
 
-	// 퀘스트 게시판 세팅
-	CreateQuestTrackerWidget();
+	UQuestManager* QM = GetGameInstance()->GetSubsystem<UQuestManager>();
+	if (QM)
+	{
+		QM->CreateQuestTrackerWidget();
+	}
 }
 
 // Called every frame
@@ -854,30 +854,19 @@ void APhasmophobiaPlayer::DieProcess()
 
 }
 
-void APhasmophobiaPlayer::CreateQuestAcceptWidget()
+void APhasmophobiaPlayer::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	QuestAcceptWidget = CreateWidget<UQuestAcceptWidget>(GetWorld(), QuestAcceptWidgetClass);
-	if(QuestAcceptWidget)
+	Super::NotifyActorBeginOverlap(OtherActor);
+
+	if (bQuestTriggeredOnce)
+		return;
+
+	if (OtherActor->ActorHasTag("QuestTrigger"))
 	{
-		QuestAcceptWidget->AddToViewport();
+		if (UQuestManager* QM = GetGameInstance()->GetSubsystem<UQuestManager>())
+		{
+			QM->CreateQuestAcceptWidget();
+			bQuestTriggeredOnce = true;
+		}
 	}
 }
-
-void APhasmophobiaPlayer::DestroyQuestAcceptWidget()
-{
-	if (QuestAcceptWidget)
-	{
-		QuestAcceptWidget->RemoveFromParent();
-		QuestAcceptWidget = nullptr;
-	}
-}
-
-void APhasmophobiaPlayer::CreateQuestTrackerWidget()
-{
-	QuestTrackerWidget = CreateWidget<UQuestTrackerWidget>(GetWorld(), QuestTrackerWidgetClass);
-	if (QuestTrackerWidget)
-	{
-		QuestTrackerWidget->AddToViewport();
-	}
-}
-
