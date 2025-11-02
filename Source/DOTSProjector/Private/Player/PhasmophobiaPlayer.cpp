@@ -858,15 +858,35 @@ void APhasmophobiaPlayer::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	if (bQuestTriggeredOnce)
-		return;
+	
 
 	if (OtherActor->ActorHasTag("QuestTrigger"))
 	{
+		if (bQuestTriggeredOnce)
+			return;
+
 		if (UQuestManager* QM = GetGameInstance()->GetSubsystem<UQuestManager>())
 		{
 			QM->CreateQuestAcceptWidget();
 			bQuestTriggeredOnce = true;
 		}
 	}
+
+	if (OtherActor->ActorHasTag("GhostHouse") && HasRequiredItems())
+	{
+		if (bQuestHouseEntered)
+			return;
+
+		bQuestHouseEntered = true;
+		if (UQuestManager* QM = GetGameInstance()->GetSubsystem<UQuestManager>())
+		{
+			QM->CompleteQuest(QM->QuestID_Local);
+		}
+	}
+}
+
+bool APhasmophobiaPlayer::HasRequiredItems() const
+{
+	UE_LOG(LogTemp, Warning, TEXT("ItemActors count: %d"), ItemActors.Num());
+	return ItemActors.Num() >= 3;
 }

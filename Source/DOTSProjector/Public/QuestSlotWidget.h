@@ -19,11 +19,15 @@ public:
 	virtual void NativeConstruct() override;
 
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* questdescription;
+	class URichTextBlock* questdescription;
 
 	class UQuestManager* QM = nullptr;
 	FQuestData* Data;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 QuestID = -1;
 
 	void SetQuestData(FQuestData& InData);
+	UFUNCTION()
+	void OnQuestUpdated(int32 UpdatedQuestID);
 	
 };

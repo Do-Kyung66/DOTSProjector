@@ -88,6 +88,7 @@ void UQuestManager::AcceptQuest(int32 QuestID)
 	if (Data)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Accepted Quest ID: %d"), QuestID);
+		ActiveQuests.Add(*Data);
 
 		// Äù½ºÆ® ½½·Ô »ý¼º
 		if (!QuestSlotWidgetClass)
@@ -107,6 +108,21 @@ void UQuestManager::AcceptQuest(int32 QuestID)
 
 				QuestTrackerWidget->AddQuestSlot(QuestSlot);
 			}
+		}
+	}
+}
+
+void UQuestManager::CompleteQuest(int32 CurrentQuestID)
+{
+	for (FQuestData& Quest : ActiveQuests)
+	{
+		if (Quest.QuestID == CurrentQuestID)
+		{
+			Quest.QuestCompleted = true;
+			UE_LOG(LogTemp, Warning, TEXT("Quest %d completed!"), CurrentQuestID);
+
+			OnQuestUpdated.Broadcast(CurrentQuestID); // UI¿¡ ¾Ë¸²
+			break;
 		}
 	}
 }

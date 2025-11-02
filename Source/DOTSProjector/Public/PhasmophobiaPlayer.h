@@ -297,6 +297,11 @@ public:
 	UPROPERTY()
 	bool bQuestTriggeredOnce = false;
 
+	UPROPERTY()
+	bool bQuestHouseEntered = false;
+
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+
+	bool HasRequiredItems() const;
 
 };

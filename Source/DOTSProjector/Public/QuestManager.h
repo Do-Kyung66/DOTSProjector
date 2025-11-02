@@ -7,9 +7,8 @@
 #include "DT_Quest.h"
 #include "QuestManager.generated.h"
 
-/**
- * 
- */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnQuestUpdated, int32, QuestID);
+
 UCLASS(Blueprintable, BlueprintType)
 class DOTSPROJECTOR_API UQuestManager : public UGameInstanceSubsystem
 {
@@ -31,15 +30,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QuestWidget")
 	TSubclassOf<class UQuestSlotWidget> QuestSlotWidgetClass;
 
-	
-
-
 
 public:
 	void CreateQuestAcceptWidget();
 	void DestroyQuestAcceptWidget();
 	void CreateQuestTrackerWidget();
 	void AcceptQuest(int32 QuestID);
+	void CompleteQuest(int32 CurrentQuestID);
 
 	FQuestData* GetQuestDataByID(int32 QuestID);
 
@@ -47,5 +44,10 @@ public:
 	int32 QuestID_Local = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QuestData")
 	TObjectPtr<UDataTable> QuestDataTable;
+
+	UPROPERTY()
+	TArray<FQuestData> ActiveQuests;
 	
+	UPROPERTY(BlueprintAssignable, Category = "Quest")
+	FOnQuestUpdated OnQuestUpdated;
 };
