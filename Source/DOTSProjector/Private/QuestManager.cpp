@@ -4,6 +4,7 @@
 #include "QuestManager.h"
 #include "QuestAcceptWidget.h"
 #include "QuestTrackerWidget.h"
+#include "QuestSlotWidget.h"
 
 void UQuestManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -87,8 +88,26 @@ void UQuestManager::AcceptQuest(int32 QuestID)
 	if (Data)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Accepted Quest ID: %d"), QuestID);
-		// 퀘스트 슬롯 트래커에 추가하는 로직
 
+		// 퀘스트 슬롯 생성
+		if (!QuestSlotWidgetClass)
+		{
+			QuestSlotWidgetClass = LoadClass<UQuestSlotWidget>(
+				nullptr,
+				TEXT("/Game/Quest/Widgets/WBP_QuestSlot.WBP_QuestSlot_C")
+			);
+		}
+
+		if (QuestTrackerWidget && QuestSlotWidgetClass)
+		{
+			UQuestSlotWidget* QuestSlot = CreateWidget<UQuestSlotWidget>(GetWorld(), QuestSlotWidgetClass);
+			if (QuestSlot)
+			{
+				QuestSlot->SetQuestData(*Data);
+
+				QuestTrackerWidget->AddQuestSlot(QuestSlot);
+			}
+		}
 	}
 }
 

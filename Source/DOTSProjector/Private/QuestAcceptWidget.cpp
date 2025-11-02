@@ -6,6 +6,8 @@
 
 void UQuestAcceptWidget::NativeConstruct()
 {
+	Super::NativeConstruct();
+
 	if (button_accept)
 		button_accept->OnClicked.AddDynamic(this, &UQuestAcceptWidget::OnButtonAcceptClicked);
 
