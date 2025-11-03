@@ -45,7 +45,7 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 
 	CamComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
 	CamComp->SetupAttachment(GetCapsuleComponent());
-	CamComp->SetRelativeLocation(FVector(0.0f, 0.0f, 64.0f));
+	CamComp->SetRelativeLocation(FVector(0.0f, 0.0f, 84.0f));
 	CamComp->bUsePawnControlRotation = true;
 
 	HandMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HandMesh"));
@@ -61,7 +61,7 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 	if (MeshTemp.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(MeshTemp.Object);
-		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -88.0), FRotator(0.0, -90, 0.0));
+		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -68.0), FRotator(0.0, -90, 0.0));
 	}
 
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> HandMeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/PlayerHandMesh3.PlayerHandMesh3'"));
