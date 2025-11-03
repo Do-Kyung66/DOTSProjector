@@ -95,7 +95,10 @@ void UQuestManager::AcceptQuest(int32 QuestID)
 	if (Data)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Accepted Quest ID: %d"), QuestID);
+
+		Data->QuestAccepted = true;
 		ActiveQuests.Add(*Data);
+
 
 		// Äù½ºÆ® ½½·Ô »ý¼º
 		if (!QuestSlotWidgetClass)
@@ -143,6 +146,11 @@ void UQuestManager::CompleteQuest(int32 CurrentQuestID)
 void UQuestManager::HandleQuestCompleteDelay(int32 CompletedQuestID)
 {
 	QuestID_Local = CompletedQuestID + 1;
+	if (QuestID_Local == 4)
+	{
+		QuestID_Local = -1;
+		return;
+	}
 	CreateQuestAcceptWidget();
 }
 

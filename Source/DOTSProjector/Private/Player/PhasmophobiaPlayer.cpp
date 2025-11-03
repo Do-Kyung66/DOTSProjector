@@ -920,10 +920,8 @@ void APhasmophobiaPlayer::HandleMirrorQuestTrace(float DeltaTime)
 	DrawDebugLine(GetWorld(), Start, End, LineColor, false, 0.0f, 0, 1.5f);
 
 	if (bHit)
-
-	if (bHit)
 	{
-		if (Hit.GetActor()->ActorHasTag("Mirror"))
+		if (Hit.GetActor()->ActorHasTag("Mirror") && CurrentItemType == EItemType::Flashlight)
 		{
 			LookDuration += DeltaTime;
 
@@ -958,10 +956,15 @@ void APhasmophobiaPlayer::HandleMirrorQuestTrace(float DeltaTime)
 void APhasmophobiaPlayer::HandlePhotoQuestTrace(float DeltaTime)
 {
 	FVector Start = CamComp->GetComponentLocation();
-	FVector End = Start + (CamComp->GetForwardVector() * 2000.0f);
+	FVector End = Start + (CamComp->GetForwardVector() * 1000.0f);
 	FHitResult Hit;
+	FCollisionQueryParams TraceParams;
+	TraceParams.AddIgnoredActor(this);
 
-	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility);
+	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, TraceParams);
+
+	FColor LineColor = bHit ? FColor::Green : FColor::Red;
+	DrawDebugLine(GetWorld(), Start, End, LineColor, false, 0.0f, 0, 1.5f);
 
 	if (bHit && Hit.GetActor()->ActorHasTag("Wall"))
 	{
