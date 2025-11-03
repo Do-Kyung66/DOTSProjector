@@ -145,7 +145,7 @@ void APhasmophobiaPlayer::BeginPlay()
 	CurrentSwitchStrategy = NewObject<USwitchItemBehavior>(this);
 	CurrentDetachStrategy = NewObject<UDetachItemBehavior>(this);
 
-	UQuestManager* QM = GetGameInstance()->GetSubsystem<UQuestManager>();
+	QM = GetGameInstance()->GetSubsystem<UQuestManager>();
 	if (QM)
 	{
 		QM->CreateQuestTrackerWidget();
@@ -224,6 +224,21 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 			}
 		}
 		
+	}
+
+	if (!QM) return;
+	if (!QM->bCanUseLineTrace) return;
+
+	switch (QM->ActiveTraceQuestID)
+	{
+	case 1:
+		HandleMirrorQuestTrace(DeltaTime);
+		break;
+	case 2:
+		HandlePhotoQuestTrace(DeltaTime);
+		break;
+	default:
+		break;
 	}
 	
 }
@@ -865,7 +880,7 @@ void APhasmophobiaPlayer::NotifyActorBeginOverlap(AActor* OtherActor)
 		if (bQuestTriggeredOnce)
 			return;
 
-		if (UQuestManager* QM = GetGameInstance()->GetSubsystem<UQuestManager>())
+		if (QM)
 		{
 			QM->CreateQuestAcceptWidget();
 			bQuestTriggeredOnce = true;
@@ -878,7 +893,7 @@ void APhasmophobiaPlayer::NotifyActorBeginOverlap(AActor* OtherActor)
 			return;
 
 		bQuestHouseEntered = true;
-		if (UQuestManager* QM = GetGameInstance()->GetSubsystem<UQuestManager>())
+		if (QM)
 		{
 			QM->CompleteQuest(QM->QuestID_Local);
 		}
@@ -889,4 +904,73 @@ bool APhasmophobiaPlayer::HasRequiredItems() const
 {
 	UE_LOG(LogTemp, Warning, TEXT("ItemActors count: %d"), ItemActors.Num());
 	return ItemActors.Num() >= 3;
+}
+
+void APhasmophobiaPlayer::HandleMirrorQuestTrace(float DeltaTime)
+{
+	FVector Start = CamComp->GetComponentLocation();
+	FVector End = Start + (CamComp->GetForwardVector() * 1000.0f);
+	FHitResult Hit;
+	FCollisionQueryParams TraceParams;
+	TraceParams.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, TraceParams);
+
+	FColor LineColor = bHit ? FColor::Green : FColor::Red;
+	DrawDebugLine(GetWorld(), Start, End, LineColor, false, 0.0f, 0, 1.5f);
+
+	if (bHit)
+
+	if (bHit)
+	{
+		if (Hit.GetActor()->ActorHasTag("Mirror"))
+		{
+			LookDuration += DeltaTime;
+
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(
+					1,
+					0.0f,
+					FColor::Yellow,
+					FString::Printf(TEXT("Mirror Look Duration: %.2f / 5.00"), LookDuration)
+				);
+			}
+
+			if (LookDuration >= 5.0f)
+			{
+				QM->bCanUseLineTrace = false;
+				QM->CompleteQuest(QM->ActiveTraceQuestID);
+				LookDuration = 0.0f;
+			}
+		}
+		else
+		{
+			LookDuration = 0.0f;
+		}
+	}
+	else
+	{
+		LookDuration = 0.0f;
+	}
+}
+
+void APhasmophobiaPlayer::HandlePhotoQuestTrace(float DeltaTime)
+{
+	FVector Start = CamComp->GetComponentLocation();
+	FVector End = Start + (CamComp->GetForwardVector() * 2000.0f);
+	FHitResult Hit;
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility);
+
+	if (bHit && Hit.GetActor()->ActorHasTag("Wall"))
+	{
+		float Distance = FVector::Dist(Start, Hit.ImpactPoint);
+
+		/*if (Distance < 500.0f && IsGhostBehindWall(Hit.ImpactPoint))
+		{
+			QM->CompleteQuest(QM->ActiveTraceQuestID);
+			QM->bCanUseLineTrace = false;
+		}*/
+	}
 }

@@ -294,6 +294,7 @@ public:
 	bool Escaped = false;
 
 // Quest
+	class UQuestManager* QM = nullptr;
 	UPROPERTY()
 	bool bQuestTriggeredOnce = false;
 
@@ -303,5 +304,11 @@ public:
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 	bool HasRequiredItems() const;
+
+	void HandleMirrorQuestTrace(float DeltaTime);
+	void HandlePhotoQuestTrace(float DeltaTime);
+
+	float LookDuration = 0.f;
+
 
 };

@@ -48,6 +48,13 @@ void UQuestManager::CreateQuestAcceptWidget()
 
 		PC->SetPause(true);
 	}
+
+	const FQuestData* NextQuest = GetQuestDataByID(QuestID_Local);
+	if (NextQuest && NextQuest->bCanUseLineTrace)
+	{
+		ActivateTraceQuest(QuestID_Local);
+		UE_LOG(LogTemp, Warning, TEXT("Line Trace Activated for Quest ID: %d"), QuestID_Local);
+	}
 }
 
 void UQuestManager::DestroyQuestAcceptWidget()
@@ -122,9 +129,33 @@ void UQuestManager::CompleteQuest(int32 CurrentQuestID)
 			UE_LOG(LogTemp, Warning, TEXT("Quest %d completed!"), CurrentQuestID);
 
 			OnQuestUpdated.Broadcast(CurrentQuestID); // UI¿¡ ¾Ë¸²
+
+			FTimerHandle TimerHandle;
+			FTimerDelegate TimerDel;
+			TimerDel.BindUFunction(this, FName("HandleQuestCompleteDelay"), CurrentQuestID);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, 3.0f, false);
+
 			break;
 		}
 	}
+}
+
+void UQuestManager::HandleQuestCompleteDelay(int32 CompletedQuestID)
+{
+	QuestID_Local = CompletedQuestID + 1;
+	CreateQuestAcceptWidget();
+}
+
+void UQuestManager::ActivateTraceQuest(int32 QuestID)
+{
+	ActiveTraceQuestID = QuestID;
+	bCanUseLineTrace = true;
+}
+
+void UQuestManager::DeactivateTraceQuest()
+{
+	ActiveTraceQuestID = -1;
+	bCanUseLineTrace = false;
 }
 
 FQuestData* UQuestManager::GetQuestDataByID(int32 QuestID)

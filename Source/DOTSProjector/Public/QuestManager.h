@@ -37,6 +37,10 @@ public:
 	void CreateQuestTrackerWidget();
 	void AcceptQuest(int32 QuestID);
 	void CompleteQuest(int32 CurrentQuestID);
+	UFUNCTION()
+	void HandleQuestCompleteDelay(int32 CompletedQuestID);
+	void ActivateTraceQuest(int32 QuestID);
+	void DeactivateTraceQuest();
 
 	FQuestData* GetQuestDataByID(int32 QuestID);
 
@@ -50,4 +54,10 @@ public:
 	
 	UPROPERTY(BlueprintAssignable, Category = "Quest")
 	FOnQuestUpdated OnQuestUpdated;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Quest|Trace")
+	bool bCanUseLineTrace = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Quest|Trace")
+	int32 ActiveTraceQuestID = -1;
+
 };
