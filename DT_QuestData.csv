@@ -1,0 +1,4 @@
+﻿RowName,QuestID,QuestDescription,QuestAccepted,bCanUseLineTrace,QuestCompleted
+0,0,"""아이템 3개를 장착하고 귀신이 있는 집에 입장하세요.""","""False""","""False""","""False"""
+1,1,"""불 꺼진 화장실에서 손전등을 들고 5초간 거울을 바라보세요.""","""False""","""True""","""False"""
+2,2,"""카메라로 귀신을 찍으세요.""","""False""","""True""","""False"""

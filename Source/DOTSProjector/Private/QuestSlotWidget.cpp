@@ -27,7 +27,7 @@ void UQuestSlotWidget::SetQuestData(FQuestData& InData)
 	Data = &InData;
 	if (Data && questdescription)
 	{
-		questdescription->SetText(Data->QuestDescription);
+		questdescription->SetText(FText::FromString(Data->QuestDescription));
 	}
 }
 

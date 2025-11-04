@@ -935,7 +935,7 @@ void APhasmophobiaPlayer::HandleMirrorQuestTrace(float DeltaTime)
 			LookDuration += DeltaTime;
 			QM->StartMirrorNoise();
 
-			if (GEngine)
+			/*if (GEngine)
 			{
 				GEngine->AddOnScreenDebugMessage(
 					1,
@@ -943,7 +943,7 @@ void APhasmophobiaPlayer::HandleMirrorQuestTrace(float DeltaTime)
 					FColor::Yellow,
 					FString::Printf(TEXT("Mirror Look Duration: %.2f / 5.00"), LookDuration)
 				);
-			}
+			}*/
 
 			if (LookDuration >= 5.0f)
 			{

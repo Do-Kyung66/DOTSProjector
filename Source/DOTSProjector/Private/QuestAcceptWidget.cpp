@@ -22,7 +22,7 @@ void UQuestAcceptWidget::NativeConstruct()
 
 		if (Data && questdescription)
 		{
-			questdescription->SetText(Data->QuestDescription);
+			questdescription->SetText(FText::FromString(Data->QuestDescription));
 		}
 		else
 		{
