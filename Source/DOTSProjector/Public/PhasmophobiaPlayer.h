@@ -306,7 +306,7 @@ public:
 	bool HasRequiredItems() const;
 
 	void HandleMirrorQuestTrace(float DeltaTime);
-	void HandlePhotoQuestTrace(float DeltaTime);
+	void HandleGhostPhotoCapture();
 
 	float LookDuration = 0.f;
 

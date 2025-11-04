@@ -234,13 +234,17 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 	case 1:
 		HandleMirrorQuestTrace(DeltaTime);
 		break;
-	case 2:
+	/*case 2:
 		HandlePhotoQuestTrace(DeltaTime);
-		break;
+		break;*/
 	default:
 		break;
 	}
 	
+	if(QM->CaptureGhostPhoto && QM->ActiveTraceQuestID == 2)
+	{
+		HandleGhostPhotoCapture();
+	}
 }
 
 // Called to bind functionality to input
@@ -953,27 +957,32 @@ void APhasmophobiaPlayer::HandleMirrorQuestTrace(float DeltaTime)
 	}
 }
 
-void APhasmophobiaPlayer::HandlePhotoQuestTrace(float DeltaTime)
+void APhasmophobiaPlayer::HandleGhostPhotoCapture()
 {
-	FVector Start = CamComp->GetComponentLocation();
-	FVector End = Start + (CamComp->GetForwardVector() * 1000.0f);
-	FHitResult Hit;
-	FCollisionQueryParams TraceParams;
-	TraceParams.AddIgnoredActor(this);
+	//FVector Start = CamComp->GetComponentLocation();
+	//FVector End = Start + (CamComp->GetForwardVector() * 1000.0f);
+	//FHitResult Hit;
+	//FCollisionQueryParams TraceParams;
+	//TraceParams.AddIgnoredActor(this);
 
-	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, TraceParams);
+	//bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, TraceParams);
 
-	FColor LineColor = bHit ? FColor::Green : FColor::Red;
-	DrawDebugLine(GetWorld(), Start, End, LineColor, false, 0.0f, 0, 1.5f);
+	//FColor LineColor = bHit ? FColor::Green : FColor::Red;
+	//DrawDebugLine(GetWorld(), Start, End, LineColor, false, 0.0f, 0, 1.5f);
 
-	if (bHit && Hit.GetActor()->ActorHasTag("Wall"))
+	//if (bHit && Hit.GetActor() == Ghost)
+	//{
+	//	float Distance = FVector::Dist(Start, Hit.ImpactPoint);
+
+	//	/*if (Distance < 500.0f && IsGhostBehindWall(Hit.ImpactPoint))
+	//	{
+	//		QM->CompleteQuest(QM->ActiveTraceQuestID);
+	//		QM->bCanUseLineTrace = false;
+	//	}*/
+	//}
+
+	if (QM->CaptureGhostPhoto)
 	{
-		float Distance = FVector::Dist(Start, Hit.ImpactPoint);
-
-		/*if (Distance < 500.0f && IsGhostBehindWall(Hit.ImpactPoint))
-		{
-			QM->CompleteQuest(QM->ActiveTraceQuestID);
-			QM->bCanUseLineTrace = false;
-		}*/
+		QM->CompleteQuest(QM->ActiveTraceQuestID);
 	}
 }

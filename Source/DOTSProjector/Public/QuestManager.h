@@ -59,5 +59,6 @@ public:
 	bool bCanUseLineTrace = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Quest|Trace")
 	int32 ActiveTraceQuestID = -1;
+	bool CaptureGhostPhoto = false;
 
 };

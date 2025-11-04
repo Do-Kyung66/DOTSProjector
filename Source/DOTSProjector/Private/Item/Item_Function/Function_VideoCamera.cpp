@@ -4,6 +4,7 @@
 #include "Function_VideoCamera.h"
 #include "Item_VideoCamera.h"
 #include "PhasmophobiaPlayer.h"
+#include "QuestManager.h"
 
 void UFunction_VideoCamera::Use(AItem_Base* Item)
 {
@@ -16,6 +17,9 @@ void UFunction_VideoCamera::Use(AItem_Base* Item)
         if (PlayerCharacter) {
             if (PlayerCharacter->SawGhost && VC->bIsOn) {
                 VC->CaptureGhost = true;
+
+                // 3¹øÂ° Äù½ºÆ®
+                PlayerCharacter->QM->CaptureGhostPhoto = true;
             }
         }
     }
