@@ -245,6 +245,11 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 	{
 		HandleGhostPhotoCapture();
 	}
+
+	if (bIsDead)
+	{
+		QM->DestroyQuestTrackerWidget();
+	}
 }
 
 // Called to bind functionality to input
@@ -928,6 +933,7 @@ void APhasmophobiaPlayer::HandleMirrorQuestTrace(float DeltaTime)
 		if (Hit.GetActor()->ActorHasTag("Mirror") && CurrentItemType == EItemType::Flashlight)
 		{
 			LookDuration += DeltaTime;
+			QM->StartMirrorNoise();
 
 			if (GEngine)
 			{
@@ -943,17 +949,20 @@ void APhasmophobiaPlayer::HandleMirrorQuestTrace(float DeltaTime)
 			{
 				QM->bCanUseLineTrace = false;
 				QM->CompleteQuest(QM->ActiveTraceQuestID);
+				QM->StopMirrorNoise();
 				LookDuration = 0.0f;
 			}
 		}
 		else
 		{
 			LookDuration = 0.0f;
+			QM->StopMirrorNoise();
 		}
 	}
 	else
 	{
 		LookDuration = 0.0f;
+		QM->StopMirrorNoise();
 	}
 }
 

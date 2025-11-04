@@ -35,6 +35,7 @@ public:
 	void CreateQuestAcceptWidget();
 	void DestroyQuestAcceptWidget();
 	void CreateQuestTrackerWidget();
+	void DestroyQuestTrackerWidget();
 	void AcceptQuest(int32 QuestID);
 	void CompleteQuest(int32 CurrentQuestID);
 	UFUNCTION()
@@ -60,5 +61,18 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Quest|Trace")
 	int32 ActiveTraceQuestID = -1;
 	bool CaptureGhostPhoto = false;
+
+	// 퀘스트2 사운드
+	UPROPERTY(EditAnywhere, Category = "Quest|Sound")
+	TArray<USoundBase*> MirrorNoiseSounds;
+
+	FTimerHandle MirrorNoiseTimerHandle;
+	int32 CurrentNoiseIndex = 0;
+
+	void StartMirrorNoise();
+	void PlayMirrorNoise();
+	void StopMirrorNoise();
+	
+	bool bIsPlayingMirrorNoise = false;
 
 };

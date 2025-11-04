@@ -5,6 +5,8 @@
 #include "QuestAcceptWidget.h"
 #include "QuestTrackerWidget.h"
 #include "QuestSlotWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 void UQuestManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -89,6 +91,15 @@ void UQuestManager::CreateQuestTrackerWidget()
 	}
 }
 
+void UQuestManager::DestroyQuestTrackerWidget()
+{
+	if (QuestTrackerWidget)
+	{
+		QuestTrackerWidget->RemoveFromParent();
+		QuestTrackerWidget = nullptr;
+	}
+}
+
 void UQuestManager::AcceptQuest(int32 QuestID)
 {
 	FQuestData* Data = GetQuestDataByID(QuestID);
@@ -146,7 +157,7 @@ void UQuestManager::CompleteQuest(int32 CurrentQuestID)
 void UQuestManager::HandleQuestCompleteDelay(int32 CompletedQuestID)
 {
 	QuestID_Local = CompletedQuestID + 1;
-	if (QuestID_Local == 4)
+	if (QuestID_Local == 3)
 	{
 		QuestID_Local = -1;
 		return;
@@ -180,4 +191,44 @@ FQuestData* UQuestManager::GetQuestDataByID(int32 QuestID)
 	FQuestData* Data = QuestDataTable->FindRow<FQuestData>(RowName, TEXT("QM"));
 
 	return Data;
+}
+
+void UQuestManager::StartMirrorNoise()
+{
+	if (MirrorNoiseSounds.Num() == 0) return;
+
+	CurrentNoiseIndex = 0;
+	bIsPlayingMirrorNoise = true;
+
+	// 2초마다 PlayMirrorNoise 호출
+	GetWorld()->GetTimerManager().SetTimer(
+		MirrorNoiseTimerHandle,
+		this,
+		&UQuestManager::PlayMirrorNoise,
+		2.0f,
+		true
+	);
+}
+
+void UQuestManager::PlayMirrorNoise()
+{
+	if (MirrorNoiseSounds.Num() == 0) return;
+
+	// 랜덤 인덱스 선택
+	int32 RandomIndex = FMath::RandRange(0, MirrorNoiseSounds.Num() - 1);
+	USoundBase* RandomSound = MirrorNoiseSounds[RandomIndex];
+
+	if (RandomSound)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), RandomSound);
+		UE_LOG(LogTemp, Warning, TEXT("Played mirror noise: %s"), *RandomSound->GetName());
+	}
+}
+
+void UQuestManager::StopMirrorNoise()
+{
+	if (!bIsPlayingMirrorNoise) return;
+
+	bIsPlayingMirrorNoise = false;
+	GetWorld()->GetTimerManager().ClearTimer(MirrorNoiseTimerHandle);
 }

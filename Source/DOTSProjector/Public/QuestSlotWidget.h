@@ -29,5 +29,8 @@ public:
 	void SetQuestData(FQuestData& InData);
 	UFUNCTION()
 	void OnQuestUpdated(int32 UpdatedQuestID);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USoundBase* QuestCompleteSound;
 	
 };

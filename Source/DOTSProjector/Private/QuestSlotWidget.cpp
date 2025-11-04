@@ -6,6 +6,8 @@
 #include "QuestManager.h"
 #include "DT_Quest.h"
 #include "Components/RichTextBlockDecorator.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 void UQuestSlotWidget::NativeConstruct()
 {
@@ -35,6 +37,11 @@ void UQuestSlotWidget::OnQuestUpdated(int32 UpdatedQuestID)
 	{
 		FString CurrentText = questdescription->GetText().ToString();
 		questdescription->SetText(FText::FromString("<s>" + CurrentText + "</>"));
+
+		if (QuestCompleteSound)
+		{
+			UGameplayStatics::PlaySound2D(GetWorld(), QuestCompleteSound);
+		}
 
 		UE_LOG(LogTemp, Warning, TEXT("Quest %d slot marked as cleared"), QuestID);
 	}
