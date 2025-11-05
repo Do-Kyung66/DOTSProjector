@@ -195,28 +195,45 @@ FQuestData* UQuestManager::GetQuestDataByID(int32 QuestID)
 
 void UQuestManager::StartMirrorNoise()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Played 1"));
+	if (bIsPlayingMirrorNoise) return;
+	
+	if (GetWorld()->GetTimerManager().IsTimerActive(MirrorNoiseTimerHandle))
+		return;
+
+	if (MirrorNoiseSounds.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MirrorNoise empty, loading manually"));
+		USoundWave* Sound1 = LoadObject<USoundWave>(nullptr, TEXT("/Game/Quest/Sound/dropping-pencil2.dropping-pencil2"));
+		if (Sound1)
+		{
+			MirrorNoiseSounds.Add(Sound1);
+		}
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Played 2"));
 	if (MirrorNoiseSounds.Num() == 0) return;
 
-	CurrentNoiseIndex = 0;
-	bIsPlayingMirrorNoise = true;
+	// CurrentNoiseIndex = 0;
+	
 
 	// 2초마다 PlayMirrorNoise 호출
 	GetWorld()->GetTimerManager().SetTimer(
 		MirrorNoiseTimerHandle,
 		this,
 		&UQuestManager::PlayMirrorNoise,
-		2.0f,
+		3.0f,
 		true
 	);
 }
 
 void UQuestManager::PlayMirrorNoise()
 {
-	if (MirrorNoiseSounds.Num() == 0) return;
 
+	bIsPlayingMirrorNoise = true;
 	// 랜덤 인덱스 선택
 	int32 RandomIndex = FMath::RandRange(0, MirrorNoiseSounds.Num() - 1);
 	USoundBase* RandomSound = MirrorNoiseSounds[RandomIndex];
+	UE_LOG(LogTemp, Warning, TEXT("Played 3"));
 
 	if (RandomSound)
 	{
@@ -227,8 +244,10 @@ void UQuestManager::PlayMirrorNoise()
 
 void UQuestManager::StopMirrorNoise()
 {
-	if (!bIsPlayingMirrorNoise) return;
-
-	bIsPlayingMirrorNoise = false;
+	// bIsPlayingMirrorNoise = false;
 	GetWorld()->GetTimerManager().ClearTimer(MirrorNoiseTimerHandle);
+	
+
+	UE_LOG(LogTemp, Warning, TEXT("StopMirrorNoise() called, Timer Active: %d"),
+		GetWorld()->GetTimerManager().IsTimerActive(MirrorNoiseTimerHandle));
 }

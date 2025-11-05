@@ -925,17 +925,21 @@ void APhasmophobiaPlayer::HandleMirrorQuestTrace(float DeltaTime)
 
 	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, TraceParams);
 
-	FColor LineColor = bHit ? FColor::Green : FColor::Red;
-	DrawDebugLine(GetWorld(), Start, End, LineColor, false, 0.0f, 0, 1.5f);
+	//FColor LineColor = bHit ? FColor::Green : FColor::Red;
+	//DrawDebugLine(GetWorld(), Start, End, LineColor, false, 0.0f, 0, 1.5f);
 
 	if (bHit)
 	{
-		if (Hit.GetActor()->ActorHasTag("Mirror") && CurrentItemType == EItemType::Flashlight)
+		if (Hit.GetActor()->ActorHasTag("Mirror") && CurrentItemType == EItemType::Flashlight &&
+			QM->bCanUseLineTrace)
 		{
 			LookDuration += DeltaTime;
-			QM->StartMirrorNoise();
+			if (!QM->bIsPlayingMirrorNoise)
+			{
+				QM->StartMirrorNoise();
+			}
 
-			/*if (GEngine)
+			if (GEngine)
 			{
 				GEngine->AddOnScreenDebugMessage(
 					1,
@@ -943,7 +947,7 @@ void APhasmophobiaPlayer::HandleMirrorQuestTrace(float DeltaTime)
 					FColor::Yellow,
 					FString::Printf(TEXT("Mirror Look Duration: %.2f / 5.00"), LookDuration)
 				);
-			}*/
+			}
 
 			if (LookDuration >= 5.0f)
 			{
