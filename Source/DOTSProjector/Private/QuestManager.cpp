@@ -1,0 +1,253 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "QuestManager.h"
+#include "QuestAcceptWidget.h"
+#include "QuestTrackerWidget.h"
+#include "QuestSlotWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
+
+void UQuestManager::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	if (!QuestDataTable)
+	{
+		QuestDataTable = LoadObject<UDataTable>(nullptr, TEXT("/Game/Quest/Data/DT_QuestData.DT_QuestData"));
+		if (!QuestDataTable)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to load QuestDataTable at runtime!"));
+		}
+	}
+}
+
+void UQuestManager::Deinitialize()
+{
+	Super::Deinitialize();
+}
+
+void UQuestManager::CreateQuestAcceptWidget()
+{
+	if (!QuestAcceptWidgetClass)
+	{
+		QuestAcceptWidgetClass = LoadClass<UQuestAcceptWidget>(nullptr, TEXT("/Game/Quest/Widgets/WBP_QuestAcceptWindow.WBP_QuestAcceptWindow_C"));
+	}
+
+	QuestAcceptWidget = CreateWidget<UQuestAcceptWidget>(GetWorld(), QuestAcceptWidgetClass);
+	if (QuestAcceptWidget)
+	{
+		QuestAcceptWidget->AddToViewport();
+	}
+
+	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+	{
+		FInputModeUIOnly InputMode;
+		InputMode.SetWidgetToFocus(QuestAcceptWidget->TakeWidget());
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		PC->SetInputMode(InputMode);
+		PC->bShowMouseCursor = true;
+
+		PC->SetPause(true);
+	}
+
+	const FQuestData* NextQuest = GetQuestDataByID(QuestID_Local);
+	if (NextQuest && NextQuest->bCanUseLineTrace)
+	{
+		ActivateTraceQuest(QuestID_Local);
+		UE_LOG(LogTemp, Warning, TEXT("Line Trace Activated for Quest ID: %d"), QuestID_Local);
+	}
+}
+
+void UQuestManager::DestroyQuestAcceptWidget()
+{
+	if (QuestAcceptWidget)
+	{
+		QuestAcceptWidget->RemoveFromParent();
+		QuestAcceptWidget = nullptr;
+	}
+
+	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+	{
+		FInputModeGameOnly InputMode;
+		PC->SetInputMode(InputMode);
+		PC->bShowMouseCursor = false;
+
+		PC->SetPause(false);
+	}
+}
+
+void UQuestManager::CreateQuestTrackerWidget()
+{
+	if (!QuestTrackerWidgetClass)
+	{
+		QuestTrackerWidgetClass = LoadClass<UQuestTrackerWidget>(nullptr, TEXT("/Game/Quest/Widgets/WBP_QuestTracker.WBP_QuestTracker_C"));
+	}
+
+	QuestTrackerWidget = CreateWidget<UQuestTrackerWidget>(GetWorld(), QuestTrackerWidgetClass);
+	if (QuestTrackerWidget)
+	{
+		QuestTrackerWidget->AddToViewport();
+	}
+}
+
+void UQuestManager::DestroyQuestTrackerWidget()
+{
+	if (QuestTrackerWidget)
+	{
+		QuestTrackerWidget->RemoveFromParent();
+		QuestTrackerWidget = nullptr;
+	}
+}
+
+void UQuestManager::AcceptQuest(int32 QuestID)
+{
+	FQuestData* Data = GetQuestDataByID(QuestID);
+	if (Data)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Accepted Quest ID: %d"), QuestID);
+
+		Data->QuestAccepted = true;
+		ActiveQuests.Add(*Data);
+
+
+		// 퀘스트 슬롯 생성
+		if (!QuestSlotWidgetClass)
+		{
+			QuestSlotWidgetClass = LoadClass<UQuestSlotWidget>(
+				nullptr,
+				TEXT("/Game/Quest/Widgets/WBP_QuestSlot.WBP_QuestSlot_C")
+			);
+		}
+
+		if (QuestTrackerWidget && QuestSlotWidgetClass)
+		{
+			UQuestSlotWidget* QuestSlot = CreateWidget<UQuestSlotWidget>(GetWorld(), QuestSlotWidgetClass);
+			if (QuestSlot)
+			{
+				QuestSlot->SetQuestData(*Data);
+
+				QuestTrackerWidget->AddQuestSlot(QuestSlot);
+			}
+		}
+	}
+}
+
+void UQuestManager::CompleteQuest(int32 CurrentQuestID)
+{
+	for (FQuestData& Quest : ActiveQuests)
+	{
+		if (Quest.QuestID == CurrentQuestID)
+		{
+			Quest.QuestCompleted = true;
+			UE_LOG(LogTemp, Warning, TEXT("Quest %d completed!"), CurrentQuestID);
+
+			OnQuestUpdated.Broadcast(CurrentQuestID); // UI에 알림
+
+			FTimerHandle TimerHandle;
+			FTimerDelegate TimerDel;
+			TimerDel.BindUFunction(this, FName("HandleQuestCompleteDelay"), CurrentQuestID);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, 3.0f, false);
+
+			break;
+		}
+	}
+}
+
+void UQuestManager::HandleQuestCompleteDelay(int32 CompletedQuestID)
+{
+	QuestID_Local = CompletedQuestID + 1;
+	if (QuestID_Local == 3)
+	{
+		QuestID_Local = -1;
+		return;
+	}
+	CreateQuestAcceptWidget();
+}
+
+void UQuestManager::ActivateTraceQuest(int32 QuestID)
+{
+	ActiveTraceQuestID = QuestID;
+	bCanUseLineTrace = true;
+}
+
+void UQuestManager::DeactivateTraceQuest()
+{
+	ActiveTraceQuestID = -1;
+	bCanUseLineTrace = false;
+}
+
+FQuestData* UQuestManager::GetQuestDataByID(int32 QuestID)
+{
+	if (!QuestDataTable)
+	{
+		UE_LOG(LogTemp, Error, TEXT("QuestDataTable is NULL!"));
+		return nullptr;
+	}
+
+	// RowName을 ID 숫자 기반으로 생성
+	FName RowName = *FString::Printf(TEXT("%d"), QuestID);
+
+	FQuestData* Data = QuestDataTable->FindRow<FQuestData>(RowName, TEXT("QM"));
+
+	return Data;
+}
+
+void UQuestManager::StartMirrorNoise()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Played 1"));
+	if (bIsPlayingMirrorNoise) return;
+	
+	if (GetWorld()->GetTimerManager().IsTimerActive(MirrorNoiseTimerHandle))
+		return;
+
+	if (MirrorNoiseSounds.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MirrorNoise empty, loading manually"));
+		USoundWave* Sound1 = LoadObject<USoundWave>(nullptr, TEXT("/Game/Quest/Sound/dropping-pencil2.dropping-pencil2"));
+		if (Sound1)
+		{
+			MirrorNoiseSounds.Add(Sound1);
+		}
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Played 2"));
+	if (MirrorNoiseSounds.Num() == 0) return;
+
+	// CurrentNoiseIndex = 0;
+	
+
+	// 2초마다 PlayMirrorNoise 호출
+	GetWorld()->GetTimerManager().SetTimer(
+		MirrorNoiseTimerHandle,
+		this,
+		&UQuestManager::PlayMirrorNoise,
+		3.0f,
+		true
+	);
+}
+
+void UQuestManager::PlayMirrorNoise()
+{
+
+	bIsPlayingMirrorNoise = true;
+	// 랜덤 인덱스 선택
+	int32 RandomIndex = FMath::RandRange(0, MirrorNoiseSounds.Num() - 1);
+	USoundBase* RandomSound = MirrorNoiseSounds[RandomIndex];
+	UE_LOG(LogTemp, Warning, TEXT("Played 3"));
+
+	if (RandomSound)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), RandomSound);
+		UE_LOG(LogTemp, Warning, TEXT("Played mirror noise: %s"), *RandomSound->GetName());
+	}
+}
+
+void UQuestManager::StopMirrorNoise()
+{
+	// bIsPlayingMirrorNoise = false;
+	GetWorld()->GetTimerManager().ClearTimer(MirrorNoiseTimerHandle);
+	
+
+	UE_LOG(LogTemp, Warning, TEXT("StopMirrorNoise() called, Timer Active: %d"),
+		GetWorld()->GetTimerManager().IsTimerActive(MirrorNoiseTimerHandle));
+}

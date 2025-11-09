@@ -10,6 +10,7 @@
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/GameModeBase.h"
 #include "WaitingRoomGameMode.h"
+#include "QuestManager.h"
 
 
 APhasmophobiaPlayerController::APhasmophobiaPlayerController()
@@ -56,6 +57,7 @@ void APhasmophobiaPlayerController::BeginPlay()
 		}
 	}*/
 
+	
 }
 
 void APhasmophobiaPlayerController::PlayerTick(float DeltaTime)
@@ -63,6 +65,7 @@ void APhasmophobiaPlayerController::PlayerTick(float DeltaTime)
 	Super::PlayerTick(DeltaTime);
 
 }
+
 
 
 void APhasmophobiaPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

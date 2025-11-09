@@ -292,4 +292,23 @@ public:
 	void DieProcess();
 
 	bool Escaped = false;
+
+// Quest
+	class UQuestManager* QM = nullptr;
+	UPROPERTY()
+	bool bQuestTriggeredOnce = false;
+
+	UPROPERTY()
+	bool bQuestHouseEntered = false;
+
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+
+	bool HasRequiredItems() const;
+
+	void HandleMirrorQuestTrace(float DeltaTime);
+	void HandleGhostPhotoCapture();
+
+	float LookDuration = 0.f;
+
+
 };

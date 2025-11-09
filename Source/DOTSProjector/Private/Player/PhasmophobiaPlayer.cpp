@@ -33,8 +33,7 @@
 #include "EscapeButton.h"
 #include "ClearWidget.h"
 
-
-
+#include "QuestManager.h"
 
 
 
@@ -46,7 +45,7 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 
 	CamComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamComp"));
 	CamComp->SetupAttachment(GetCapsuleComponent());
-	CamComp->SetRelativeLocation(FVector(0.0f, 0.0f, 64.0f));
+	CamComp->SetRelativeLocation(FVector(0.0f, 0.0f, 84.0f));
 	CamComp->bUsePawnControlRotation = true;
 
 	HandMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HandMesh"));
@@ -62,7 +61,7 @@ APhasmophobiaPlayer::APhasmophobiaPlayer()
 	if (MeshTemp.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(MeshTemp.Object);
-		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -88.0), FRotator(0.0, -90, 0.0));
+		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0, 0.0, -68.0), FRotator(0.0, -90, 0.0));
 	}
 
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> HandMeshTemp(TEXT("/Script/Engine.SkeletalMesh'/Game/Player/Assets/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/PlayerHandMesh3.PlayerHandMesh3'"));
@@ -145,6 +144,12 @@ void APhasmophobiaPlayer::BeginPlay()
 	CurrentEquipStrategy = NewObject<UEquipItemBehavior>(this);
 	CurrentSwitchStrategy = NewObject<USwitchItemBehavior>(this);
 	CurrentDetachStrategy = NewObject<UDetachItemBehavior>(this);
+
+	QM = GetGameInstance()->GetSubsystem<UQuestManager>();
+	if (QM)
+	{
+		QM->CreateQuestTrackerWidget();
+	}
 }
 
 // Called every frame
@@ -220,7 +225,31 @@ void APhasmophobiaPlayer::Tick(float DeltaTime)
 		}
 		
 	}
+
+	if (!QM) return;
+	if (!QM->bCanUseLineTrace) return;
+
+	switch (QM->ActiveTraceQuestID)
+	{
+	case 1:
+		HandleMirrorQuestTrace(DeltaTime);
+		break;
+	/*case 2:
+		HandlePhotoQuestTrace(DeltaTime);
+		break;*/
+	default:
+		break;
+	}
 	
+	if(QM->CaptureGhostPhoto && QM->ActiveTraceQuestID == 2)
+	{
+		HandleGhostPhotoCapture();
+	}
+
+	if (bIsDead)
+	{
+		QM->DestroyQuestTrackerWidget();
+	}
 }
 
 // Called to bind functionality to input
@@ -849,3 +878,124 @@ void APhasmophobiaPlayer::DieProcess()
 
 }
 
+void APhasmophobiaPlayer::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorBeginOverlap(OtherActor);
+
+	
+
+	if (OtherActor->ActorHasTag("QuestTrigger"))
+	{
+		if (bQuestTriggeredOnce)
+			return;
+
+		if (QM)
+		{
+			QM->CreateQuestAcceptWidget();
+			bQuestTriggeredOnce = true;
+		}
+	}
+
+	if (OtherActor->ActorHasTag("GhostHouse") && HasRequiredItems())
+	{
+		if (bQuestHouseEntered)
+			return;
+
+		bQuestHouseEntered = true;
+		if (QM)
+		{
+			QM->CompleteQuest(QM->QuestID_Local);
+		}
+	}
+}
+
+bool APhasmophobiaPlayer::HasRequiredItems() const
+{
+	UE_LOG(LogTemp, Warning, TEXT("ItemActors count: %d"), ItemActors.Num());
+	return ItemActors.Num() >= 3;
+}
+
+void APhasmophobiaPlayer::HandleMirrorQuestTrace(float DeltaTime)
+{
+	FVector Start = CamComp->GetComponentLocation();
+	FVector End = Start + (CamComp->GetForwardVector() * 1000.0f);
+	FHitResult Hit;
+	FCollisionQueryParams TraceParams;
+	TraceParams.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, TraceParams);
+
+	//FColor LineColor = bHit ? FColor::Green : FColor::Red;
+	//DrawDebugLine(GetWorld(), Start, End, LineColor, false, 0.0f, 0, 1.5f);
+
+	if (bHit)
+	{
+		if (Hit.GetActor()->ActorHasTag("Mirror") && CurrentItemType == EItemType::Flashlight &&
+			QM->bCanUseLineTrace)
+		{
+			LookDuration += DeltaTime;
+			if (!QM->bIsPlayingMirrorNoise)
+			{
+				QM->StartMirrorNoise();
+			}
+
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(
+					1,
+					0.0f,
+					FColor::Yellow,
+					FString::Printf(TEXT("Mirror Look Duration: %.2f / 5.00"), LookDuration)
+				);
+			}
+
+			if (LookDuration >= 5.0f)
+			{
+				QM->bCanUseLineTrace = false;
+				QM->CompleteQuest(QM->ActiveTraceQuestID);
+				QM->StopMirrorNoise();
+				LookDuration = 0.0f;
+			}
+		}
+		else
+		{
+			LookDuration = 0.0f;
+			QM->StopMirrorNoise();
+		}
+	}
+	else
+	{
+		LookDuration = 0.0f;
+		QM->StopMirrorNoise();
+	}
+}
+
+void APhasmophobiaPlayer::HandleGhostPhotoCapture()
+{
+	//FVector Start = CamComp->GetComponentLocation();
+	//FVector End = Start + (CamComp->GetForwardVector() * 1000.0f);
+	//FHitResult Hit;
+	//FCollisionQueryParams TraceParams;
+	//TraceParams.AddIgnoredActor(this);
+
+	//bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, TraceParams);
+
+	//FColor LineColor = bHit ? FColor::Green : FColor::Red;
+	//DrawDebugLine(GetWorld(), Start, End, LineColor, false, 0.0f, 0, 1.5f);
+
+	//if (bHit && Hit.GetActor() == Ghost)
+	//{
+	//	float Distance = FVector::Dist(Start, Hit.ImpactPoint);
+
+	//	/*if (Distance < 500.0f && IsGhostBehindWall(Hit.ImpactPoint))
+	//	{
+	//		QM->CompleteQuest(QM->ActiveTraceQuestID);
+	//		QM->bCanUseLineTrace = false;
+	//	}*/
+	//}
+
+	if (QM->CaptureGhostPhoto)
+	{
+		QM->CompleteQuest(QM->ActiveTraceQuestID);
+	}
+}
